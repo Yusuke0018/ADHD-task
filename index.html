@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Tasks - ADHD向けタスク管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideRight {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes pulse-border {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.01); }
+        }
+        
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+        .animate-fadeInUp { animation: fadeInUp 0.3s ease-out; }
+        .animate-slideRight { animation: slideRight 0.6s ease-out forwards; }
+        .animate-pulse { animation: pulse 0.6s ease-in-out; }
+        .animate-pulse-border { animation: pulse-border 2s ease-in-out infinite; }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            <!-- ヘッダー -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-2xl font-bold text-gray-900">Focus Tasks</h1>
+                    <button id="inboxToggle" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- 日付選択 -->
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1">
+                            <button id="prevDay" class="p-3 hover:bg-gray-100 rounded-lg transition-colors">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </button>
+                            
+                            <button id="calendarToggle" class="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span id="currentDate" class="text-lg font-medium text-gray-900"></span>
+                            </button>
+                            
+                            <button id="nextDay" class="p-3 hover:bg-gray-100 rounded-lg transition-colors">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <span id="completedCount" class="text-3xl font-bold text-gray-900">0</span>
+                            <span class="text-xl text-gray-400">/</span>
+                            <span id="totalCount" class="text-xl text-gray-500">0</span>
+                        </div>
+                    </div>
+                    
+                    <button id="todayButton" class="hidden w-full py-3 text-base font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">
+                        今日へ戻る
+                    </button>
+                </div>
+                
+                <!-- カレンダー -->
+                <div id="calendarInput" class="hidden mt-4">
+                    <input type="date" id="dateInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
+                </div>
+            </div>
+
+            <!-- エラーメッセージ -->
+            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"></div>
+
+            <!-- 期限付きタスク -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-gray-900">期限付きタスク</h2>
+                    <button id="deadlineToggle" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="deadlineForm" class="hidden mb-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex flex-col gap-3">
+                        <input type="text" id="deadlineText" placeholder="タスク内容..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
+                        <div class="flex gap-2">
+                            <input type="date" id="deadlineDate" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
+                            <button id="addDeadline" class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">追加</button>
+                            <button id="cancelDeadline" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">×</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="deadlineList" class="space-y-3"></div>
+                <p id="noDeadlineTasks" class="text-center py-4 text-gray-500">期限付きタスクはありません</p>
+            </div>
+
+            <!-- タスク入力 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <div class="flex gap-2 mb-4">
+                    <button id="normalType" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-900 text-white">
+                        通常 (<span id="normalSlots">3</span>/3)
+                    </button>
+                    <button id="urgentType" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200">
+                        臨時 (<span id="urgentSlots">1</span>/1)
+                    </button>
+                </div>
+                
+                <div class="flex gap-2">
+                    <input type="text" id="taskInput" placeholder="タスクを入力..." class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
+                    <button id="addTask" class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        追加
+                    </button>
+                </div>
+            </div>
+
+            <!-- タスクリスト -->
+            <div id="taskList" class="space-y-3 mb-6"></div>
+            <p id="noTasks" class="hidden text-center py-12 text-gray-500">タスクがありません</p>
+
+            <!-- Inbox -->
+            <div id="inboxSection" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">アイデア置き場</h2>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="inboxInput" placeholder="アイデアをメモ..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
+                    <button id="addInbox" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">メモ</button>
+                </div>
+                <div id="inboxList" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <!-- セレブレーション -->
+        <div id="celebration" class="hidden fixed inset-0 pointer-events-none flex items-center justify-center z-50">
+            <div class="bg-gray-900 text-white rounded-xl p-6 shadow-2xl animate-fadeIn">
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-2xl font-bold">完了！</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 先送りエフェクト -->
+        <div id="postponeEffect" class="hidden fixed bottom-8 right-8 bg-gray-900 text-white rounded-xl p-4 shadow-2xl animate-fadeInUp flex items-center gap-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+            <span class="text-lg font-medium">明日へ移動しました</span>
+        </div>
+    </div>
+
+    <script>
+        // アプリケーションの状態
+        const app = {
+            tasks: [],
+            deadlineTasks: [],
+            inboxItems: [],
+            selectedDate: new Date(),
+            taskType: 'normal',
+
+            // 初期化
+            init() {
+                this.loadData();
+                this.bindEvents();
+                this.render();
+            },
+
+            // データ読み込み
+            loadData() {
+                const saved = localStorage.getItem('focusTaskData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    this.tasks = data.tasks || [];
+                    this.deadlineTasks = data.deadlineTasks || [];
+                    this.inboxItems = data.inboxItems || [];
+                }
+            },
+
+            // データ保存
+            saveData() {
+                localStorage.setItem('focusTaskData', JSON.stringify({
+                    tasks: this.tasks,
+                    deadlineTasks: this.deadlineTasks,
+                    inboxItems: this.inboxItems
+                }));
+            },
+
+            // イベントバインディング
+            bindEvents() {
+                // 日付ナビゲーション
+                document.getElementById('prevDay').addEventListener('click', () => this.navigateDate(-1));
+                document.getElementById('nextDay').addEventListener('click', () => this.navigateDate(1));
+                document.getElementById('todayButton').addEventListener('click', () => this.goToToday());
+                document.getElementById('calendarToggle').addEventListener('click', () => this.toggleCalendar());
+                document.getElementById('dateInput').addEventListener('change', (e) => this.selectDate(e.target.value));
+
+                // タスクタイプ
+                document.getElementById('normalType').addEventListener('click', () => this.setTaskType('normal'));
+                document.getElementById('urgentType').addEventListener('click', () => this.setTaskType('urgent'));
+
+                // タスク追加
+                document.getElementById('addTask').addEventListener('click', () => this.addTask());
+                document.getElementById('taskInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addTask();
+                });
+
+                // 期限付きタスク
+                document.getElementById('deadlineToggle').addEventListener('click', () => this.toggleDeadlineForm());
+                document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
+                document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm());
+
+                // Inbox
+                document.getElementById('inboxToggle').addEventListener('click', () => this.toggleInbox());
+                document.getElementById('addInbox').addEventListener('click', () => this.addInboxItem());
+                document.getElementById('inboxInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addInboxItem();
+                });
+            },
+
+            // 日付操作
+            navigateDate(days) {
+                const newDate = new Date(this.selectedDate);
+                newDate.setDate(newDate.getDate() + days);
+                this.selectedDate = newDate;
+                this.render();
+            },
+
+            goToToday() {
+                this.selectedDate = new Date();
+                this.render();
+            },
+
+            selectDate(dateStr) {
+                this.selectedDate = new Date(dateStr);
+                document.getElementById('calendarInput').classList.add('hidden');
+                this.render();
+            },
+
+            toggleCalendar() {
+                const input = document.getElementById('calendarInput');
+                input.classList.toggle('hidden');
+                if (!input.classList.contains('hidden')) {
+                    document.getElementById('dateInput').value = this.selectedDate.toISOString().split('T')[0];
+                }
+            },
+
+            // タスクタイプ設定
+            setTaskType(type) {
+                this.taskType = type;
+                document.getElementById('normalType').className = type === 'normal' 
+                    ? 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-900 text-white' 
+                    : 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
+                document.getElementById('urgentType').className = type === 'urgent' 
+                    ? 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-900 text-white' 
+                    : 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
+            },
+
+            // タスク追加
+            addTask() {
+                const input = document.getElementById('taskInput');
+                const text = input.value.trim();
+                
+                if (!text) {
+                    this.showError('タスクの内容を入力してください');
+                    return;
+                }
+
+                const todayTasks = this.getTodayTasks();
+                const normalCount = todayTasks.filter(t => t.type === 'normal').length;
+                const urgentCount = todayTasks.filter(t => t.type === 'urgent').length;
+
+                if (this.taskType === 'normal' && normalCount >= 3) {
+                    this.showError('通常タスクは3件までです');
+                    return;
+                }
+
+                if (this.taskType === 'urgent' && urgentCount >= 1) {
+                    this.showError('臨時タスクは1件までです');
+                    return;
+                }
+
+                const newTask = {
+                    id: Date.now().toString(),
+                    text: text,
+                    type: this.taskType,
+                    createdAt: new Date(),
+                    completedAt: null,
+                    isCompleted: false,
+                    scheduledFor: new Date(this.selectedDate)
+                };
+
+                this.tasks.push(newTask);
+                input.value = '';
+                this.saveData();
+                this.render();
+            },
+
+            // タスク完了
+            toggleTask(taskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                if (!task.isCompleted) {
+                    this.showCelebration();
+                }
+
+                task.isCompleted = !task.isCompleted;
+                task.completedAt = task.isCompleted ? new Date() : null;
+
+                this.saveData();
+                this.render();
+            },
+
+            // タスク繰越
+            postponeTask(taskId) {
+                const task = this.tasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                const tomorrow = new Date(this.selectedDate);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                // 明日のタスク数チェック
+                const tomorrowTasks = this.tasks.filter(t => 
+                    new Date(t.scheduledFor).toDateString() === tomorrow.toDateString()
+                );
+                const normalCount = tomorrowTasks.filter(t => t.type === 'normal').length;
+                const urgentCount = tomorrowTasks.filter(t => t.type === 'urgent').length;
+
+                if (task.type === 'normal' && normalCount >= 3) {
+                    this.showError('翌日の通常タスクは既に3件です');
+                    return;
+                }
+
+                if (task.type === 'urgent' && urgentCount >= 1) {
+                    this.showError('翌日の臨時タスクは既に1件です');
+                    return;
+                }
+
+                task.scheduledFor = tomorrow;
+                this.showPostponeEffect();
+                
+                setTimeout(() => {
+                    this.saveData();
+                    this.render();
+                }, 600);
+            },
+
+            // タスク削除
+            deleteTask(taskId) {
+                this.tasks = this.tasks.filter(t => t.id !== taskId);
+                this.saveData();
+                this.render();
+            },
+
+            // 期限付きタスク
+            toggleDeadlineForm() {
+                const form = document.getElementById('deadlineForm');
+                const toggle = document.getElementById('deadlineToggle');
+                const activeCount = this.deadlineTasks.filter(t => !t.isCompleted).length;
+                
+                if (activeCount >= 3) return;
+                
+                form.classList.toggle('hidden');
+                if (!form.classList.contains('hidden')) {
+                    document.getElementById('deadlineDate').min = new Date().toISOString().split('T')[0];
+                }
+            },
+
+            addDeadlineTask() {
+                const text = document.getElementById('deadlineText').value.trim();
+                const date = document.getElementById('deadlineDate').value;
+
+                if (!text || !date) {
+                    this.showError('タスク内容と期限を入力してください');
+                    return;
+                }
+
+                const activeCount = this.deadlineTasks.filter(t => !t.isCompleted).length;
+                if (activeCount >= 3) {
+                    this.showError('期限付きタスクは3件までです');
+                    return;
+                }
+
+                const newTask = {
+                    id: Date.now().toString(),
+                    text: text,
+                    deadline: new Date(date),
+                    createdAt: new Date(),
+                    isCompleted: false,
+                    completedAt: null
+                };
+
+                this.deadlineTasks.push(newTask);
+                document.getElementById('deadlineText').value = '';
+                document.getElementById('deadlineDate').value = '';
+                this.toggleDeadlineForm();
+                this.saveData();
+                this.render();
+            },
+
+            toggleDeadlineTask(taskId) {
+                const task = this.deadlineTasks.find(t => t.id === taskId);
+                if (!task) return;
+
+                if (!task.isCompleted) {
+                    this.showCelebration();
+                }
+
+                task.isCompleted = !task.isCompleted;
+                task.completedAt = task.isCompleted ? new Date() : null;
+
+                if (task.isCompleted) {
+                    setTimeout(() => {
+                        this.deadlineTasks = this.deadlineTasks.filter(t => t.id !== taskId);
+                        this.saveData();
+                        this.render();
+                    }, 2000);
+                }
+
+                this.saveData();
+                this.render();
+            },
+
+            // Inbox
+            toggleInbox() {
+                document.getElementById('inboxSection').classList.toggle('hidden');
+            },
+
+            addInboxItem() {
+                const input = document.getElementById('inboxInput');
+                const text = input.value.trim();
+                
+                if (!text) return;
+
+                this.inboxItems.push({
+                    id: Date.now(),
+                    text: text
+                });
+
+                input.value = '';
+                this.saveData();
+                this.render();
+            },
+
+            // ヘルパー関数
+            getTodayTasks() {
+                const dateStr = this.selectedDate.toDateString();
+                return this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === dateStr);
+            },
+
+            getDaysUntilDeadline(deadline) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const deadlineDate = new Date(deadline);
+                deadlineDate.setHours(0, 0, 0, 0);
+                const diffTime = deadlineDate - today;
+                return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            },
+
+            formatDate(date) {
+                const today = new Date();
+                const isToday = date.toDateString() === today.toDateString();
+                
+                if (isToday) return '今日';
+                
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                if (date.toDateString() === tomorrow.toDateString()) return '明日';
+                
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                if (date.toDateString() === yesterday.toDateString()) return '昨日';
+                
+                return date.toLocaleDateString('ja-JP', { 
+                    month: 'numeric', 
+                    day: 'numeric',
+                    weekday: 'short'
+                });
+            },
+
+            // UI更新
+            showError(message) {
+                const elem = document.getElementById('errorMessage');
+                elem.textContent = message;
+                elem.classList.remove('hidden');
+                setTimeout(() => elem.classList.add('hidden'), 3000);
+            },
+
+            showCelebration() {
+                const elem = document.getElementById('celebration');
+                elem.classList.remove('hidden');
+                setTimeout(() => elem.classList.add('hidden'), 1500);
+            },
+
+            showPostponeEffect() {
+                const elem = document.getElementById('postponeEffect');
+                elem.classList.remove('hidden');
+                setTimeout(() => elem.classList.add('hidden'), 2000);
+            },
+
+            // レンダリング
+            render() {
+                const todayTasks = this.getTodayTasks();
+                const completedCount = todayTasks.filter(t => t.isCompleted).length;
+                const isToday = this.selectedDate.toDateString() === new Date().toDateString();
+
+                // 日付表示
+                document.getElementById('currentDate').textContent = this.formatDate(this.selectedDate);
+                document.getElementById('todayButton').classList.toggle('hidden', isToday);
+
+                // カウント表示
+                document.getElementById('completedCount').textContent = completedCount;
+                document.getElementById('totalCount').textContent = todayTasks.length;
+
+                // スロット数表示
+                const normalCount = todayTasks.filter(t => t.type === 'normal').length;
+                const urgentCount = todayTasks.filter(t => t.type === 'urgent').length;
+                document.getElementById('normalSlots').textContent = 3 - normalCount;
+                document.getElementById('urgentSlots').textContent = 1 - urgentCount;
+
+                // タスクリスト
+                const taskList = document.getElementById('taskList');
+                taskList.innerHTML = '';
+                
+                todayTasks.forEach(task => {
+                    const taskEl = document.createElement('div');
+                    taskEl.className = `bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md ${
+                        task.isCompleted ? 'opacity-60' : ''
+                    }`;
+                    
+                    taskEl.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <button onclick="app.toggleTask('${task.id}')" class="flex-shrink-0 w-12 h-12 rounded-full border-2 border-gray-300 hover:border-gray-900 transition-colors flex items-center justify-center">
+                                ${task.isCompleted ? '<svg class="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                            </button>
+                            
+                            <div class="flex-1">
+                                <p class="text-xl ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}">${task.text}</p>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <span class="text-sm ${task.type === 'urgent' ? 'text-red-600 font-medium' : 'text-gray-500'}">
+                                        ${task.type === 'urgent' ? '臨時' : '通常'}
+                                    </span>
+                                    ${task.completedAt ? `<span class="text-sm text-gray-500">完了 ${new Date(task.completedAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</span>` : ''}
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-1">
+                                ${!task.isCompleted ? `
+                                    <button onclick="app.postponeTask('${task.id}')" class="p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all" title="明日へ移動">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </button>
+                                ` : ''}
+                                <div class="w-4"></div>
+                                <button onclick="app.deleteTask('${task.id}')" class="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all text-2xl leading-none" title="削除">×</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    taskList.appendChild(taskEl);
+                });
+
+                document.getElementById('noTasks').classList.toggle('hidden', todayTasks.length > 0);
+
+                // 期限付きタスク
+                const deadlineList = document.getElementById('deadlineList');
+                deadlineList.innerHTML = '';
+                
+                this.deadlineTasks.forEach(task => {
+                    const daysLeft = this.getDaysUntilDeadline(task.deadline);
+                    const isUrgent = daysLeft <= 3 && !task.isCompleted;
+                    const isOverdue = daysLeft < 0 && !task.isCompleted;
+                    
+                    const taskEl = document.createElement('div');
+                    taskEl.className = `p-4 rounded-lg border-2 transition-all ${
+                        task.isCompleted
+                            ? 'border-gray-300 bg-gray-100 opacity-60'
+                            : isOverdue 
+                                ? 'border-red-500 bg-red-50' 
+                                : isUrgent 
+                                    ? 'border-orange-400 bg-orange-50 animate-pulse-border' 
+                                    : 'border-gray-200 bg-gray-50'
+                    }`;
+                    
+                    taskEl.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <p class="text-lg font-medium ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}">${task.text}</p>
+                                <p class="text-sm font-bold mt-1 ${
+                                    task.isCompleted
+                                        ? 'text-gray-500'
+                                        : isOverdue 
+                                            ? 'text-red-600' 
+                                            : isUrgent 
+                                                ? 'text-orange-600' 
+                                                : 'text-gray-600'
+                                }">
+                                    ${task.isCompleted 
+                                        ? '完了済み' 
+                                        : isOverdue 
+                                            ? `${Math.abs(daysLeft)}日超過` 
+                                            : daysLeft === 0 
+                                                ? '今日まで' 
+                                                : `あと${daysLeft}日`}
+                                    （${new Date(task.deadline).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}まで）
+                                </p>
+                            </div>
+                            <button onclick="app.toggleDeadlineTask('${task.id}')" class="flex-shrink-0 w-10 h-10 rounded-full border-2 border-gray-400 hover:border-gray-900 transition-colors flex items-center justify-center ml-4 group">
+                                ${task.isCompleted 
+                                    ? '<svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' 
+                                    : '<svg class="w-5 h-5 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'}
+                            </button>
+                        </div>
+                    `;
+                    
+                    deadlineList.appendChild(taskEl);
+                });
+
+                const activeDeadlines = this.deadlineTasks.filter(t => !t.isCompleted).length;
+                document.getElementById('noDeadlineTasks').classList.toggle('hidden', this.deadlineTasks.length > 0);
+                document.getElementById('deadlineToggle').disabled = activeDeadlines >= 3;
+                document.getElementById('deadlineToggle').querySelector('svg').style.opacity = activeDeadlines >= 3 ? '0.3' : '1';
+
+                // Inbox
+                const inboxList = document.getElementById('inboxList');
+                inboxList.innerHTML = '';
+                
+                this.inboxItems.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'p-3 bg-gray-50 rounded-lg text-gray-700';
+                    itemEl.textContent = item.text;
+                    inboxList.appendChild(itemEl);
+                });
+            }
+        };
+
+        // アプリケーション起動
+        app.init();
+    </script>
+</body>
+</html>
