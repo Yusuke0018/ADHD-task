@@ -2,52 +2,355 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Focus Tasks - ADHD向けタスク管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>二十四節気タスク管理</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&family=Zen+Old+Mincho&display=swap');
+        
+        body {
+            font-family: 'Shippori Mincho', serif;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         
+        .sekki-title {
+            font-family: 'Zen Old Mincho', serif;
+        }
+        
+        /* 季節ごとの背景 - 和の伝統色 */
+        .bg-spring {  
+            background:  
+                radial-gradient(circle at 20% 80%, rgba(255, 183, 197, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 214, 221, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 240, 245, 0.2) 0%, transparent 50%),
+                linear-gradient(135deg, #faf0e6 0%, #fff5ee 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .bg-summer {  
+            background:  
+                radial-gradient(circle at 20% 80%, rgba(0, 50, 100, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 100, 50, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(30, 60, 90, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #e8f4ea 0%, #f0f8f4 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .bg-autumn {  
+            background:  
+                radial-gradient(circle at 20% 80%, rgba(219, 112, 47, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 218, 185, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(255, 248, 220, 0.2) 0%, transparent 50%),
+                linear-gradient(135deg, #fdf5e6 0%, #ffefd5 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .bg-winter {  
+            background:  
+                radial-gradient(circle at 20% 80%, rgba(135, 206, 235, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(176, 224, 230, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(240, 248, 255, 0.3) 0%, transparent 50%),
+                linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 季節のアニメーション背景 */
+        .season-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+        }
+        
+        /* 桜の花びら */
+        .sakura-petal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #ffb7c5 0%, #ffc0cb 50%, rgba(255, 192, 203, 0.8) 100%);
+            border-radius: 0 100% 0 100%;
+            opacity: 0;
+            animation: sakuraFall linear infinite;
+        }
+        
+        /* 夏の光 (蛍) */
+        .summer-light { /* Renamed from .firefly in user's original thought process, CSS was already .summer-light */
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 200, 0.6) 50%, transparent 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(255, 255, 200, 0.8);
+            animation: fireflyFloat ease-in-out infinite; /* Corrected animation name to match keyframes */
+        }
+        
+        /* 紅葉 */
+        .autumn-leaf {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #d2691e 0%, #ff6347 50%, #ff8c00 100%);
+            clip-path: polygon(50% 0%, 60% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 40% 35%);
+            opacity: 0;
+            animation: autumnFall linear infinite;
+        }
+        
+        /* 雪の結晶 */
+        .snow-flake { /* Renamed from .large-snowflake in user's original thought process, CSS was already .snow-flake */
+            position: absolute;
+            width: 15px; /* Default size, JS can override fontSize for variation */
+            height: 15px; /* Default size */
+            /* background for snow-flake was a star shape, changing to a more snowflake like appearance */
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(240, 248, 255, 0.75) 70%, transparent 100%);
+            border-radius: 50%; /* Simple circular snowflake for now, clip-path was too star-like */
+            /* clip-path: polygon(50% 0%, 61.8% 38.2%, 100% 38.2%, 69.1% 61.8%, 80.9% 100%, 50% 76.4%, 19.1% 100%, 30.9% 61.8%, 0% 38.2%, 38.2% 38.2%); */
+            opacity: 0;
+            animation: largeSnowFall linear infinite; /* Corrected animation name to match keyframes */
+        }
+        
+        /* アニメーション定義 */
+        @keyframes sakuraFall {
+            0% {  
+                transform: translateY(-20px) translateX(0) rotate(-45deg);  
+                opacity: 0;
+            }
+            10% {  
+                opacity: 0.8;
+            }
+            90% {  
+                opacity: 0.8;
+            }
+            100% {  
+                transform: translateY(calc(100vh + 20px)) translateX(100px) rotate(315deg);  
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fireflyFloat { /* This is for summer */
+            0% {  
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            5% {  
+                opacity: 0.3;
+            }
+            15% {  
+                transform: translateY(80vh) translateX(20px);
+                opacity: 1;
+            }
+            30% {  
+                transform: translateY(60vh) translateX(-30px);
+                opacity: 0.8;
+            }
+            45% {  
+                transform: translateY(40vh) translateX(40px);
+                opacity: 1;
+            }
+            60% {  
+                transform: translateY(30vh) translateX(-20px);
+                opacity: 0.6;
+            }
+            75% {  
+                transform: translateY(20vh) translateX(30px);
+                opacity: 0.9;
+            }
+            90% {  
+                transform: translateY(5vh) translateX(-10px);
+                opacity: 0.3;
+            }
+            100% {  
+                transform: translateY(-10vh) translateX(20px);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes autumnFall {
+            0% {  
+                transform: translateY(-30px) translateX(0) rotate(0deg);  
+                opacity: 0;
+            }
+            10% {  
+                opacity: 0.9;
+            }
+            90% {  
+                opacity: 0.9;
+            }
+            100% {  
+                transform: translateY(calc(100vh + 30px)) translateX(-80px) rotate(360deg);  
+                opacity: 0;
+            }
+        }
+        
+        @keyframes largeSnowFall { /* This is for winter */
+            0% {  
+                transform: translateY(-50px) translateX(0) rotate(0deg);  
+                opacity: 0;
+            }
+            10% {  
+                opacity: 0.9;
+            }
+            25% {
+                transform: translateY(calc(25vh - 50px)) translateX(-20px) rotate(90deg);
+            }
+            50% {
+                transform: translateY(calc(50vh - 50px)) translateX(20px) rotate(180deg);
+            }
+            75% {
+                transform: translateY(calc(75vh - 50px)) translateX(-15px) rotate(270deg);
+            }
+            90% {  
+                opacity: 0.9;
+            }
+            100% {  
+                transform: translateY(calc(100vh + 50px)) translateX(30px) rotate(360deg);  
+                opacity: 0;
+            }
+        }
+        
+        /* 波紋エフェクト */
+        @keyframes ripple {
+            0% {  
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {  
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            animation: ripple 1s ease-out;
+        }
+        
+        /* 和紙風カード - スマホ用に調整 */
+        .washi-card {
+            background:  
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.9),
+                    rgba(255, 255, 255, 0.9) 1px,
+                    rgba(255, 255, 255, 0.95) 1px,
+                    rgba(255, 255, 255, 0.95) 3px
+                ),
+                rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            box-shadow:  
+                0 2px 10px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        
+        /* スマホ用調整 */
+        @media (max-width: 640px) {
+            .task-text {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+            
+            .button-large {
+                min-height: 48px;
+                font-size: 1rem;
+            }
+            
+            .sekki-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+        
+        /* タッチデバイス用 */
+        @media (hover: none) {
+            .wa-button:active {
+                transform: scale(0.95);
+            }
+        }
+        
+        /* アニメーション */
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {  
+                opacity: 0;  
+                transform: translateY(30px);  
+            }
+            to {  
+                opacity: 1;  
+                transform: translateY(0);  
+            }
         }
         
-        @keyframes slideRight {
-            from { opacity: 1; transform: translateX(0); }
-            to { opacity: 0; transform: translateX(100px); }
+        .animate-fadeInUp {  
+            animation: fadeInUp 0.8s ease-out forwards;  
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        /* チェックボックス */
+        .wa-checkbox {
+            border: 2px solid #8b7355;
+            position: relative;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            min-height: 44px;
         }
         
-        @keyframes pulse-border {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.01); }
+        .wa-checkbox.checked {
+            background-color: #8b7355;
+            border-color: #8b7355;
         }
         
-        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
-        .animate-fadeInUp { animation: fadeInUp 0.3s ease-out; }
-        .animate-slideRight { animation: slideRight 0.6s ease-out forwards; }
-        .animate-pulse { animation: pulse 0.6s ease-in-out; }
-        .animate-pulse-border { animation: pulse-border 2s ease-in-out infinite; }
+        .wa-checkbox.checked::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
+            background-size: 70%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
         
         .hidden { display: none; }
+        
+        /* グラデーションアニメーション */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .gradient-animation {
+            background-size: 200% 200%;
+            animation: gradientShift 15s ease infinite;
+        }
     </style>
 </head>
 <body>
-    <div class="min-h-screen bg-gray-50">
-        <div class="max-w-4xl mx-auto px-4 py-8">
-            <!-- ヘッダー -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h1 class="text-2xl font-bold text-gray-900">Focus Tasks</h1>
-                    <button id="inboxToggle" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all">
+    <div id="backgroundSeason" class="min-h-screen bg-summer gradient-animation transition-all duration-1000 relative">
+        <!-- 季節のアニメーション -->
+        <div id="seasonAnimation" class="season-animation"></div>
+        
+        <div class="max-w-2xl mx-auto px-4 py-4 relative z-10">
+            <!-- 節気ヘッダー -->
+            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
+                <div class="text-center mb-4">
+                    <h1 class="text-3xl sm:text-5xl font-bold text-gray-800 mb-2 sekki-title">
+                        <span id="currentSekki"></span>
+                    </h1>
+                    <div class="text-base sm:text-lg text-gray-700 mb-1">
+                        <span id="sekkiDate"></span>
+                    </div>
+                    <div id="nextSekkiInfo" class="text-sm text-gray-600"></div>
+                </div>
+                
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-800">本日の予定</h2>
+                    <button id="inboxToggle" class="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                         </svg>
@@ -58,132 +361,330 @@
                 <div class="flex flex-col gap-3">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-1">
-                            <button id="prevDay" class="p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button id="prevDay" class="p-3 hover:bg-gray-100 rounded-full transition-all">
+                                <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                                 </svg>
                             </button>
                             
-                            <button id="calendarToggle" class="flex items-center gap-2 px-4 py-3 hover:bg-gray-100 rounded-lg transition-colors">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <span id="currentDate" class="text-lg font-medium text-gray-900"></span>
+                            <button id="calendarToggle" class="flex items-center gap-2 px-3 sm:px-6 py-3 hover:bg-gray-50 rounded-full transition-all">
+                                <span id="currentDate" class="text-base sm:text-lg font-medium text-gray-800"></span>
                             </button>
                             
-                            <button id="nextDay" class="p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button id="nextDay" class="p-3 hover:bg-gray-100 rounded-full transition-all">
+                                <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
                             </button>
                         </div>
                         
-                        <div class="flex items-center gap-2">
-                            <span id="completedCount" class="text-3xl font-bold text-gray-900">0</span>
-                            <span class="text-xl text-gray-400">/</span>
-                            <span id="totalCount" class="text-xl text-gray-500">0</span>
+                        <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full">
+                            <span id="completedCount" class="text-2xl sm:text-3xl font-bold text-gray-800">0</span>
+                            <span class="text-lg sm:text-xl text-gray-500">／</span>
+                            <span id="totalCount" class="text-xl sm:text-2xl text-gray-700">0</span>
                         </div>
                     </div>
                     
-                    <button id="todayButton" class="hidden w-full py-3 text-base font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-colors">
-                        今日へ戻る
+                    <button id="todayButton" class="hidden w-full py-3 text-base font-medium text-white bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 rounded-full transition-all button-large">
+                        本日へ戻る
                     </button>
                 </div>
                 
                 <!-- カレンダー -->
-                <div id="calendarInput" class="hidden mt-4">
-                    <input type="date" id="dateInput" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
+                <div id="calendarInput" class="hidden mt-4 animate-fadeInUp">
+                    <input type="date" id="dateInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
+                    <div id="calendarSekkiInfo" class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-600"></div>
                 </div>
             </div>
 
             <!-- エラーメッセージ -->
-            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6"></div>
+            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 animate-fadeInUp"></div>
 
             <!-- 期限付きタスク -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold text-gray-900">期限付きタスク</h2>
-                    <button id="deadlineToggle" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp" style="animation-delay: 0.1s">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">期限付きタスク</h3>
+                    <button id="deadlineToggle" class="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
                     </button>
                 </div>
 
-                <div id="deadlineForm" class="hidden mb-4 p-4 bg-gray-50 rounded-lg">
+                <div id="deadlineForm" class="hidden mb-4 p-3 bg-gray-50 rounded-xl animate-fadeInUp">
                     <div class="flex flex-col gap-3">
-                        <input type="text" id="deadlineText" placeholder="タスク内容..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
+                        <input type="text" id="deadlineText" placeholder="タスク内容..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
                         <div class="flex gap-2">
-                            <input type="date" id="deadlineDate" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
-                            <button id="addDeadline" class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">追加</button>
-                            <button id="cancelDeadline" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">×</button>
+                            <input type="date" id="deadlineDate" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
+                            <button id="addDeadline" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all">追加</button>
+                            <button id="cancelDeadline" class="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all">×</button>
                         </div>
                     </div>
                 </div>
 
-                <div id="deadlineList" class="space-y-3"></div>
-                <p id="noDeadlineTasks" class="text-center py-4 text-gray-500">期限付きタスクはありません</p>
+                <div id="deadlineList" class="space-y-2"></div>
+                <p id="noDeadlineTasks" class="text-center py-4 text-gray-500 text-sm">期限付きタスクはありません</p>
             </div>
 
             <!-- タスク入力 -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                <div class="flex gap-2 mb-4">
-                    <button id="normalType" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-900 text-white">
-                        通常 (<span id="normalSlots">3</span>/3)
+            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp" style="animation-delay: 0.2s">
+                <div class="flex gap-2 mb-3">
+                    <button id="normalType" class="flex-1 px-4 py-2 rounded-full font-medium transition-all bg-gray-800 text-white button-large">
+                        通常 <span class="text-sm opacity-80">(<span id="normalSlots">3</span>/3)</span>
                     </button>
-                    <button id="urgentType" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200">
-                        臨時 (<span id="urgentSlots">1</span>/1)
+                    <button id="urgentType" class="flex-1 px-4 py-2 rounded-full font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 button-large">
+                        臨時 <span class="text-sm opacity-80">(<span id="urgentSlots">1</span>/1)</span>
                     </button>
                 </div>
                 
                 <div class="flex gap-2">
-                    <input type="text" id="taskInput" placeholder="タスクを入力..." class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
-                    <button id="addTask" class="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center gap-2 font-medium">
+                    <input type="text" id="taskInput" placeholder="本日の予定を入力..." class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
+                    <button id="addTask" class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all font-medium button-large">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
-                        追加
                     </button>
                 </div>
             </div>
 
             <!-- タスクリスト -->
-            <div id="taskList" class="space-y-3 mb-6"></div>
-            <p id="noTasks" class="hidden text-center py-12 text-gray-500">タスクがありません</p>
+            <div id="taskList" class="space-y-3 mb-4"></div>
+            <p id="noTasks" class="hidden text-center py-8 text-gray-500">本日の予定はありません</p>
 
-            <!-- Inbox -->
-            <div id="inboxSection" class="hidden bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
-                <h2 class="text-lg font-bold text-gray-900 mb-4">アイデア置き場</h2>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="inboxInput" placeholder="アイデアをメモ..." class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900">
-                    <button id="addInbox" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">メモ</button>
+            <!-- アイデア置き場 -->
+            <div id="inboxSection" class="hidden washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">覚書</h3>
+                <div class="flex gap-2 mb-3">
+                    <input type="text" id="inboxInput" placeholder="思いついたことをメモ..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
+                    <button id="addInbox" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all">記録</button>
                 </div>
                 <div id="inboxList" class="space-y-2"></div>
+            </div>
+            
+            <!-- 節気の説明 -->
+            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 text-center">二十四節気</h3>
+                <div class="text-center mb-3">
+                    <span id="sekkiDetailName" class="text-xl sm:text-2xl font-bold text-gray-800 sekki-title"></span>
+                    <div id="sekkiDetailDate" class="text-xs sm:text-sm text-gray-600 mt-1"></div>
+                </div>
+                <p id="sekkiDescription" class="text-sm sm:text-base text-gray-700 leading-relaxed mb-4"></p>
+                <div class="border-t border-gray-200 pt-3">
+                    <p class="text-xs sm:text-sm text-gray-600 text-center mb-2">今年の二十四節気</p>
+                    <div id="yearSekkiList" class="grid grid-cols-3 sm:grid-cols-4 gap-1 sm:gap-2 text-xs sm:text-sm sekki-grid"></div>
+                </div>
             </div>
         </div>
 
         <!-- セレブレーション -->
         <div id="celebration" class="hidden fixed inset-0 pointer-events-none flex items-center justify-center z-50">
-            <div class="bg-gray-900 text-white rounded-xl p-6 shadow-2xl animate-fadeIn">
-                <div class="flex items-center gap-3">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <span class="text-2xl font-bold">完了！</span>
+            <div class="relative">
+                <div class="absolute inset-0 bg-amber-500 rounded-full animate-ping"></div>
+                <div class="relative washi-card rounded-2xl p-8 sm:p-10 animate-fadeInUp">
+                    <div class="text-center">
+                        <div class="text-3xl sm:text-4xl mb-2 sekki-title">完了</div>
+                        <p class="text-lg sm:text-xl text-gray-700">タスク完了</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- 先送りエフェクト -->
-        <div id="postponeEffect" class="hidden fixed bottom-8 right-8 bg-gray-900 text-white rounded-xl p-4 shadow-2xl animate-fadeInUp flex items-center gap-3">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div id="postponeEffect" class="hidden fixed bottom-4 right-4 washi-card rounded-xl p-4 animate-fadeInUp flex items-center gap-2">
+            <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
             </svg>
-            <span class="text-lg font-medium">明日へ移動しました</span>
+            <span class="text-base font-medium text-gray-700">明日へ</span>
         </div>
     </div>
 
     <script>
+        // 実際の季節を月から判定する関数
+        function getActualSeason(date) {
+            const month = date.getMonth() + 1; // 0-11 を 1-12 に変換
+            if (month >= 3 && month <= 5) return 'spring';   // 3月〜5月：春
+            if (month >= 6 && month <= 8) return 'summer';   // 6月〜8月：夏
+            if (month >= 9 && month <= 11) return 'autumn';  // 9月〜11月：秋
+            return 'winter';  // 12月〜2月：冬
+        }
+        
+        // ページロード時に実際の季節を設定
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const actualSeason = getActualSeason(now);
+            const bg = document.getElementById('backgroundSeason');
+            // Remove any existing season class and add the current one
+            bg.className = bg.className.replace(/bg-(spring|summer|autumn|winter)/g, '');
+            bg.classList.add(`bg-${actualSeason}`);
+            // Initial animation creation
+            app.updateSekki(); // This will also call createSeasonalAnimation
+        });
+
+        // 24節気データ
+        const sekkiData = {
+            2025: [
+                { name: '小寒', date: new Date('2025-01-05T11:33:00'), season: 'winter', description: '寒さが最も厳しくなる前の時期。この日から寒の入りとなります。' },
+                { name: '大寒', date: new Date('2025-01-20T05:00:00'), season: 'winter', description: '一年で最も寒さが厳しい時期。寒稽古など、寒さを利用した行事が行われます。' },
+                { name: '立春', date: new Date('2025-02-03T23:10:00'), season: 'spring', description: '暦の上での春の始まり。梅の花が咲き始め、徐々に暖かくなり始めます。' },
+                { name: '雨水', date: new Date('2025-02-18T19:07:00'), season: 'spring', description: '雪が雨に変わり、積もった雪が溶け始める頃。農耕の準備を始める目安です。' },
+                { name: '啓蟄', date: new Date('2025-03-05T17:07:00'), season: 'spring', description: '冬ごもりしていた虫が、春の暖かさを感じて地中から姿を現す頃。' },
+                { name: '春分', date: new Date('2025-03-20T18:01:00'), season: 'spring', description: '昼と夜の長さがほぼ等しくなる日。自然をたたえ生物をいつくしむ日です。' },
+                { name: '清明', date: new Date('2025-04-04T21:49:00'), season: 'spring', description: '万物が清らかで明るく、生き生きとした様子を見せる頃。花見の季節です。' },
+                { name: '穀雨', date: new Date('2025-04-20T04:56:00'), season: 'spring', description: '春の雨が降り、穀物の成長を助ける頃。種まきの好機とされています。' },
+                { name: '立夏', date: new Date('2025-05-05T14:57:00'), season: 'summer', description: '暦の上での夏の始まり。新緑が美しく、過ごしやすい気候になります。' },
+                { name: '小満', date: new Date('2025-05-21T03:55:00'), season: 'summer', description: '陽気が良くなり、万物が成長して天地に満ち始める頃。麦の穂が実り始めます。' },
+                { name: '芒種', date: new Date('2025-06-05T18:57:00'), season: 'summer', description: '稲などの穀物の種をまく時期。梅雨入りの頃でもあります。' },
+                { name: '夏至', date: new Date('2025-06-21T11:42:00'), season: 'summer', description: '一年で最も昼が長く夜が短い日。本格的な夏の到来を告げます。' },
+                { name: '小暑', date: new Date('2025-07-07T05:05:00'), season: 'summer', description: '暑さが本格的になる頃。梅雨明けが近づき、蝉が鳴き始めます。' },
+                { name: '大暑', date: new Date('2025-07-22T22:29:00'), season: 'summer', description: '一年で最も暑さが厳しい時期。夏の土用の時期でもあります。' },
+                { name: '立秋', date: new Date('2025-08-07T14:52:00'), season: 'autumn', description: '暦の上での秋の始まり。まだ暑いですが、朝夕は涼しくなり始めます。' },
+                { name: '処暑', date: new Date('2025-08-23T05:34:00'), season: 'autumn', description: '暑さが和らぐ頃。朝晩の涼しさに秋の気配を感じ始めます。' },
+                { name: '白露', date: new Date('2025-09-07T17:52:00'), season: 'autumn', description: '草花に朝露が宿り始める頃。日中は暖かくても朝晩は冷え込みます。' },
+                { name: '秋分', date: new Date('2025-09-23T03:19:00'), season: 'autumn', description: '昼と夜の長さがほぼ等しくなる日。秋彼岸の中日でもあります。' },
+                { name: '寒露', date: new Date('2025-10-08T09:41:00'), season: 'autumn', description: '露が冷たく感じられる頃。秋が深まり、紅葉が美しくなります。' },
+                { name: '霜降', date: new Date('2025-10-23T12:51:00'), season: 'autumn', description: '露が霜に変わり始める頃。朝晩の冷え込みが厳しくなります。' },
+                { name: '立冬', date: new Date('2025-11-07T13:04:00'), season: 'winter', description: '暦の上での冬の始まり。日差しが弱まり、冬の気配を感じ始めます。' },
+                { name: '小雪', date: new Date('2025-11-22T10:36:00'), season: 'winter', description: '雪が降り始める頃。まだ積もるほどではない、わずかな雪を指します。' },
+                { name: '大雪', date: new Date('2025-12-07T06:05:00'), season: 'winter', description: '本格的に雪が降り始める頃。山々は雪に覆われ、平地でも雪が降ります。' },
+                { name: '冬至', date: new Date('2025-12-22T00:03:00'), season: 'winter', description: '一年で最も昼が短く夜が長い日。ゆず湯に入り、かぼちゃを食べる風習があります。' }
+            ],
+            2026: [
+                { name: '小寒', date: new Date('2026-01-05T17:24:00'), season: 'winter', description: '寒さが最も厳しくなる前の時期。この日から寒の入りとなります。' },
+                { name: '大寒', date: new Date('2026-01-20T10:46:00'), season: 'winter', description: '一年で最も寒さが厳しい時期。寒稽古など、寒さを利用した行事が行われます。' },
+                { name: '立春', date: new Date('2026-02-04T05:03:00'), season: 'spring', description: '暦の上での春の始まり。梅の花が咲き始め、徐々に暖かくなり始めます。' },
+                { name: '雨水', date: new Date('2026-02-19T00:51:00'), season: 'spring', description: '雪が雨に変わり、積もった雪が溶け始める頃。農耕の準備を始める目安です。' },
+                { name: '啓蟄', date: new Date('2026-03-05T22:58:00'), season: 'spring', description: '冬ごもりしていた虫が、春の暖かさを感じて地中から姿を現す頃。' },
+                { name: '春分', date: new Date('2026-03-20T23:41:00'), season: 'spring', description: '昼と夜の長さがほぼ等しくなる日。自然をたたえ生物をいつくしむ日です。' },
+                { name: '清明', date: new Date('2026-04-05T03:35:00'), season: 'spring', description: '万物が清らかで明るく、生き生きとした様子を見せる頃。花見の季節です。' },
+                { name: '穀雨', date: new Date('2026-04-20T10:31:00'), season: 'spring', description: '春の雨が降り、穀物の成長を助ける頃。種まきの好機とされています。' },
+                { name: '立夏', date: new Date('2026-05-05T20:41:00'), season: 'summer', description: '暦の上での夏の始まり。新緑が美しく、過ごしやすい気候になります。' },
+                { name: '小満', date: new Date('2026-05-21T09:28:00'), season: 'summer', description: '陽気が良くなり、万物が成長して天地に満ち始める頃。麦の穂が実り始めます。' },
+                { name: '芒種', date: new Date('2026-06-06T00:40:00'), season: 'summer', description: '稲などの穀物の種をまく時期。梅雨入りの頃でもあります。' },
+                { name: '夏至', date: new Date('2026-06-21T17:16:00'), season: 'summer', description: '一年で最も昼が長く夜が短い日。本格的な夏の到来を告げます。' },
+                { name: '小暑', date: new Date('2026-07-07T10:50:00'), season: 'summer', description: '暑さが本格的になる頃。梅雨明けが近づき、蝉が鳴き始めます。' },
+                { name: '大暑', date: new Date('2026-07-23T04:07:00'), season: 'summer', description: '一年で最も暑さが厳しい時期。夏の土用の時期でもあります。' },
+                { name: '立秋', date: new Date('2026-08-07T20:38:00'), season: 'autumn', description: '暦の上での秋の始まり。まだ暑いですが、朝夕は涼しくなり始めます。' },
+                { name: '処暑', date: new Date('2026-08-23T11:16:00'), season: 'autumn', description: '暑さが和らぐ頃。朝晩の涼しさに秋の気配を感じ始めます。' },
+                { name: '白露', date: new Date('2026-09-07T23:41:00'), season: 'autumn', description: '草花に朝露が宿り始める頃。日中は暖かくても朝晩は冷え込みます。' },
+                { name: '秋分', date: new Date('2026-09-23T09:04:00'), season: 'autumn', description: '昼と夜の長さがほぼ等しくなる日。秋彼岸の中日でもあります。' },
+                { name: '寒露', date: new Date('2026-10-08T15:31:00'), season: 'autumn', description: '露が冷たく感じられる頃。秋が深まり、紅葉が美しくなります。' },
+                { name: '霜降', date: new Date('2026-10-23T18:38:00'), season: 'autumn', description: '露が霜に変わり始める頃。朝晩の冷え込みが厳しくなります。' },
+                { name: '立冬', date: new Date('2026-11-07T18:54:00'), season: 'winter', description: '暦の上での冬の始まり。日差しが弱まり、冬の気配を感じ始めます。' },
+                { name: '小雪', date: new Date('2026-11-22T16:24:00'), season: 'winter', description: '雪が降り始める頃。まだ積もるほどではない、わずかな雪を指します。' },
+                { name: '大雪', date: new Date('2026-12-07T11:55:00'), season: 'winter', description: '本格的に雪が降り始める頃。山々は雪に覆われ、平地でも雪が降ります。' },
+                { name: '冬至', date: new Date('2026-12-22T05:53:00'), season: 'winter', description: '一年で最も昼が短く夜が長い日。ゆず湯に入り、かぼちゃを食べる風習があります。' }
+            ]
+        };
+
+        // 季節のアニメーションを作成
+        function createSeasonalAnimation(season) {
+            const animationEl = document.getElementById('seasonAnimation');
+            if (!animationEl) {
+                console.error('Animation element not found');
+                return;
+            }
+            
+            animationEl.innerHTML = ''; // Clear previous particles
+            
+            let particleCount;
+            
+            // 季節によってパーティクル数を調整
+            switch(season) {
+                case 'spring':
+                    particleCount = window.innerWidth < 640 ? 15 : 30;
+                    break;
+                case 'summer':
+                    particleCount = window.innerWidth < 640 ? 8 : 15; // 蛍は少なめ
+                    break;
+                case 'autumn':
+                    particleCount = window.innerWidth < 640 ? 12 : 25;
+                    break;
+                case 'winter':
+                    particleCount = window.innerWidth < 640 ? 10 : 20; // 雪は中程度
+                    break;
+                default:
+                    particleCount = window.innerWidth < 640 ? 15 : 30;
+            }
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                const delay = Math.random() * 5; // 最大5秒のディレイに短縮
+                const startX = Math.random() * 100;
+                
+                particle.style.left = startX + '%';
+                particle.style.animationDelay = delay + 's';
+                
+                switch(season) {
+                    case 'spring':
+                        particle.className = 'sakura-petal';
+                        const sakuraDuration = 8 + Math.random() * 6;
+                        particle.style.animationDuration = sakuraDuration + 's';
+                        const sakuraSize = Math.random() * 0.5 + 0.5;
+                        particle.style.transform = `scale(${sakuraSize}) rotate(-45deg)`;
+                        break;
+                        
+                    case 'summer':
+                        particle.className = 'summer-light'; // CORRECTED: Was 'firefly'
+                        const fireflyDuration = 8 + Math.random() * 6;
+                        particle.style.animationDuration = fireflyDuration + 's';
+                        // transformは設定しない（CSSアニメーションに任せる）
+                        break;
+                        
+                    case 'autumn':
+                        particle.className = 'autumn-leaf';
+                        const autumnDuration = 7 + Math.random() * 5;
+                        particle.style.animationDuration = autumnDuration + 's';
+                        const autumnSize = Math.random() * 0.6 + 0.4;
+                        particle.style.transform = `scale(${autumnSize})`;
+                        break;
+                        
+                    case 'winter':
+                        particle.className = 'snow-flake'; // CORRECTED: Was 'large-snowflake'
+                        const winterDuration = 10 + Math.random() * 5;
+                        particle.style.animationDuration = winterDuration + 's';
+                        // 雪の結晶のサイズバリエーション (CSSで基本サイズ、JSで微調整も可能)
+                        // particle.style.width = (10 + Math.random() * 10) + 'px'; // Example of JS size variation
+                        // particle.style.height = particle.style.width;
+                        // For simplicity, using CSS defined size and keyframe animation for movement
+                        break;
+                }
+                
+                animationEl.appendChild(particle);
+            }
+        }
+
+        // タッチイベントで波紋効果
+        function createRipple(e) {
+            const button = e.currentTarget;
+            // Ensure ripple effect doesn't trigger on disabled buttons or non-button elements if needed
+            if (button.disabled) return;
+
+            const ripple = document.createElement('span');
+            const rect = button.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            // For clientX/Y, if touch event, use e.touches[0].clientX/Y
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            const x = clientX - rect.left - size / 2;
+            const y = clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            // Check if there's already a ripple and remove it to prevent multiple rapid ripples
+            const existingRipple = button.querySelector('.ripple');
+            if (existingRipple) {
+                existingRipple.remove();
+            }
+            
+            button.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 1000);
+        }
+
         // アプリケーションの状態
         const app = {
             tasks: [],
@@ -196,7 +697,224 @@
             init() {
                 this.loadData();
                 this.bindEvents();
-                this.render();
+                this.updateSekki(); // This will set initial sekki and call render
+                // Ripple effect is added in render() after elements are created
+            },
+
+            // 24節気の更新
+            updateSekki() {
+                const now = new Date();
+                const year = now.getFullYear();
+                // Ensure sekkiData for the current and next year are available, or use empty arrays
+                const currentYearSekki = sekkiData[year] || [];
+                const nextYearSekki = sekkiData[year + 1] || [];
+                const allSekki = [...currentYearSekki, ...nextYearSekki];
+                
+                let currentSekki = null;
+                let nextSekki = null;
+                
+                for (let i = 0; i < allSekki.length; i++) {
+                    if (now >= allSekki[i].date) {
+                        currentSekki = allSekki[i];
+                    } else {
+                        nextSekki = allSekki[i];
+                        break;
+                    }
+                }
+                 // If no currentSekki found (e.g., before the first sekki of the year), use the first one.
+                if (!currentSekki && allSekki.length > 0) {
+                    currentSekki = allSekki.find(s => now < s.date) || allSekki[allSekki.length -1]; // Fallback to last if all past
+                    if (!currentSekki && sekkiData[year-1] && sekkiData[year-1].length > 0) { // Check previous year if needed
+                        currentSekki = sekkiData[year-1][sekkiData[year-1].length -1];
+                    }
+                }
+                
+                // 節気表示
+                if (currentSekki) {
+                    document.getElementById('currentSekki').textContent = currentSekki.name;
+                    const dateStr = currentSekki.date.toLocaleDateString('ja-JP', { 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                    document.getElementById('sekkiDate').textContent = `${dateStr}より`;
+                    
+                    // 実際の季節に基づいて背景を変更
+                    const actualSeason = getActualSeason(now); // Use 'now' for current real season
+                    const bg = document.getElementById('backgroundSeason');
+                    bg.className = bg.className.replace(/bg-(spring|summer|autumn|winter)/g, '');
+                    bg.classList.add(`bg-${actualSeason}`);
+                    
+                    // 季節のアニメーション
+                    createSeasonalAnimation(actualSeason); // Use actualSeason for animation
+                    
+                    // 節気詳細の更新 (initially show current sekki's detail)
+                    this.showSekkiDetail(currentSekki);
+
+                }
+                
+                // 次の節気までの日数
+                if (nextSekki) {
+                    const daysUntil = Math.ceil((nextSekki.date - now) / (1000 * 60 * 60 * 24));
+                    document.getElementById('nextSekkiInfo').textContent = 
+                        `次は「${nextSekki.name}」 あと${daysUntil}日`;
+                } else {
+                     document.getElementById('nextSekkiInfo').textContent = `次の節気情報は翌年になります`;
+                }
+                
+                // 年間の節気リスト
+                this.updateYearSekkiList();
+                this.render(); // Call render to update UI based on new sekki/date
+            },
+            
+            // 年間の節気リストを更新
+            updateYearSekkiList() {
+                const year = this.selectedDate.getFullYear(); // Use selectedDate's year for the list
+                const yearSekki = sekkiData[year] || [];
+                const listEl = document.getElementById('yearSekkiList');
+                listEl.innerHTML = '';
+                
+                yearSekki.forEach(sekki => {
+                    const itemEl = document.createElement('div');
+                    const isPast = new Date() > sekki.date && !this.isCurrentSekki(sekki, this.selectedDate); // Check against today for past status
+                    const isCurrentlyDisplayedSekki = this.isCurrentSekki(sekki, this.selectedDate); // Check if it's the sekki for selectedDate
+
+                    itemEl.className = `p-1.5 sm:p-2 rounded text-center transition-all cursor-pointer ${
+                        isCurrentlyDisplayedSekki ? 'bg-gray-800 text-white' : 
+                        isPast ? 'text-gray-400' : 'text-gray-700 hover:bg-gray-100'
+                    }`;
+                    
+                    itemEl.innerHTML = `
+                        <div class="font-medium text-xs sm:text-sm">${sekki.name}</div>
+                        <div class="text-xs ${isCurrentlyDisplayedSekki ? 'text-gray-300' : 'text-gray-500'}">
+                            ${sekki.date.getMonth() + 1}/${sekki.date.getDate()}
+                        </div>
+                    `;
+                    
+                    itemEl.addEventListener('click', () => {
+                        this.showSekkiDetail(sekki); // Show detail of clicked sekki
+                        // If the clicked sekki's date is different from the currently selected date, update selectedDate
+                        if (this.selectedDate.toDateString() !== sekki.date.toDateString()) {
+                           // this.selectedDate = new Date(sekki.date); // Option: jump date to sekki start
+                           // document.getElementById('calendarInput').classList.add('hidden');
+                           // this.render();
+                        }
+                        this.updateYearSekkiList(); // Re-render list to highlight the new current sekki for selectedDate
+                    });
+                    
+                    listEl.appendChild(itemEl);
+                });
+            },
+            
+            // 節気の詳細を表示（スクロールなし）
+            showSekkiDetail(sekki) {
+                document.getElementById('sekkiDetailName').textContent = sekki.name;
+                document.getElementById('sekkiDetailDate').textContent = sekki.date.toLocaleDateString('ja-JP', { 
+                    year: 'numeric',
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: 'numeric'
+                });
+                document.getElementById('sekkiDescription').textContent = sekki.description;
+                
+                // 実際の季節に基づいて背景とアニメーションを変更 (use sekki's date for its specific season)
+                const sekkiEffectiveSeason = getActualSeason(sekki.date);
+                const bg = document.getElementById('backgroundSeason');
+                // Only change background if the main selectedDate is within this sekki's effective period.
+                // For general display, we might want to keep the background tied to the selectedDate's actual season.
+                // For now, let's tie it to the sekki being detailed for visual feedback.
+                bg.className = bg.className.replace(/bg-(spring|summer|autumn|winter)/g, '');
+                bg.classList.add(`bg-${sekkiEffectiveSeason}`);
+                createSeasonalAnimation(sekkiEffectiveSeason);
+            },
+            
+            // 指定された日付がどの節気に該当するか判定 (modified to take a date to check against)
+            isCurrentSekki(sekkiToCheck, referenceDate) {
+                const year = referenceDate.getFullYear();
+                const allSekkiForYear = sekkiData[year] || [];
+                const allSekkiForPrevYear = sekkiData[year-1] || [];
+
+                // Combine relevant sekki: current year, and last one of previous year for edge cases early in the year
+                const relevantSekki = [...allSekkiForPrevYear.slice(-1), ...allSekkiForYear];
+
+
+                for (let i = 0; i < relevantSekki.length; i++) {
+                    const currentS = relevantSekki[i];
+                    const nextS = relevantSekki[i + 1];
+
+                    if (referenceDate >= currentS.date) {
+                        if (nextS && referenceDate < nextS.date) {
+                            return sekkiToCheck.name === currentS.name && sekkiToCheck.date.getTime() === currentS.date.getTime();
+                        } else if (!nextS) { // Last sekki of the combined list
+                            return sekkiToCheck.name === currentS.name && sekkiToCheck.date.getTime() === currentS.date.getTime();
+                        }
+                    }
+                }
+                return false;
+            },
+            
+            // カレンダーの節気情報を更新
+            updateCalendarSekkiInfo() {
+                const dateInput = document.getElementById('dateInput');
+                if (!dateInput.value) return; // Guard if date input is empty
+                const selectedDate = new Date(dateInput.value);
+                if (isNaN(selectedDate.getTime())) return; // Guard if date is invalid
+                
+                const year = selectedDate.getFullYear();
+                // Consider sekki from selected year, previous, and next for accurate nearest finding
+                const sekkiList = [
+                    ...(sekkiData[year - 1] || []),
+                    ...(sekkiData[year] || []),
+                    ...(sekkiData[year + 1] || [])
+                ].filter(s => s); // Filter out undefined years
+
+                if (sekkiList.length === 0) {
+                     document.getElementById('calendarSekkiInfo').classList.add('hidden');
+                     return;
+                }
+
+                // Find the sekki that selectedDate falls into, or the closest one
+                let currentSekkiForDate = null;
+                for (let i = 0; i < sekkiList.length; i++) {
+                    if (selectedDate >= sekkiList[i].date) {
+                        currentSekkiForDate = sekkiList[i];
+                    } else {
+                        // If currentSekkiForDate is still null, it means selectedDate is before the first sekki in the list
+                        if (!currentSekkiForDate) currentSekkiForDate = sekkiList[i]; // then the upcoming one is closest
+                        break;
+                    }
+                }
+                 // If selectedDate is after all sekki in the list, currentSekkiForDate will be the last one.
+
+                const infoEl = document.getElementById('calendarSekkiInfo');
+                if (currentSekkiForDate) {
+                    // Calculate difference more precisely
+                    let message = `選択日は「${currentSekkiForDate.name}」の期間です。`;
+                    // Check if it's exactly on the sekki date
+                    if (selectedDate.toDateString() === currentSekkiForDate.date.toDateString()){
+                        message = `この日は「${currentSekkiForDate.name}」です。`;
+                    } else {
+                        // Find next and previous sekki relative to currentSekkiForDate for more context
+                        const currentIndexInYear = (sekkiData[currentSekkiForDate.date.getFullYear()] || []).findIndex(s => s.name === currentSekkiForDate.name);
+                        const yearSekki = sekkiData[currentSekkiForDate.date.getFullYear()] || [];
+                        
+                        if (selectedDate < currentSekkiForDate.date && currentIndexInYear > 0) {
+                             const prevSekki = yearSekki[currentIndexInYear -1];
+                             message = `「${prevSekki.name}」の期間、次の節気は「${currentSekkiForDate.name}」です。`;
+                        } else if (selectedDate > currentSekkiForDate.date) {
+                             const nextSekkiInList = yearSekki[currentIndexInYear + 1];
+                             if (nextSekkiInList && selectedDate >= nextSekkiInList.date) {
+                                 message = `選択日は「${nextSekkiInList.name}」の期間です。`;
+                             } else {
+                                 message = `「${currentSekkiForDate.name}」の期間です。`;
+                             }
+                        }
+                    }
+                    infoEl.textContent = message;
+                    infoEl.classList.remove('hidden');
+                } else {
+                    infoEl.classList.add('hidden');
+                }
             },
 
             // データ読み込み
@@ -204,8 +922,19 @@
                 const saved = localStorage.getItem('focusTaskData');
                 if (saved) {
                     const data = JSON.parse(saved);
-                    this.tasks = data.tasks || [];
-                    this.deadlineTasks = data.deadlineTasks || [];
+                    // Ensure dates are properly converted back to Date objects
+                    this.tasks = (data.tasks || []).map(t => ({
+                        ...t,
+                        createdAt: new Date(t.createdAt),
+                        completedAt: t.completedAt ? new Date(t.completedAt) : null,
+                        scheduledFor: new Date(t.scheduledFor)
+                    }));
+                    this.deadlineTasks = (data.deadlineTasks || []).map(t => ({
+                        ...t,
+                        deadline: new Date(t.deadline),
+                        createdAt: new Date(t.createdAt),
+                        completedAt: t.completedAt ? new Date(t.completedAt) : null
+                    }));
                     this.inboxItems = data.inboxItems || [];
                 }
             },
@@ -226,7 +955,9 @@
                 document.getElementById('nextDay').addEventListener('click', () => this.navigateDate(1));
                 document.getElementById('todayButton').addEventListener('click', () => this.goToToday());
                 document.getElementById('calendarToggle').addEventListener('click', () => this.toggleCalendar());
-                document.getElementById('dateInput').addEventListener('change', (e) => this.selectDate(e.target.value));
+                const dateInputElement = document.getElementById('dateInput');
+                dateInputElement.addEventListener('change', (e) => this.selectDate(e.target.value));
+                dateInputElement.addEventListener('input', () => this.updateCalendarSekkiInfo()); // Live update as user types/changes
 
                 // タスクタイプ
                 document.getElementById('normalType').addEventListener('click', () => this.setTaskType('normal'));
@@ -241,7 +972,7 @@
                 // 期限付きタスク
                 document.getElementById('deadlineToggle').addEventListener('click', () => this.toggleDeadlineForm());
                 document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
-                document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm());
+                document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); // Pass false to ensure it hides
 
                 // Inbox
                 document.getElementById('inboxToggle').addEventListener('click', () => this.toggleInbox());
@@ -256,37 +987,105 @@
                 const newDate = new Date(this.selectedDate);
                 newDate.setDate(newDate.getDate() + days);
                 this.selectedDate = newDate;
+                this.updateSekkiForSelectedDate(); // Update sekki info based on new selectedDate
                 this.render();
             },
 
             goToToday() {
                 this.selectedDate = new Date();
+                this.updateSekkiForSelectedDate();
                 this.render();
             },
 
             selectDate(dateStr) {
-                this.selectedDate = new Date(dateStr);
-                document.getElementById('calendarInput').classList.add('hidden');
-                this.render();
+                const newDate = new Date(dateStr);
+                // Check if the newDate is valid before assigning
+                if (!isNaN(newDate.getTime())) {
+                    this.selectedDate = newDate;
+                    document.getElementById('calendarInput').classList.add('hidden');
+                    this.updateCalendarSekkiInfo(); // Update info in calendar dropdown
+                    this.updateSekkiForSelectedDate(); // Update main sekki display
+                    this.render();
+                } else {
+                    this.showError("無効な日付形式です。");
+                }
+            },
+            // Update sekki display based on the currently selectedDate
+            updateSekkiForSelectedDate() {
+                const year = this.selectedDate.getFullYear();
+                const allSekki = [...(sekkiData[year] || []), ...(sekkiData[year + 1] || [])];
+                let currentSekkiForDisplay = null;
+                let nextSekkiForDisplay = null;
+
+                for (let i = 0; i < allSekki.length; i++) {
+                    if (this.selectedDate >= allSekki[i].date) {
+                        currentSekkiForDisplay = allSekki[i];
+                    } else {
+                        nextSekkiForDisplay = allSekki[i];
+                        break;
+                    }
+                }
+                 // Fallback if selectedDate is before all known sekki for the year
+                if (!currentSekkiForDisplay && allSekki.length > 0) {
+                    const prevYearSekki = sekkiData[year - 1] || [];
+                    if (prevYearSekki.length > 0) {
+                         currentSekkiForDisplay = prevYearSekki[prevYearSekki.length -1]; // last of previous year
+                    } else {
+                        currentSekkiForDisplay = allSekki[0]; // first of current year as fallback
+                    }
+                }
+
+
+                if (currentSekkiForDisplay) {
+                    document.getElementById('currentSekki').textContent = currentSekkiForDisplay.name;
+                    const dateStr = currentSekkiForDisplay.date.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
+                    document.getElementById('sekkiDate').textContent = `${dateStr}より`;
+                    
+                    // Update background and animation based on the actual season of selectedDate
+                    const actualSeasonOfSelectedDate = getActualSeason(this.selectedDate);
+                    const bg = document.getElementById('backgroundSeason');
+                    bg.className = bg.className.replace(/bg-(spring|summer|autumn|winter)/g, '');
+                    bg.classList.add(`bg-${actualSeasonOfSelectedDate}`);
+                    createSeasonalAnimation(actualSeasonOfSelectedDate);
+
+                    // Update detailed sekki view to reflect the sekki of the selectedDate
+                    this.showSekkiDetail(currentSekkiForDisplay);
+                }
+
+                if (nextSekkiForDisplay) {
+                    const daysUntil = Math.ceil((nextSekkiForDisplay.date - this.selectedDate) / (1000 * 60 * 60 * 24));
+                    document.getElementById('nextSekkiInfo').textContent = `次は「${nextSekkiForDisplay.name}」 あと${daysUntil > 0 ? daysUntil : 0}日`;
+                } else {
+                     document.getElementById('nextSekkiInfo').textContent = `次の節気情報は翌年になります`;
+                }
+                this.updateYearSekkiList(); // Update the yearly list highlight
             },
 
+
             toggleCalendar() {
-                const input = document.getElementById('calendarInput');
-                input.classList.toggle('hidden');
-                if (!input.classList.contains('hidden')) {
-                    document.getElementById('dateInput').value = this.selectedDate.toISOString().split('T')[0];
+                const inputContainer = document.getElementById('calendarInput');
+                const dateInputEl = document.getElementById('dateInput');
+                inputContainer.classList.toggle('hidden');
+                if (!inputContainer.classList.contains('hidden')) {
+                    // Set current selected date to the input field
+                    dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
+                    this.updateCalendarSekkiInfo(); // Update info when calendar opens
+                    dateInputEl.focus(); // Focus the input field
                 }
             },
 
             // タスクタイプ設定
             setTaskType(type) {
                 this.taskType = type;
-                document.getElementById('normalType').className = type === 'normal' 
-                    ? 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-900 text-white' 
-                    : 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
-                document.getElementById('urgentType').className = type === 'urgent' 
-                    ? 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-900 text-white' 
-                    : 'px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
+                const normalButton = document.getElementById('normalType');
+                const urgentButton = document.getElementById('urgentType');
+                
+                normalButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${
+                    type === 'normal' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`;
+                urgentButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${
+                    type === 'urgent' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`;
             },
 
             // タスク追加
@@ -295,21 +1094,21 @@
                 const text = input.value.trim();
                 
                 if (!text) {
-                    this.showError('タスクの内容を入力してください');
+                    this.showError('予定を入力してください');
                     return;
                 }
 
                 const todayTasks = this.getTodayTasks();
-                const normalCount = todayTasks.filter(t => t.type === 'normal').length;
-                const urgentCount = todayTasks.filter(t => t.type === 'urgent').length;
+                const normalCount = todayTasks.filter(t => t.type === 'normal' && !t.isCompleted).length; // Count only active normal tasks
+                const urgentCount = todayTasks.filter(t => t.type === 'urgent' && !t.isCompleted).length; // Count only active urgent tasks
 
                 if (this.taskType === 'normal' && normalCount >= 3) {
-                    this.showError('通常タスクは3件までです');
+                    this.showError('通常タスクは3件までです（未完了）');
                     return;
                 }
 
                 if (this.taskType === 'urgent' && urgentCount >= 1) {
-                    this.showError('臨時タスクは1件までです');
+                    this.showError('臨時タスクは1件までです（未完了）');
                     return;
                 }
 
@@ -320,7 +1119,7 @@
                     createdAt: new Date(),
                     completedAt: null,
                     isCompleted: false,
-                    scheduledFor: new Date(this.selectedDate)
+                    scheduledFor: new Date(this.selectedDate) // Ensure it's a new Date object
                 };
 
                 this.tasks.push(newTask);
@@ -353,30 +1152,31 @@
                 const tomorrow = new Date(this.selectedDate);
                 tomorrow.setDate(tomorrow.getDate() + 1);
 
-                // 明日のタスク数チェック
+                // 明日のタスク数チェック (未完了のみ)
                 const tomorrowTasks = this.tasks.filter(t => 
-                    new Date(t.scheduledFor).toDateString() === tomorrow.toDateString()
+                    new Date(t.scheduledFor).toDateString() === tomorrow.toDateString() && !t.isCompleted
                 );
                 const normalCount = tomorrowTasks.filter(t => t.type === 'normal').length;
                 const urgentCount = tomorrowTasks.filter(t => t.type === 'urgent').length;
 
                 if (task.type === 'normal' && normalCount >= 3) {
-                    this.showError('翌日の通常タスクは既に3件です');
+                    this.showError('翌日の通常タスクは既に3件です（未完了）');
                     return;
                 }
 
                 if (task.type === 'urgent' && urgentCount >= 1) {
-                    this.showError('翌日の臨時タスクは既に1件です');
+                    this.showError('翌日の臨時タスクは既に1件です（未完了）');
                     return;
                 }
 
                 task.scheduledFor = tomorrow;
                 this.showPostponeEffect();
                 
+                // Delay save and render to allow effect to show before task disappears
                 setTimeout(() => {
                     this.saveData();
                     this.render();
-                }, 600);
+                }, 600); 
             },
 
             // タスク削除
@@ -387,25 +1187,43 @@
             },
 
             // 期限付きタスク
-            toggleDeadlineForm() {
+            toggleDeadlineForm(forceHide = null) {
                 const form = document.getElementById('deadlineForm');
-                const toggle = document.getElementById('deadlineToggle');
+                const toggleButton = document.getElementById('deadlineToggle');
                 const activeCount = this.deadlineTasks.filter(t => !t.isCompleted).length;
                 
-                if (activeCount >= 3) return;
-                
-                form.classList.toggle('hidden');
-                if (!form.classList.contains('hidden')) {
+                if (forceHide === false) { // Explicitly hide
+                    form.classList.add('hidden');
+                    return;
+                }
+                if (forceHide === true) { // Explicitly show (if not maxed out)
+                     if (activeCount < 3) form.classList.remove('hidden');
+                     else this.showError('期限付きタスクは3件までです');
+                     return;
+                }
+
+                // Default toggle behavior
+                if (form.classList.contains('hidden')) { // If hidden, try to show
+                    if (activeCount >= 3) {
+                        this.showError('期限付きタスクは3件までです');
+                        return;
+                    }
+                    form.classList.remove('hidden');
                     document.getElementById('deadlineDate').min = new Date().toISOString().split('T')[0];
+                    document.getElementById('deadlineText').focus();
+                } else { // If shown, hide
+                    form.classList.add('hidden');
                 }
             },
 
             addDeadlineTask() {
-                const text = document.getElementById('deadlineText').value.trim();
-                const date = document.getElementById('deadlineDate').value;
+                const textEl = document.getElementById('deadlineText');
+                const dateEl = document.getElementById('deadlineDate');
+                const text = textEl.value.trim();
+                const date = dateEl.value;
 
                 if (!text || !date) {
-                    this.showError('タスク内容と期限を入力してください');
+                    this.showError('内容と期限を入力してください');
                     return;
                 }
 
@@ -418,16 +1236,16 @@
                 const newTask = {
                     id: Date.now().toString(),
                     text: text,
-                    deadline: new Date(date),
+                    deadline: new Date(date + "T23:59:59"), // Set to end of day for deadline
                     createdAt: new Date(),
                     isCompleted: false,
                     completedAt: null
                 };
 
                 this.deadlineTasks.push(newTask);
-                document.getElementById('deadlineText').value = '';
-                document.getElementById('deadlineDate').value = '';
-                this.toggleDeadlineForm();
+                textEl.value = '';
+                dateEl.value = '';
+                this.toggleDeadlineForm(false); // Hide form after adding
                 this.saveData();
                 this.render();
             },
@@ -443,6 +1261,9 @@
                 task.isCompleted = !task.isCompleted;
                 task.completedAt = task.isCompleted ? new Date() : null;
 
+                // No automatic removal, user can see completed deadline tasks
+                // If you want to remove them after a delay:
+                /*
                 if (task.isCompleted) {
                     setTimeout(() => {
                         this.deadlineTasks = this.deadlineTasks.filter(t => t.id !== taskId);
@@ -450,14 +1271,18 @@
                         this.render();
                     }, 2000);
                 }
-
+                */
                 this.saveData();
                 this.render();
             },
 
             // Inbox
             toggleInbox() {
-                document.getElementById('inboxSection').classList.toggle('hidden');
+                const inboxSection = document.getElementById('inboxSection');
+                inboxSection.classList.toggle('hidden');
+                if(!inboxSection.classList.contains('hidden')) {
+                    document.getElementById('inboxInput').focus();
+                }
             },
 
             addInboxItem() {
@@ -467,24 +1292,31 @@
                 if (!text) return;
 
                 this.inboxItems.push({
-                    id: Date.now(),
+                    id: Date.now().toString(), // Ensure ID is a string for consistency
                     text: text
                 });
 
                 input.value = '';
                 this.saveData();
+                this.render(); // Re-render to show new inbox item
+            },
+            
+            deleteInboxItem(itemId) {
+                this.inboxItems = this.inboxItems.filter(item => item.id !== itemId);
+                this.saveData();
                 this.render();
             },
 
+
             // ヘルパー関数
-            getTodayTasks() {
+            getTodayTasks() { // Renamed to getSelectedDateTasks for clarity
                 const dateStr = this.selectedDate.toDateString();
                 return this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === dateStr);
             },
 
             getDaysUntilDeadline(deadline) {
                 const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                today.setHours(0, 0, 0, 0); // Compare date parts only
                 const deadlineDate = new Date(deadline);
                 deadlineDate.setHours(0, 0, 0, 0);
                 const diffTime = deadlineDate - today;
@@ -493,23 +1325,22 @@
 
             formatDate(date) {
                 const today = new Date();
-                const isToday = date.toDateString() === today.toDateString();
-                
-                if (isToday) return '今日';
+                today.setHours(0,0,0,0);
+                const compDate = new Date(date);
+                compDate.setHours(0,0,0,0);
+
+                if (compDate.toDateString() === today.toDateString()) return '本日';
                 
                 const tomorrow = new Date(today);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                if (date.toDateString() === tomorrow.toDateString()) return '明日';
+                tomorrow.setDate(today.getDate() + 1);
+                if (compDate.toDateString() === tomorrow.toDateString()) return '明日';
                 
                 const yesterday = new Date(today);
-                yesterday.setDate(yesterday.getDate() - 1);
-                if (date.toDateString() === yesterday.toDateString()) return '昨日';
+                yesterday.setDate(today.getDate() - 1);
+                if (compDate.toDateString() === yesterday.toDateString()) return '昨日';
                 
-                return date.toLocaleDateString('ja-JP', { 
-                    month: 'numeric', 
-                    day: 'numeric',
-                    weekday: 'short'
-                });
+                const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+                return `${compDate.getMonth() + 1}月${compDate.getDate()}日(${weekdays[compDate.getDay()]})`;
             },
 
             // UI更新
@@ -529,13 +1360,13 @@
             showPostponeEffect() {
                 const elem = document.getElementById('postponeEffect');
                 elem.classList.remove('hidden');
-                setTimeout(() => elem.classList.add('hidden'), 2000);
+                setTimeout(() => elem.classList.add('hidden'), 1500);
             },
 
             // レンダリング
             render() {
-                const todayTasks = this.getTodayTasks();
-                const completedCount = todayTasks.filter(t => t.isCompleted).length;
+                const selectedDateTasks = this.getTodayTasks(); // Name reflects it gets tasks for selectedDate
+                const completedCount = selectedDateTasks.filter(t => t.isCompleted).length;
                 const isToday = this.selectedDate.toDateString() === new Date().toDateString();
 
                 // 日付表示
@@ -544,48 +1375,50 @@
 
                 // カウント表示
                 document.getElementById('completedCount').textContent = completedCount;
-                document.getElementById('totalCount').textContent = todayTasks.length;
+                document.getElementById('totalCount').textContent = selectedDateTasks.length;
 
-                // スロット数表示
-                const normalCount = todayTasks.filter(t => t.type === 'normal').length;
-                const urgentCount = todayTasks.filter(t => t.type === 'urgent').length;
-                document.getElementById('normalSlots').textContent = 3 - normalCount;
-                document.getElementById('urgentSlots').textContent = 1 - urgentCount;
+                // スロット数表示 (based on active tasks for the selected date)
+                const activeNormalCount = selectedDateTasks.filter(t => t.type === 'normal' && !t.isCompleted).length;
+                const activeUrgentCount = selectedDateTasks.filter(t => t.type === 'urgent' && !t.isCompleted).length;
+                document.getElementById('normalSlots').textContent = Math.max(0, 3 - activeNormalCount);
+                document.getElementById('urgentSlots').textContent = Math.max(0, 1 - activeUrgentCount);
+                 // Disable task type buttons if slots are full
+                document.getElementById('normalType').disabled = (3 - activeNormalCount) <= 0;
+                document.getElementById('urgentType').disabled = (1 - activeUrgentCount) <= 0;
+
 
                 // タスクリスト
                 const taskList = document.getElementById('taskList');
-                taskList.innerHTML = '';
+                taskList.innerHTML = ''; // Clear existing tasks
                 
-                todayTasks.forEach(task => {
+                selectedDateTasks.sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt)).forEach((task, index) => { // Sort by creation time
                     const taskEl = document.createElement('div');
-                    taskEl.className = `bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-md ${
+                    taskEl.className = `washi-card rounded-xl p-4 transition-all animate-fadeInUp ${
                         task.isCompleted ? 'opacity-60' : ''
                     }`;
+                    taskEl.style.animationDelay = `${index * 0.05}s`; // Faster animation cascade
                     
                     taskEl.innerHTML = `
-                        <div class="flex items-center gap-4">
-                            <button onclick="app.toggleTask('${task.id}')" class="flex-shrink-0 w-12 h-12 rounded-full border-2 border-gray-300 hover:border-gray-900 transition-colors flex items-center justify-center">
-                                ${task.isCompleted ? '<svg class="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' : ''}
-                            </button>
+                        <div class="flex items-center gap-3">
+                            <button data-task-id="${task.id}" class="task-toggle-button flex-shrink-0 wa-checkbox ${task.isCompleted ? 'checked' : ''} flex items-center justify-center rounded-md"></button>
                             
-                            <div class="flex-1">
-                                <p class="text-xl ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}">${task.text}</p>
+                            <div class="flex-1 min-w-0"> <!-- Added min-w-0 for better text wrapping -->
+                                <p class="task-text break-words ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-800'}">${task.text}</p>
                                 <div class="flex items-center gap-3 mt-1">
-                                    <span class="text-sm ${task.type === 'urgent' ? 'text-red-600 font-medium' : 'text-gray-500'}">
-                                        ${task.type === 'urgent' ? '臨時' : '通常'}
+                                    <span class="text-xs sm:text-sm ${task.type === 'urgent' ? 'text-red-700 font-medium' : 'text-gray-600'}">
+                                        ${task.type === 'urgent' ? '【臨時】' : '【通常】'}
                                     </span>
-                                    ${task.completedAt ? `<span class="text-sm text-gray-500">完了 ${new Date(task.completedAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</span>` : ''}
+                                    ${task.completedAt ? `<span class="text-xs sm:text-sm text-gray-600">完了 ${new Date(task.completedAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</span>` : ''}
                                 </div>
                             </div>
                             
                             <div class="flex items-center gap-1">
                                 ${!task.isCompleted ? `
-                                    <button onclick="app.postponeTask('${task.id}')" class="p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all" title="明日へ移動">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    <button data-task-id="${task.id}" class="task-postpone-button p-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all" title="明日へ">
+                                        <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                                     </button>
                                 ` : ''}
-                                <div class="w-4"></div>
-                                <button onclick="app.deleteTask('${task.id}')" class="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all text-2xl leading-none" title="削除">×</button>
+                                <button data-task-id="${task.id}" class="task-delete-button p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all text-xl leading-none" title="削除">×</button>
                             </div>
                         </div>
                     `;
@@ -593,56 +1426,62 @@
                     taskList.appendChild(taskEl);
                 });
 
-                document.getElementById('noTasks').classList.toggle('hidden', todayTasks.length > 0);
+                document.getElementById('noTasks').classList.toggle('hidden', selectedDateTasks.length > 0);
 
                 // 期限付きタスク
                 const deadlineList = document.getElementById('deadlineList');
                 deadlineList.innerHTML = '';
                 
-                this.deadlineTasks.forEach(task => {
+                // Sort deadline tasks: overdue first, then by days left, then by creation
+                this.deadlineTasks
+                    .sort((a,b) => {
+                        if (a.isCompleted && !b.isCompleted) return 1;
+                        if (!a.isCompleted && b.isCompleted) return -1;
+                        const daysA = this.getDaysUntilDeadline(a.deadline);
+                        const daysB = this.getDaysUntilDeadline(b.deadline);
+                        if (daysA !== daysB) return daysA - daysB;
+                        return new Date(a.createdAt) - new Date(b.createdAt);
+                    })
+                    .forEach(task => {
                     const daysLeft = this.getDaysUntilDeadline(task.deadline);
-                    const isUrgent = daysLeft <= 3 && !task.isCompleted;
+                    const isUrgent = daysLeft <= 3 && daysLeft >=0 && !task.isCompleted; // Urgent if 0-3 days left
                     const isOverdue = daysLeft < 0 && !task.isCompleted;
                     
                     const taskEl = document.createElement('div');
-                    taskEl.className = `p-4 rounded-lg border-2 transition-all ${
+                    taskEl.className = `p-3 rounded-lg border transition-all ${
                         task.isCompleted
-                            ? 'border-gray-300 bg-gray-100 opacity-60'
+                            ? 'border-gray-300 bg-gray-50 opacity-60'
                             : isOverdue 
-                                ? 'border-red-500 bg-red-50' 
+                                ? 'border-red-400 bg-red-50' 
                                 : isUrgent 
-                                    ? 'border-orange-400 bg-orange-50 animate-pulse-border' 
-                                    : 'border-gray-200 bg-gray-50'
+                                    ? 'border-orange-400 bg-orange-50' 
+                                    : 'border-gray-300 bg-gray-50'
                     }`;
                     
                     taskEl.innerHTML = `
                         <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <p class="text-lg font-medium ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}">${task.text}</p>
-                                <p class="text-sm font-bold mt-1 ${
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm sm:text-base font-medium break-words ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-800'}">${task.text}</p>
+                                <p class="text-xs sm:text-sm mt-1 ${
                                     task.isCompleted
                                         ? 'text-gray-500'
                                         : isOverdue 
-                                            ? 'text-red-600' 
+                                            ? 'text-red-700 font-medium' 
                                             : isUrgent 
-                                                ? 'text-orange-600' 
+                                                ? 'text-orange-700 font-medium' 
                                                 : 'text-gray-600'
                                 }">
                                     ${task.isCompleted 
-                                        ? '完了済み' 
+                                        ? `完了 (${new Date(task.completedAt).toLocaleDateString('ja-JP', {month:'numeric', day:'numeric'})})`
                                         : isOverdue 
                                             ? `${Math.abs(daysLeft)}日超過` 
                                             : daysLeft === 0 
-                                                ? '今日まで' 
+                                                ? '本日まで' 
                                                 : `あと${daysLeft}日`}
-                                    （${new Date(task.deadline).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}まで）
+                                    ・期限: ${new Date(task.deadline).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}
                                 </p>
                             </div>
-                            <button onclick="app.toggleDeadlineTask('${task.id}')" class="flex-shrink-0 w-10 h-10 rounded-full border-2 border-gray-400 hover:border-gray-900 transition-colors flex items-center justify-center ml-4 group">
-                                ${task.isCompleted 
-                                    ? '<svg class="w-5 h-5 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' 
-                                    : '<svg class="w-5 h-5 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>'}
-                            </button>
+                            <button data-task-id="${task.id}" class="deadline-task-toggle-button flex-shrink-0 wa-checkbox ${task.isCompleted ? 'checked' : ''} flex items-center justify-center rounded-md ml-3" style="min-width: 36px; min-height: 36px; width: 36px; height: 36px;"></button>
                         </div>
                     `;
                     
@@ -651,8 +1490,9 @@
 
                 const activeDeadlines = this.deadlineTasks.filter(t => !t.isCompleted).length;
                 document.getElementById('noDeadlineTasks').classList.toggle('hidden', this.deadlineTasks.length > 0);
-                document.getElementById('deadlineToggle').disabled = activeDeadlines >= 3;
-                document.getElementById('deadlineToggle').querySelector('svg').style.opacity = activeDeadlines >= 3 ? '0.3' : '1';
+                const deadlineToggleButton = document.getElementById('deadlineToggle');
+                deadlineToggleButton.disabled = activeDeadlines >= 3;
+                deadlineToggleButton.querySelector('svg').style.opacity = activeDeadlines >= 3 ? '0.3' : '1';
 
                 // Inbox
                 const inboxList = document.getElementById('inboxList');
@@ -660,9 +1500,46 @@
                 
                 this.inboxItems.forEach(item => {
                     const itemEl = document.createElement('div');
-                    itemEl.className = 'p-3 bg-gray-50 rounded-lg text-gray-700';
-                    itemEl.textContent = item.text;
+                    itemEl.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg text-gray-700 border border-gray-200 text-sm';
+                    itemEl.innerHTML = `
+                        <span class="break-all">${item.text}</span>
+                        <button data-item-id="${item.id}" class="inbox-item-delete-button ml-2 p-1 text-gray-400 hover:text-red-500 text-lg leading-none">×</button>
+                    `;
                     inboxList.appendChild(itemEl);
+                });
+                
+                // Re-bind events for dynamically created elements (tasks, deadline tasks, inbox items)
+                this.bindDynamicEvents();
+            },
+
+            bindDynamicEvents() {
+                // Task list buttons
+                document.querySelectorAll('.task-toggle-button').forEach(button => {
+                    button.addEventListener('click', (e) => this.toggleTask(e.currentTarget.dataset.taskId));
+                });
+                document.querySelectorAll('.task-postpone-button').forEach(button => {
+                    button.addEventListener('click', (e) => this.postponeTask(e.currentTarget.dataset.taskId));
+                });
+                document.querySelectorAll('.task-delete-button').forEach(button => {
+                    button.addEventListener('click', (e) => this.deleteTask(e.currentTarget.dataset.taskId));
+                });
+
+                // Deadline task buttons
+                document.querySelectorAll('.deadline-task-toggle-button').forEach(button => {
+                    button.addEventListener('click', (e) => this.toggleDeadlineTask(e.currentTarget.dataset.taskId));
+                });
+                
+                // Inbox delete buttons
+                document.querySelectorAll('.inbox-item-delete-button').forEach(button => {
+                    button.addEventListener('click', (e) => this.deleteInboxItem(e.currentTarget.dataset.itemId));
+                });
+
+                // Add ripple effect to newly added buttons if they don't have it
+                document.querySelectorAll('button:not([data-ripple-bound])').forEach(button => {
+                    button.style.position = 'relative'; // Needed for ripple
+                    button.style.overflow = 'hidden';  // Needed for ripple
+                    button.addEventListener('click', createRipple);
+                    button.setAttribute('data-ripple-bound', 'true'); // Mark as bound
                 });
             }
         };
