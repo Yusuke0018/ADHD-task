@@ -194,6 +194,14 @@
             .task-text-lg { font-size: 1.05rem; line-height: 1.55; }  
             .button-large { min-height: 48px; font-size: 1rem; }
             .sekki-grid { grid-template-columns: repeat(3, 1fr) !important; }
+            .mobile-compact { padding: 0.75rem !important; }
+            .mobile-text-sm { font-size: 0.875rem !important; }
+            .mobile-gap-2 { gap: 0.5rem !important; }
+            .point-display-mobile { 
+                flex-direction: column !important; 
+                align-items: flex-start !important;
+                gap: 0.5rem !important;
+            }
         }
         
         @media (hover: none) {
@@ -213,6 +221,7 @@
             transition: all 0.3s ease;
             min-width: 44px;
             min-height: 44px;
+            -webkit-tap-highlight-color: transparent;
         }
         .wa-checkbox.checked { background-color: #8b7355; border-color: #8b7355; }
         .wa-checkbox.checked::after {
@@ -259,7 +268,7 @@
             font-weight: 500;
         }
 
-        /* 未完了の臨時タスク */
+        /* 未完了の目標タスク */
         .task-urgent-active {
             background-color: rgba(255, 235, 224, 0.98); /* 薄いオレンジ */
             border: 2px solid #FF8C69; /* やや濃いオレンジの枠線 */
@@ -309,11 +318,18 @@
                 
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="text-lg sm:text-xl font-semibold text-gray-800">本日の予定</h2>
-                    <button id="inboxToggle" class="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button id="statsToggle" class="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all" title="ポイント統計">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </button>
+                        <button id="inboxToggle" class="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- 日付選択 -->
@@ -337,10 +353,19 @@
                             </button>
                         </div>
                         
-                        <div class="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-full">
-                            <span id="completedCount" class="text-2xl sm:text-3xl font-bold text-gray-800">0</span>
-                            <span class="text-lg sm:text-xl text-gray-500">／</span>
-                            <span id="totalCount" class="text-xl sm:text-2xl text-gray-700">0</span>
+                        <div class="flex items-center gap-3 point-display-mobile">
+                            <div class="flex items-center gap-2 bg-gray-50 px-3 sm:px-4 py-2 rounded-full">
+                                <span id="completedCount" class="text-xl sm:text-3xl font-bold text-gray-800">0</span>
+                                <span class="text-base sm:text-xl text-gray-500">／</span>
+                                <span id="totalCount" class="text-lg sm:text-2xl text-gray-700">0</span>
+                            </div>
+                            <div class="flex items-center gap-2 bg-amber-50 px-3 sm:px-4 py-2 rounded-full">
+                                <svg class="w-4 sm:w-5 h-4 sm:h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <span id="totalPointsDisplay" class="text-base sm:text-xl font-bold text-amber-700">0</span>
+                                <span class="text-sm text-amber-600">pt</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -392,14 +417,21 @@
                         通常 <span class="text-sm opacity-80">(<span id="normalSlots">3</span>/3)</span>
                     </button>
                     <button id="urgentType" class="flex-1 px-4 py-2 rounded-full font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 button-large">
-                        臨時 <span class="text-sm opacity-80">(<span id="urgentSlots">1</span>/1)</span>
+                        目標 <span class="text-sm opacity-80">(<span id="urgentSlots">3</span>/3)</span>
                     </button>
                 </div>
                 
-                <div class="flex gap-2">
-                    <input type="text" id="taskInput" placeholder="本日の予定を入力..." class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
+                <div class="flex flex-col gap-2">
+                    <input type="text" id="taskInput" placeholder="本日の予定を入力..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
+                    <div id="pointSelector" class="hidden flex items-center gap-2 mobile-gap-2">
+                        <span class="text-sm font-medium text-gray-700 mobile-text-sm">ポイント:</span>
+                        <button class="point-button px-3 py-2 sm:py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 min-w-[44px]" data-points="1">1pt</button>
+                        <button class="point-button px-3 py-2 sm:py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 min-w-[44px]" data-points="2">2pt</button>
+                        <button class="point-button px-3 py-2 sm:py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 min-w-[44px]" data-points="3">3pt</button>
+                        <button id="confirmAddTask" class="ml-auto px-4 py-2 sm:py-1 bg-gray-800 text-white rounded-lg hover:bg-gray-900 text-sm font-medium">追加</button>
+                    </div>
                     <button id="addTask" class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all font-medium button-large">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
                     </button>
@@ -410,6 +442,38 @@
             <div id="taskList" class="space-y-3 mb-4"></div>
             <p id="noTasks" class="hidden text-center py-8 text-gray-500">本日の予定はありません</p>
 
+            <!-- ポイント統計 -->
+            <div id="statsSection" class="hidden washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">ポイント統計</h3>
+                <div class="space-y-4">
+                    <div class="bg-amber-50 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-700">累計ポイント</span>
+                            <div class="flex items-center gap-2">
+                                <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <span class="text-2xl font-bold text-amber-700" id="totalPointsStats">0</span>
+                                <span class="text-lg text-amber-600">pt</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">最近7日間の獲得ポイント</h4>
+                        <div id="weeklyStats" class="space-y-2">
+                            <!-- 週間統計がここに表示されます -->
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-3">
+                        <button id="resetStats" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium">
+                            統計をリセット
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
             <!-- アイデア置き場 -->
             <div id="inboxSection" class="hidden washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3">覚書</h3>
@@ -622,6 +686,8 @@
             inboxItems: [],
             selectedDate: new Date(),
             taskType: 'normal',
+            totalPoints: 0,
+            dailyPointHistory: {},
 
             init() {
                 this.loadData();
@@ -774,13 +840,15 @@
                 const saved = localStorage.getItem('focusTaskData');
                 if (saved) {
                     const data = JSON.parse(saved);
-                    this.tasks = (data.tasks || []).map(t => ({ ...t, createdAt: new Date(t.createdAt), completedAt: t.completedAt ? new Date(t.completedAt) : null, scheduledFor: new Date(t.scheduledFor) }));
+                    this.tasks = (data.tasks || []).map(t => ({ ...t, createdAt: new Date(t.createdAt), completedAt: t.completedAt ? new Date(t.completedAt) : null, scheduledFor: new Date(t.scheduledFor), points: t.points || 0 }));
                     this.deadlineTasks = (data.deadlineTasks || []).map(t => ({ ...t, deadline: new Date(t.deadline), createdAt: new Date(t.createdAt), completedAt: t.completedAt ? new Date(t.completedAt) : null }));
                     this.inboxItems = data.inboxItems || [];
+                    this.totalPoints = data.totalPoints || 0;
+                    this.dailyPointHistory = data.dailyPointHistory || {};
                 }},
 
             saveData() { /* Same as before */
-                localStorage.setItem('focusTaskData', JSON.stringify({ tasks: this.tasks, deadlineTasks: this.deadlineTasks, inboxItems: this.inboxItems }));},
+                localStorage.setItem('focusTaskData', JSON.stringify({ tasks: this.tasks, deadlineTasks: this.deadlineTasks, inboxItems: this.inboxItems, totalPoints: this.totalPoints, dailyPointHistory: this.dailyPointHistory }));},
 
             bindEvents() { 
                 document.getElementById('prevDay').addEventListener('click', () => this.navigateDate(-1));
@@ -792,14 +860,20 @@
                 dateInputElement.addEventListener('input', () => this.updateCalendarSekkiInfo()); 
                 document.getElementById('normalType').addEventListener('click', () => this.setTaskType('normal'));
                 document.getElementById('urgentType').addEventListener('click', () => this.setTaskType('urgent'));
-                document.getElementById('addTask').addEventListener('click', () => this.addTask());
-                document.getElementById('taskInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.addTask(); });
+                document.getElementById('addTask').addEventListener('click', () => this.showPointSelector());
+                document.getElementById('taskInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.showPointSelector(); });
+                document.querySelectorAll('.point-button').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.selectPoints(e.target.dataset.points));
+                });
+                document.getElementById('confirmAddTask').addEventListener('click', () => this.addTask());
                 document.getElementById('deadlineToggle').addEventListener('click', () => this.toggleDeadlineForm());
                 document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
                 document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
                 document.getElementById('inboxToggle').addEventListener('click', () => this.toggleInbox());
                 document.getElementById('addInbox').addEventListener('click', () => this.addInboxItem());
                 document.getElementById('inboxInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.addInboxItem(); });
+                document.getElementById('statsToggle').addEventListener('click', () => this.toggleStats());
+                document.getElementById('resetStats').addEventListener('click', () => this.resetStats());
 
                 // --- NEW: スワイプによる日付移動機能 ---
                 const swipeArea = document.body;
@@ -919,25 +993,88 @@
                 normalButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${ type === 'normal' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }`;
                 urgentButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${ type === 'urgent' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }`;},
 
+            selectedPoints: 0,
+            
+            showPointSelector() {
+                const input = document.getElementById('taskInput');
+                const text = input.value.trim();
+                if (!text) { this.showError('予定を入力してください'); return; }
+                
+                if (this.taskType === 'urgent') {
+                    document.getElementById('pointSelector').classList.remove('hidden');
+                    document.getElementById('addTask').classList.add('hidden');
+                    this.selectedPoints = 0;
+                    document.querySelectorAll('.point-button').forEach(btn => {
+                        btn.classList.remove('bg-gray-800', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                } else {
+                    this.selectedPoints = 0;
+                    this.addTask();
+                }
+            },
+            
+            selectPoints(points) {
+                this.selectedPoints = parseInt(points);
+                document.querySelectorAll('.point-button').forEach(btn => {
+                    if (btn.dataset.points === points) {
+                        btn.classList.add('bg-gray-800', 'text-white');
+                        btn.classList.remove('bg-gray-200', 'text-gray-700');
+                    } else {
+                        btn.classList.remove('bg-gray-800', 'text-white');
+                        btn.classList.add('bg-gray-200', 'text-gray-700');
+                    }
+                });
+            },
+            
             addTask() { /* Same as before */
                 const input = document.getElementById('taskInput');
                 const text = input.value.trim();
                 if (!text) { this.showError('予定を入力してください'); return; }
+                
+                if (this.taskType === 'urgent' && this.selectedPoints === 0) {
+                    this.showError('目標タスクにはポイントを設定してください');
+                    return;
+                }
+                
                 const todayTasks = this.getTodayTasks();
                 const normalCount = todayTasks.filter(t => t.type === 'normal' && !t.isCompleted).length; 
                 const urgentCount = todayTasks.filter(t => t.type === 'urgent' && !t.isCompleted).length; 
                 if (this.taskType === 'normal' && normalCount >= 3) { this.showError('通常タスクは3件までです（未完了）'); return; }
-                if (this.taskType === 'urgent' && urgentCount >= 1) { this.showError('臨時タスクは1件までです（未完了）'); return; }
-                const newTask = { id: Date.now().toString(), text: text, type: this.taskType, createdAt: new Date(), completedAt: null, isCompleted: false, scheduledFor: new Date(this.selectedDate) };
+                if (this.taskType === 'urgent' && urgentCount >= 3) { this.showError('目標タスクは3件までです（未完了）'); return; }
+                const newTask = { id: Date.now().toString(), text: text, type: this.taskType, points: this.taskType === 'urgent' ? this.selectedPoints : 0, createdAt: new Date(), completedAt: null, isCompleted: false, scheduledFor: new Date(this.selectedDate) };
                 this.tasks.push(newTask);
                 input.value = '';
+                
+                document.getElementById('pointSelector').classList.add('hidden');
+                document.getElementById('addTask').classList.remove('hidden');
+                this.selectedPoints = 0;
+                
                 this.saveData();
                 this.render();},
 
             toggleTask(taskId) { /* Same as before */
                 const task = this.tasks.find(t => t.id === taskId);
                 if (!task) return;
-                if (!task.isCompleted) { this.showCelebration(); }
+                if (!task.isCompleted) { 
+                    this.showCelebration();
+                    if (task.type === 'urgent' && task.points > 0) {
+                        this.totalPoints += task.points;
+                        const today = new Date().toDateString();
+                        if (!this.dailyPointHistory[today]) {
+                            this.dailyPointHistory[today] = 0;
+                        }
+                        this.dailyPointHistory[today] += task.points;
+                    }
+                } else {
+                    if (task.type === 'urgent' && task.points > 0) {
+                        this.totalPoints -= task.points;
+                        const today = new Date().toDateString();
+                        if (this.dailyPointHistory[today]) {
+                            this.dailyPointHistory[today] -= task.points;
+                        }
+                    }
+                }
                 task.isCompleted = !task.isCompleted;
                 task.completedAt = task.isCompleted ? new Date() : null;
                 this.saveData();
@@ -952,7 +1089,7 @@
                 const normalCount = tomorrowTasks.filter(t => t.type === 'normal').length;
                 const urgentCount = tomorrowTasks.filter(t => t.type === 'urgent').length;
                 if (task.type === 'normal' && normalCount >= 3) { this.showError('翌日の通常タスクは既に3件です（未完了）'); return; }
-                if (task.type === 'urgent' && urgentCount >= 1) { this.showError('翌日の臨時タスクは既に1件です（未完了）'); return; }
+                if (task.type === 'urgent' && urgentCount >= 3) { this.showError('翌日の目標タスクは既に3件です（未完了）'); return; }
                 task.scheduledFor = tomorrow;
                 this.showPostponeEffect();
                 setTimeout(() => { this.saveData(); this.render(); }, 600);},
@@ -1058,6 +1195,51 @@
                 elem.classList.remove('hidden');
                 setTimeout(() => elem.classList.add('hidden'), 1500);},
 
+            toggleStats() {
+                const statsSection = document.getElementById('statsSection');
+                statsSection.classList.toggle('hidden');
+                if (!statsSection.classList.contains('hidden')) {
+                    this.renderWeeklyStats();
+                }
+            },
+            
+            renderWeeklyStats() {
+                const weeklyStatsEl = document.getElementById('weeklyStats');
+                weeklyStatsEl.innerHTML = '';
+                
+                const today = new Date();
+                for (let i = 6; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(date.getDate() - i);
+                    const dateStr = date.toDateString();
+                    const points = this.dailyPointHistory[dateStr] || 0;
+                    const dayName = i === 0 ? '今日' : i === 1 ? '昨日' : date.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
+                    
+                    const dayEl = document.createElement('div');
+                    dayEl.className = 'flex items-center justify-between p-2 rounded-lg ' + (i === 0 ? 'bg-amber-50' : 'bg-gray-50');
+                    dayEl.innerHTML = `
+                        <span class="text-sm text-gray-700">${dayName}</span>
+                        <div class="flex items-center gap-2">
+                            <div class="h-2 bg-gray-200 rounded-full" style="width: 100px;">
+                                <div class="h-full bg-amber-500 rounded-full transition-all" style="width: ${Math.min(points * 10, 100)}%;"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 w-12 text-right">${points}pt</span>
+                        </div>
+                    `;
+                    weeklyStatsEl.appendChild(dayEl);
+                }
+            },
+            
+            resetStats() {
+                if (confirm('すべてのポイント統計をリセットしますか？')) {
+                    this.totalPoints = 0;
+                    this.dailyPointHistory = {};
+                    this.saveData();
+                    this.render();
+                    this.renderWeeklyStats();
+                }
+            },
+            
             render() {
                 const selectedDateTasks = this.getTodayTasks(); 
                 const completedCount = selectedDateTasks.filter(t => t.isCompleted).length;
@@ -1067,13 +1249,15 @@
                 document.getElementById('todayButton').classList.toggle('hidden', isToday);
                 document.getElementById('completedCount').textContent = completedCount;
                 document.getElementById('totalCount').textContent = selectedDateTasks.length;
+                document.getElementById('totalPointsDisplay').textContent = this.totalPoints;
+                document.getElementById('totalPointsStats').textContent = this.totalPoints;
 
                 const activeNormalCount = selectedDateTasks.filter(t => t.type === 'normal' && !t.isCompleted).length;
                 const activeUrgentCount = selectedDateTasks.filter(t => t.type === 'urgent' && !t.isCompleted).length;
                 document.getElementById('normalSlots').textContent = Math.max(0, 3 - activeNormalCount);
-                document.getElementById('urgentSlots').textContent = Math.max(0, 1 - activeUrgentCount);
+                document.getElementById('urgentSlots').textContent = Math.max(0, 3 - activeUrgentCount);
                 document.getElementById('normalType').disabled = (3 - activeNormalCount) <= 0;
-                document.getElementById('urgentType').disabled = (1 - activeUrgentCount) <= 0;
+                document.getElementById('urgentType').disabled = (3 - activeUrgentCount) <= 0;
 
                 const taskList = document.getElementById('taskList');
                 taskList.innerHTML = ''; 
@@ -1084,7 +1268,7 @@
                     if (task.isCompleted) { taskSpecificClass = 'task-completed'; } 
                     else if (task.type === 'urgent') { taskSpecificClass = 'task-urgent-active'; } 
                     else { taskSpecificClass = 'task-normal-active'; }
-                    taskEl.className = `washi-card task-card rounded-xl p-4 transition-all animate-fadeInUp ${taskSpecificClass}`;
+                    taskEl.className = `washi-card task-card rounded-xl p-4 mobile-compact transition-all animate-fadeInUp ${taskSpecificClass}`;
                     taskEl.style.animationDelay = `${index * 0.05}s`; 
                     
                     taskEl.innerHTML = `
@@ -1094,18 +1278,18 @@
                                 <p class="task-text-lg break-words">${task.text}</p> <!-- Removed specific color classes here, handled by parent -->
                                 <div class="flex items-center gap-3 mt-1">
                                     <span class="task-type-label"> <!-- Styling now comes from parent context -->
-                                        ${task.type === 'urgent' ? '【臨時】' : '【通常】'}
+                                        ${task.type === 'urgent' ? `【目標】${task.points ? ` ${task.points}pt` : ''}` : '【通常】'}
                                     </span>
                                     ${task.completedAt ? `<span class="text-xs text-gray-600">完了 ${new Date(task.completedAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</span>` : ''}
                                 </div>
                             </div>
                             <div class="flex items-center gap-1">
                                 ${!task.isCompleted ? `
-                                    <button data-task-id="${task.id}" class="task-postpone-button p-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all" title="明日へ">
+                                    <button data-task-id="${task.id}" class="task-postpone-button p-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all min-w-[44px] min-h-[44px] flex items-center justify-center" title="明日へ">
                                         <svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                                     </button>
                                 ` : ''}
-                                <button data-task-id="${task.id}" class="task-delete-button p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all text-xl leading-none" title="削除">×</button>
+                                <button data-task-id="${task.id}" class="task-delete-button p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-all text-xl leading-none min-w-[44px] min-h-[44px] flex items-center justify-center" title="削除">×</button>
                             </div>
                         </div>
                     `;
@@ -1191,12 +1375,6 @@
                 });
             }
         };
-        app.init();
-    </script>
-</body>
-</html>
-
-
         app.init();
     </script>
 </body>
