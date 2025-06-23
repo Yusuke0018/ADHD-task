@@ -543,7 +543,7 @@
                 
                 <!-- AIコメント表示 -->
                 <div id="aiCommentDisplay" class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4">
-                    <div id="aiCommentContent" class="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
+                    <div id="aiCommentContent" class="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto"></div>
                     <div id="aiCommentLoading" class="hidden text-center py-8">
                         <div class="inline-flex items-center gap-2 text-gray-600">
                             <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
@@ -1407,6 +1407,18 @@
                     return;
                 }
                 
+                const periodNames = {
+                    daily: 'デイリー',
+                    weekly: '週間',
+                    sekki: '節気間',
+                    monthly: '月間',
+                    quarterly: '3ヶ月'
+                };
+                
+                if (!confirm(`${periodNames[period]}のAIコメントを生成しますか？`)) {
+                    return;
+                }
+                
                 const loading = document.getElementById('aiCommentLoading');
                 const content = document.getElementById('aiCommentContent');
                 const noApiKey = document.getElementById('noApiKey');
@@ -1427,13 +1439,13 @@
                             model: 'gpt-3.5-turbo',
                             messages: [{
                                 role: 'system',
-                                content: 'You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese.'
+                                content: 'You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Ensure your response is a complete, coherent message.'
                             }, {
                                 role: 'user',
                                 content: prompt
                             }],
                             temperature: 0.7,
-                            max_tokens: period === 'quarterly' ? 800 : period === 'monthly' ? 600 : period === 'sekki' ? 400 : period === 'weekly' ? 300 : 200
+                            max_tokens: period === 'quarterly' ? 1200 : period === 'monthly' ? 800 : period === 'sekki' ? 600 : period === 'weekly' ? 400 : 300
                         })
                     });
                     
@@ -1483,7 +1495,7 @@
                         if (stats.todayReflection) {
                             prompt += `振り返り: ${stats.todayReflection}\n`;
                         }
-                        prompt += `\nADHD傾向がある私に、今日の振り返りと明日へのアドバイスを150文字程度でお願いします。`;
+                        prompt += `\nADHD傾向がある私に、今日の振り返りと明日へのアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
                         break;
                         
                     case 'weekly':
@@ -1492,7 +1504,7 @@
                         prompt += `- 目標タスク: ${stats.goalCompleted}/${stats.goalTotal}完了\n`;
                         prompt += `- 獲得ポイント: ${stats.totalPoints}pt\n`;
                         prompt += `- 期限付きタスク: ${stats.deadlineCompleted}完了\n`;
-                        prompt += `\nADHD傾向がある私に、今週の振り返りと来週へのアドバイスを250文字程度でお願いします。`;
+                        prompt += `\nADHD傾向がある私に、今週の振り返りと来週へのアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
                         break;
                         
                     case 'sekki':
@@ -1500,7 +1512,7 @@
                         prompt += `- 実施日数: ${stats.activeDays}日\n`;
                         prompt += `- 総ポイント: ${stats.totalPoints}pt\n`;
                         prompt += `- 平均完了率: ${stats.avgCompletionRate}%\n`;
-                        prompt += `\n${currentSekki}という季節を踏まえて、ADHD傾向がある私に季節に合わせた生活のアドバイスを350文字程度でお願いします。`;
+                        prompt += `\n${currentSekki}という季節を踏まえて、ADHD傾向がある私に季節に合わせた生活のアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
                         break;
                         
                     case 'monthly':
@@ -1509,7 +1521,7 @@
                         prompt += `- 総ポイント: ${stats.totalPoints}pt\n`;
                         prompt += `- 目標達成率: ${stats.goalCompletionRate}%\n`;
                         prompt += `- 最も多かった振り返りテーマ: ${stats.commonReflectionTheme || '特になし'}\n`;
-                        prompt += `\nADHD傾向がある私に、今月の総括と来月の目標設定についてアドバイスを500文字程度でお願いします。`;
+                        prompt += `\nADHD傾向がある私に、今月の総括と来月の目標設定についてアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
                         break;
                         
                     case 'quarterly':
@@ -1519,7 +1531,7 @@
                         prompt += `- 平均ポイント/日: ${stats.avgPointsPerDay}pt\n`;
                         prompt += `- 最高連続日数: ${stats.maxStreak}日\n`;
                         prompt += `- 成長傾向: ${stats.growthTrend}\n`;
-                        prompt += `\nADHD傾向がある私に、3ヶ月間の成長と今後の長期目標についてアドバイスを700文字程度でお願いします。`;
+                        prompt += `\nADHD傾向がある私に、3ヶ月間の成長と今後の長期目標についてアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
                         break;
                 }
                 
