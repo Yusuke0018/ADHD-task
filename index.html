@@ -944,6 +944,24 @@
             transform: translateY(0);
         }
         
+        /* 日付表示の強調 */
+        #calendarToggle {
+            min-width: 120px;
+            position: relative;
+        }
+        #calendarToggle.bg-amber-50::after {
+            content: '今日';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #f59e0b;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
@@ -1101,8 +1119,10 @@
                                 </svg>
                             </button>
                             
-                            <button id="calendarToggle" class="flex items-center gap-2 px-3 sm:px-6 py-3 hover:bg-gray-50 rounded-full transition-all">
-                                <span id="currentDate" class="text-base sm:text-lg font-medium text-gray-800"></span>
+                            <button id="calendarToggle" class="flex flex-col items-center px-3 sm:px-6 py-2 hover:bg-gray-50 rounded-2xl transition-all border-2 border-gray-300">
+                                <span id="currentDateYear" class="text-xs text-gray-600"></span>
+                                <span id="currentDate" class="text-lg sm:text-xl font-bold text-gray-800"></span>
+                                <span id="currentDateDay" class="text-xs text-gray-600"></span>
                             </button>
                             
                             <button id="nextDay" class="p-3 hover:bg-gray-100 rounded-full transition-all">
@@ -2509,8 +2529,23 @@
                 if (compDate.toDateString() === tomorrow.toDateString()) return '明日';
                 const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
                 if (compDate.toDateString() === yesterday.toDateString()) return '昨日';
-                const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-                return `${compDate.getMonth() + 1}月${compDate.getDate()}日(${weekdays[compDate.getDay()]})`;},
+                return `${compDate.getMonth() + 1}月${compDate.getDate()}日`;
+            },
+            
+            formatDateDetails(date) {
+                const weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const compDate = new Date(date);
+                compDate.setHours(0,0,0,0);
+                
+                return {
+                    year: compDate.getFullYear() + '年',
+                    date: this.formatDate(date),
+                    day: weekdays[compDate.getDay()],
+                    isToday: compDate.toDateString() === today.toDateString()
+                };
+            },
 
             showError(message) { /* Same as before */
                 const elem = document.getElementById('errorMessage');
@@ -2995,7 +3030,20 @@
                 const completedCount = selectedDateTasks.filter(t => t.isCompleted).length;
                 const isToday = this.selectedDate.toDateString() === new Date().toDateString();
 
-                document.getElementById('currentDate').textContent = this.formatDate(this.selectedDate);
+                const dateDetails = this.formatDateDetails(this.selectedDate);
+                document.getElementById('currentDateYear').textContent = dateDetails.year;
+                document.getElementById('currentDate').textContent = dateDetails.date;
+                document.getElementById('currentDateDay').textContent = dateDetails.day;
+                
+                // Highlight today's date
+                const calendarToggle = document.getElementById('calendarToggle');
+                if (dateDetails.isToday) {
+                    calendarToggle.classList.add('bg-amber-50', 'border-amber-400');
+                    calendarToggle.classList.remove('border-gray-300');
+                } else {
+                    calendarToggle.classList.remove('bg-amber-50', 'border-amber-400');
+                    calendarToggle.classList.add('border-gray-300');
+                }
                 document.getElementById('todayButton').classList.toggle('hidden', isToday);
                 document.getElementById('completedCount').textContent = completedCount;
                 document.getElementById('totalCount').textContent = selectedDateTasks.length;
