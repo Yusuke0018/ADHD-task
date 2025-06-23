@@ -2537,7 +2537,11 @@
             formatDate(date) { /* Same as before */
                 const today = new Date(); today.setHours(0,0,0,0);
                 const compDate = new Date(date); compDate.setHours(0,0,0,0);
-                if (compDate.toDateString() === today.toDateString()) return '本日';
+                if (compDate.toDateString() === today.toDateString()) {
+                    const month = today.getMonth() + 1;
+                    const day = today.getDate();
+                    return `本日 (${month}/${day})`;
+                }
                 const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
                 if (compDate.toDateString() === tomorrow.toDateString()) return '明日';
                 const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
