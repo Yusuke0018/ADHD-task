@@ -208,6 +208,20 @@
             .wa-button:active { transform: scale(0.95); }
         }
         
+        /* ポイント選択ボタン */
+        .point-select-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .point-select-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .point-select-button:active {
+            transform: translateY(0);
+        }
+        
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
@@ -446,12 +460,24 @@
                 
                 <div class="flex flex-col gap-2">
                     <input type="text" id="taskInput" placeholder="本日の予定を入力..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
-                    <div id="pointSelector" class="hidden flex items-center gap-2 mobile-gap-2">
-                        <span class="text-sm font-medium text-gray-700 mobile-text-sm">ポイント:</span>
-                        <button class="point-button px-3 py-2 sm:py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 min-w-[44px]" data-points="1">1pt</button>
-                        <button class="point-button px-3 py-2 sm:py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 min-w-[44px]" data-points="2">2pt</button>
-                        <button class="point-button px-3 py-2 sm:py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 min-w-[44px]" data-points="3">3pt</button>
-                        <button id="confirmAddTask" class="ml-auto px-4 py-2 sm:py-1 bg-gray-800 text-white rounded-lg hover:bg-gray-900 text-sm font-medium">追加</button>
+                    <div id="pointSelector" class="hidden">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-sm font-medium text-gray-700">ポイントを選択:</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="point-select-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all" data-points="1">
+                                <div class="text-lg font-bold">1pt</div>
+                                <div class="text-xs text-gray-600">簡単</div>
+                            </button>
+                            <button class="point-select-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all" data-points="2">
+                                <div class="text-lg font-bold">2pt</div>
+                                <div class="text-xs text-gray-600">普通</div>
+                            </button>
+                            <button class="point-select-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all" data-points="3">
+                                <div class="text-lg font-bold">3pt</div>
+                                <div class="text-xs text-gray-600">難しい</div>
+                            </button>
+                        </div>
                     </div>
                     <button id="addTask" class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all font-medium button-large">
                         <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -968,12 +994,24 @@
                 dateInputElement.addEventListener('input', () => this.updateCalendarSekkiInfo()); 
                 document.getElementById('normalType').addEventListener('click', () => this.setTaskType('normal'));
                 document.getElementById('urgentType').addEventListener('click', () => this.setTaskType('urgent'));
-                document.getElementById('addTask').addEventListener('click', () => this.showPointSelector());
-                document.getElementById('taskInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.showPointSelector(); });
-                document.querySelectorAll('.point-button').forEach(btn => {
-                    btn.addEventListener('click', (e) => this.selectPoints(e.target.dataset.points));
+                document.getElementById('addTask').addEventListener('click', () => this.addTask());
+                document.getElementById('taskInput').addEventListener('keypress', (e) => { 
+                    if (e.key === 'Enter') {
+                        if (this.taskType === 'urgent' && this.selectedPoints === 0) {
+                            // 目標タスクでポイント未選択の場合は何もしない
+                            return;
+                        }
+                        this.addTask();
+                    }
                 });
-                document.getElementById('confirmAddTask').addEventListener('click', () => this.addTask());
+                document.querySelectorAll('.point-select-button').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const points = parseInt(e.currentTarget.dataset.points);
+                        this.selectPoints(points);
+                        // ポイント選択後、自動的にタスクを追加
+                        setTimeout(() => this.addTask(), 200);
+                    });
+                });
                 document.getElementById('deadlineToggle').addEventListener('click', () => this.toggleDeadlineForm());
                 document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
                 document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
@@ -1110,39 +1148,38 @@
                 this.taskType = type;
                 const normalButton = document.getElementById('normalType');
                 const urgentButton = document.getElementById('urgentType');
+                const pointSelector = document.getElementById('pointSelector');
+                const addButton = document.getElementById('addTask');
+                
                 normalButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${ type === 'normal' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }`;
-                urgentButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${ type === 'urgent' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }`;},
+                urgentButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${ type === 'urgent' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }`;
+                
+                if (type === 'urgent') {
+                    pointSelector.classList.remove('hidden');
+                    addButton.classList.add('hidden');
+                    this.selectedPoints = 0;
+                    document.querySelectorAll('.point-select-button').forEach(btn => {
+                        btn.classList.remove('border-gray-800', 'bg-gray-100');
+                        btn.classList.add('border-gray-300');
+                    });
+                } else {
+                    pointSelector.classList.add('hidden');
+                    addButton.classList.remove('hidden');
+                    this.selectedPoints = 0;
+                }},
 
             selectedPoints: 0,
             
-            showPointSelector() {
-                const input = document.getElementById('taskInput');
-                const text = input.value.trim();
-                if (!text) { this.showError('予定を入力してください'); return; }
-                
-                if (this.taskType === 'urgent') {
-                    document.getElementById('pointSelector').classList.remove('hidden');
-                    document.getElementById('addTask').classList.add('hidden');
-                    this.selectedPoints = 0;
-                    document.querySelectorAll('.point-button').forEach(btn => {
-                        btn.classList.remove('bg-gray-800', 'text-white');
-                        btn.classList.add('bg-gray-200', 'text-gray-700');
-                    });
-                } else {
-                    this.selectedPoints = 0;
-                    this.addTask();
-                }
-            },
-            
             selectPoints(points) {
-                this.selectedPoints = parseInt(points);
-                document.querySelectorAll('.point-button').forEach(btn => {
-                    if (btn.dataset.points === points) {
-                        btn.classList.add('bg-gray-800', 'text-white');
-                        btn.classList.remove('bg-gray-200', 'text-gray-700');
+                this.selectedPoints = points;
+                document.querySelectorAll('.point-select-button').forEach(btn => {
+                    const btnPoints = parseInt(btn.dataset.points);
+                    if (btnPoints === points) {
+                        btn.classList.add('border-gray-800', 'bg-gray-100');
+                        btn.classList.remove('border-gray-300');
                     } else {
-                        btn.classList.remove('bg-gray-800', 'text-white');
-                        btn.classList.add('bg-gray-200', 'text-gray-700');
+                        btn.classList.remove('border-gray-800', 'bg-gray-100');
+                        btn.classList.add('border-gray-300');
                     }
                 });
             },
@@ -1166,9 +1203,12 @@
                 this.tasks.push(newTask);
                 input.value = '';
                 
-                document.getElementById('pointSelector').classList.add('hidden');
-                document.getElementById('addTask').classList.remove('hidden');
+                // リセット
                 this.selectedPoints = 0;
+                document.querySelectorAll('.point-select-button').forEach(btn => {
+                    btn.classList.remove('border-gray-800', 'bg-gray-100');
+                    btn.classList.add('border-gray-300');
+                });
                 
                 this.saveData();
                 this.render();},
