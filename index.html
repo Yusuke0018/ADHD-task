@@ -442,6 +442,31 @@
             <div id="taskList" class="space-y-3 mb-4"></div>
             <p id="noTasks" class="hidden text-center py-8 text-gray-500">本日の予定はありません</p>
 
+            <!-- 日々の振り返り -->
+            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">今日の振り返り</h3>
+                    <button id="reflectionToggle" class="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div id="reflectionForm" class="hidden space-y-3">
+                    <textarea id="reflectionInput" placeholder="今日はどんな一日でしたか？短くても大丈夫です..." 
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base resize-none" 
+                              rows="3"></textarea>
+                    <div class="flex gap-2">
+                        <button id="saveReflection" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all">保存</button>
+                        <button id="cancelReflection" class="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all">キャンセル</button>
+                    </div>
+                </div>
+                
+                <div id="reflectionDisplay" class="text-sm sm:text-base text-gray-700 leading-relaxed"></div>
+                <p id="noReflection" class="text-center py-4 text-gray-500 text-sm">まだ振り返りが書かれていません</p>
+            </div>
+
             <!-- ポイント統計 -->
             <div id="statsSection" class="hidden washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">ポイント統計</h3>
@@ -482,6 +507,54 @@
                     <button id="addInbox" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all">記録</button>
                 </div>
                 <div id="inboxList" class="space-y-2"></div>
+            </div>
+            
+            <!-- AIコメント -->
+            <div id="aiCommentSection" class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">AIからのメッセージ</h3>
+                    <button id="aiSettingsToggle" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all text-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- APIキー設定 -->
+                <div id="apiKeyForm" class="hidden mb-4 p-3 bg-gray-50 rounded-xl">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">OpenAI APIキー</label>
+                    <input type="password" id="apiKeyInput" placeholder="sk-..." 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 text-sm">
+                    <div class="flex gap-2 mt-2">
+                        <button id="saveApiKey" class="px-3 py-1 bg-gray-700 text-white rounded text-sm">保存</button>
+                        <button id="cancelApiKey" class="px-3 py-1 text-gray-700 hover:bg-gray-100 rounded text-sm">キャンセル</button>
+                    </div>
+                </div>
+                
+                <!-- 期間選択 -->
+                <div id="aiPeriodSelector" class="flex flex-wrap gap-2 mb-3">
+                    <button class="ai-period-button px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-period="daily">デイリー</button>
+                    <button class="ai-period-button px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-period="weekly">週間</button>
+                    <button class="ai-period-button px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-period="sekki">節気間</button>
+                    <button class="ai-period-button px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-period="monthly">月間</button>
+                    <button class="ai-period-button px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300" data-period="quarterly">3ヶ月</button>
+                </div>
+                
+                <!-- AIコメント表示 -->
+                <div id="aiCommentDisplay" class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4">
+                    <div id="aiCommentContent" class="text-sm sm:text-base text-gray-700 leading-relaxed whitespace-pre-wrap"></div>
+                    <div id="aiCommentLoading" class="hidden text-center py-8">
+                        <div class="inline-flex items-center gap-2 text-gray-600">
+                            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>AIがコメントを作成中...</span>
+                        </div>
+                    </div>
+                    <p id="noApiKey" class="text-center py-4 text-gray-500 text-sm">APIキーを設定してAIコメントを受け取りましょう</p>
+                </div>
             </div>
             
             <!-- 節気の説明 -->
@@ -688,6 +761,8 @@
             taskType: 'normal',
             totalPoints: 0,
             dailyPointHistory: {},
+            dailyReflections: {},
+            openaiApiKey: null,
 
             init() {
                 this.loadData();
@@ -845,10 +920,20 @@
                     this.inboxItems = data.inboxItems || [];
                     this.totalPoints = data.totalPoints || 0;
                     this.dailyPointHistory = data.dailyPointHistory || {};
+                    this.dailyReflections = data.dailyReflections || {};
+                    this.openaiApiKey = data.openaiApiKey || null;
                 }},
 
             saveData() { /* Same as before */
-                localStorage.setItem('focusTaskData', JSON.stringify({ tasks: this.tasks, deadlineTasks: this.deadlineTasks, inboxItems: this.inboxItems, totalPoints: this.totalPoints, dailyPointHistory: this.dailyPointHistory }));},
+                localStorage.setItem('focusTaskData', JSON.stringify({ 
+                    tasks: this.tasks, 
+                    deadlineTasks: this.deadlineTasks, 
+                    inboxItems: this.inboxItems, 
+                    totalPoints: this.totalPoints, 
+                    dailyPointHistory: this.dailyPointHistory,
+                    dailyReflections: this.dailyReflections,
+                    openaiApiKey: this.openaiApiKey
+                }));},
 
             bindEvents() { 
                 document.getElementById('prevDay').addEventListener('click', () => this.navigateDate(-1));
@@ -874,6 +959,18 @@
                 document.getElementById('inboxInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.addInboxItem(); });
                 document.getElementById('statsToggle').addEventListener('click', () => this.toggleStats());
                 document.getElementById('resetStats').addEventListener('click', () => this.resetStats());
+                document.getElementById('reflectionToggle').addEventListener('click', () => this.toggleReflection());
+                document.getElementById('saveReflection').addEventListener('click', () => this.saveReflection());
+                document.getElementById('cancelReflection').addEventListener('click', () => this.toggleReflection(false));
+                document.getElementById('reflectionInput').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && e.ctrlKey) this.saveReflection();
+                });
+                document.getElementById('aiSettingsToggle').addEventListener('click', () => this.toggleApiKeyForm());
+                document.getElementById('saveApiKey').addEventListener('click', () => this.saveApiKey());
+                document.getElementById('cancelApiKey').addEventListener('click', () => this.toggleApiKeyForm(false));
+                document.querySelectorAll('.ai-period-button').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.generateAIComment(e.target.dataset.period));
+                });
 
                 // --- NEW: スワイプによる日付移動機能 ---
                 const swipeArea = document.body;
@@ -1240,6 +1337,318 @@
                 }
             },
             
+            toggleReflection(forceHide = null) {
+                const form = document.getElementById('reflectionForm');
+                const toggle = document.getElementById('reflectionToggle');
+                
+                if (forceHide === false) {
+                    form.classList.add('hidden');
+                    return;
+                }
+                
+                form.classList.toggle('hidden');
+                if (!form.classList.contains('hidden')) {
+                    const dateStr = this.selectedDate.toDateString();
+                    const reflection = this.dailyReflections[dateStr] || '';
+                    document.getElementById('reflectionInput').value = reflection;
+                    document.getElementById('reflectionInput').focus();
+                }
+            },
+            
+            saveReflection() {
+                const input = document.getElementById('reflectionInput');
+                const text = input.value.trim();
+                const dateStr = this.selectedDate.toDateString();
+                
+                if (text) {
+                    this.dailyReflections[dateStr] = text;
+                } else {
+                    delete this.dailyReflections[dateStr];
+                }
+                
+                this.saveData();
+                this.toggleReflection(false);
+                this.render();
+            },
+            
+            toggleApiKeyForm(forceHide = null) {
+                const form = document.getElementById('apiKeyForm');
+                
+                if (forceHide === false) {
+                    form.classList.add('hidden');
+                    return;
+                }
+                
+                form.classList.toggle('hidden');
+                if (!form.classList.contains('hidden')) {
+                    document.getElementById('apiKeyInput').value = this.openaiApiKey || '';
+                    document.getElementById('apiKeyInput').focus();
+                }
+            },
+            
+            saveApiKey() {
+                const input = document.getElementById('apiKeyInput');
+                const key = input.value.trim();
+                
+                if (key) {
+                    this.openaiApiKey = key;
+                } else {
+                    this.openaiApiKey = null;
+                }
+                
+                this.saveData();
+                this.toggleApiKeyForm(false);
+                this.render();
+            },
+            
+            async generateAIComment(period) {
+                if (!this.openaiApiKey) {
+                    this.showError('APIキーを設定してください');
+                    return;
+                }
+                
+                const loading = document.getElementById('aiCommentLoading');
+                const content = document.getElementById('aiCommentContent');
+                const noApiKey = document.getElementById('noApiKey');
+                
+                loading.classList.remove('hidden');
+                content.classList.add('hidden');
+                noApiKey.classList.add('hidden');
+                
+                try {
+                    const prompt = this.buildAIPrompt(period);
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.openaiApiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: 'gpt-3.5-turbo',
+                            messages: [{
+                                role: 'system',
+                                content: 'You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese.'
+                            }, {
+                                role: 'user',
+                                content: prompt
+                            }],
+                            temperature: 0.7,
+                            max_tokens: period === 'quarterly' ? 800 : period === 'monthly' ? 600 : period === 'sekki' ? 400 : period === 'weekly' ? 300 : 200
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('APIリクエストが失敗しました');
+                    }
+                    
+                    const data = await response.json();
+                    const message = data.choices[0].message.content;
+                    
+                    content.textContent = message;
+                    content.classList.remove('hidden');
+                    loading.classList.add('hidden');
+                    
+                    // ボタンのハイライト
+                    document.querySelectorAll('.ai-period-button').forEach(btn => {
+                        if (btn.dataset.period === period) {
+                            btn.classList.add('bg-gray-800', 'text-white');
+                            btn.classList.remove('bg-gray-200', 'text-gray-700');
+                        } else {
+                            btn.classList.remove('bg-gray-800', 'text-white');
+                            btn.classList.add('bg-gray-200', 'text-gray-700');
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error('AI comment generation failed:', error);
+                    this.showError('AIコメントの生成に失敗しました');
+                    loading.classList.add('hidden');
+                    noApiKey.classList.remove('hidden');
+                }
+            },
+            
+            buildAIPrompt(period) {
+                const now = new Date();
+                const stats = this.gatherStatsForPeriod(period);
+                const currentSekki = document.getElementById('currentSekki').textContent;
+                const season = getActualSeason(now);
+                
+                let prompt = `現在は${currentSekki}の時期で、${season === 'spring' ? '春' : season === 'summer' ? '夏' : season === 'autumn' ? '秋' : '冬'}です。\n\n`;
+                
+                switch(period) {
+                    case 'daily':
+                        prompt += `今日のタスク実績:\n`;
+                        prompt += `- 通常タスク: ${stats.normalCompleted}/${stats.normalTotal}完了\n`;
+                        prompt += `- 目標タスク: ${stats.goalCompleted}/${stats.goalTotal}完了 (獲得ポイント: ${stats.pointsToday}pt)\n`;
+                        if (stats.todayReflection) {
+                            prompt += `振り返り: ${stats.todayReflection}\n`;
+                        }
+                        prompt += `\nADHD傾向がある私に、今日の振り返りと明日へのアドバイスを150文字程度でお願いします。`;
+                        break;
+                        
+                    case 'weekly':
+                        prompt += `今週のタスク実績:\n`;
+                        prompt += `- 通常タスク: ${stats.normalCompleted}/${stats.normalTotal}完了\n`;
+                        prompt += `- 目標タスク: ${stats.goalCompleted}/${stats.goalTotal}完了\n`;
+                        prompt += `- 獲得ポイント: ${stats.totalPoints}pt\n`;
+                        prompt += `- 期限付きタスク: ${stats.deadlineCompleted}完了\n`;
+                        prompt += `\nADHD傾向がある私に、今週の振り返りと来週へのアドバイスを250文字程度でお願いします。`;
+                        break;
+                        
+                    case 'sekki':
+                        prompt += `この節気期間のタスク実績:\n`;
+                        prompt += `- 実施日数: ${stats.activeDays}日\n`;
+                        prompt += `- 総ポイント: ${stats.totalPoints}pt\n`;
+                        prompt += `- 平均完了率: ${stats.avgCompletionRate}%\n`;
+                        prompt += `\n${currentSekki}という季節を踏まえて、ADHD傾向がある私に季節に合わせた生活のアドバイスを350文字程度でお願いします。`;
+                        break;
+                        
+                    case 'monthly':
+                        prompt += `今月のタスク実績:\n`;
+                        prompt += `- 実施日数: ${stats.activeDays}日\n`;
+                        prompt += `- 総ポイント: ${stats.totalPoints}pt\n`;
+                        prompt += `- 目標達成率: ${stats.goalCompletionRate}%\n`;
+                        prompt += `- 最も多かった振り返りテーマ: ${stats.commonReflectionTheme || '特になし'}\n`;
+                        prompt += `\nADHD傾向がある私に、今月の総括と来月の目標設定についてアドバイスを500文字程度でお願いします。`;
+                        break;
+                        
+                    case 'quarterly':
+                        prompt += `過去3ヶ月のタスク実績:\n`;
+                        prompt += `- 実施日数: ${stats.activeDays}日\n`;
+                        prompt += `- 総ポイント: ${stats.totalPoints}pt\n`;
+                        prompt += `- 平均ポイント/日: ${stats.avgPointsPerDay}pt\n`;
+                        prompt += `- 最高連続日数: ${stats.maxStreak}日\n`;
+                        prompt += `- 成長傾向: ${stats.growthTrend}\n`;
+                        prompt += `\nADHD傾向がある私に、3ヶ月間の成長と今後の長期目標についてアドバイスを700文字程度でお願いします。`;
+                        break;
+                }
+                
+                return prompt;
+            },
+            
+            gatherStatsForPeriod(period) {
+                const now = new Date();
+                const stats = {};
+                
+                switch(period) {
+                    case 'daily':
+                        const todayTasks = this.getTodayTasks();
+                        stats.normalCompleted = todayTasks.filter(t => t.type === 'normal' && t.isCompleted).length;
+                        stats.normalTotal = todayTasks.filter(t => t.type === 'normal').length;
+                        stats.goalCompleted = todayTasks.filter(t => t.type === 'urgent' && t.isCompleted).length;
+                        stats.goalTotal = todayTasks.filter(t => t.type === 'urgent').length;
+                        stats.pointsToday = this.dailyPointHistory[now.toDateString()] || 0;
+                        stats.todayReflection = this.dailyReflections[now.toDateString()] || '';
+                        break;
+                        
+                    case 'weekly':
+                        stats.normalCompleted = 0;
+                        stats.normalTotal = 0;
+                        stats.goalCompleted = 0;
+                        stats.goalTotal = 0;
+                        stats.totalPoints = 0;
+                        stats.deadlineCompleted = 0;
+                        
+                        for (let i = 0; i < 7; i++) {
+                            const date = new Date(now);
+                            date.setDate(date.getDate() - i);
+                            const dateStr = date.toDateString();
+                            const dayTasks = this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === dateStr);
+                            
+                            stats.normalCompleted += dayTasks.filter(t => t.type === 'normal' && t.isCompleted).length;
+                            stats.normalTotal += dayTasks.filter(t => t.type === 'normal').length;
+                            stats.goalCompleted += dayTasks.filter(t => t.type === 'urgent' && t.isCompleted).length;
+                            stats.goalTotal += dayTasks.filter(t => t.type === 'urgent').length;
+                            stats.totalPoints += this.dailyPointHistory[dateStr] || 0;
+                        }
+                        
+                        stats.deadlineCompleted = this.deadlineTasks.filter(t => 
+                            t.isCompleted && 
+                            new Date(t.completedAt) >= new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+                        ).length;
+                        break;
+                        
+                    case 'sekki':
+                    case 'monthly':
+                    case 'quarterly':
+                        const days = period === 'sekki' ? 15 : period === 'monthly' ? 30 : 90;
+                        stats.activeDays = 0;
+                        stats.totalPoints = 0;
+                        let totalTasks = 0;
+                        let completedTasks = 0;
+                        let goalTasks = 0;
+                        let completedGoals = 0;
+                        
+                        for (let i = 0; i < days; i++) {
+                            const date = new Date(now);
+                            date.setDate(date.getDate() - i);
+                            const dateStr = date.toDateString();
+                            const dayTasks = this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === dateStr);
+                            
+                            if (dayTasks.length > 0) stats.activeDays++;
+                            totalTasks += dayTasks.length;
+                            completedTasks += dayTasks.filter(t => t.isCompleted).length;
+                            goalTasks += dayTasks.filter(t => t.type === 'urgent').length;
+                            completedGoals += dayTasks.filter(t => t.type === 'urgent' && t.isCompleted).length;
+                            stats.totalPoints += this.dailyPointHistory[dateStr] || 0;
+                        }
+                        
+                        stats.avgCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+                        stats.goalCompletionRate = goalTasks > 0 ? Math.round((completedGoals / goalTasks) * 100) : 0;
+                        stats.avgPointsPerDay = stats.activeDays > 0 ? (stats.totalPoints / stats.activeDays).toFixed(1) : 0;
+                        
+                        if (period === 'quarterly') {
+                            // 連続日数計算
+                            let currentStreak = 0;
+                            stats.maxStreak = 0;
+                            
+                            for (let i = 0; i < days; i++) {
+                                const date = new Date(now);
+                                date.setDate(date.getDate() - i);
+                                const dayTasks = this.tasks.filter(t => 
+                                    new Date(t.scheduledFor).toDateString() === date.toDateString() && 
+                                    t.isCompleted
+                                );
+                                
+                                if (dayTasks.length > 0) {
+                                    currentStreak++;
+                                    stats.maxStreak = Math.max(stats.maxStreak, currentStreak);
+                                } else {
+                                    currentStreak = 0;
+                                }
+                            }
+                            
+                            // 成長傾向分析
+                            const firstMonthPoints = this.calculateMonthPoints(2);
+                            const lastMonthPoints = this.calculateMonthPoints(0);
+                            
+                            if (lastMonthPoints > firstMonthPoints * 1.2) {
+                                stats.growthTrend = '上昇傾向';
+                            } else if (lastMonthPoints < firstMonthPoints * 0.8) {
+                                stats.growthTrend = '下降傾向';
+                            } else {
+                                stats.growthTrend = '安定';
+                            }
+                        }
+                        break;
+                }
+                
+                return stats;
+            },
+            
+            calculateMonthPoints(monthsAgo) {
+                const now = new Date();
+                const startDate = new Date(now.getFullYear(), now.getMonth() - monthsAgo, 1);
+                const endDate = new Date(now.getFullYear(), now.getMonth() - monthsAgo + 1, 0);
+                let points = 0;
+                
+                for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                    points += this.dailyPointHistory[d.toDateString()] || 0;
+                }
+                
+                return points;
+            },
+            
             render() {
                 const selectedDateTasks = this.getTodayTasks(); 
                 const completedCount = selectedDateTasks.filter(t => t.isCompleted).length;
@@ -1352,6 +1761,39 @@
                     `;
                     inboxList.appendChild(itemEl);
                 });
+                
+                // 振り返り表示
+                const dateStr = this.selectedDate.toDateString();
+                const reflection = this.dailyReflections[dateStr];
+                const reflectionDisplay = document.getElementById('reflectionDisplay');
+                const noReflection = document.getElementById('noReflection');
+                
+                if (reflection) {
+                    reflectionDisplay.textContent = reflection;
+                    reflectionDisplay.classList.remove('hidden');
+                    noReflection.classList.add('hidden');
+                } else {
+                    reflectionDisplay.classList.add('hidden');
+                    noReflection.classList.remove('hidden');
+                }
+                
+                // AIコメント表示
+                const aiCommentDisplay = document.getElementById('aiCommentDisplay');
+                const noApiKey = document.getElementById('noApiKey');
+                const aiCommentContent = document.getElementById('aiCommentContent');
+                const aiCommentLoading = document.getElementById('aiCommentLoading');
+                
+                if (this.openaiApiKey) {
+                    noApiKey.classList.add('hidden');
+                    if (!aiCommentContent.textContent && !aiCommentLoading.classList.contains('hidden')) {
+                        aiCommentContent.classList.add('hidden');
+                    }
+                } else {
+                    noApiKey.classList.remove('hidden');
+                    aiCommentContent.classList.add('hidden');
+                    aiCommentLoading.classList.add('hidden');
+                }
+                
                 this.bindDynamicEvents();
             },
 
