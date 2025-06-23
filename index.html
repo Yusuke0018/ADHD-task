@@ -1098,6 +1098,12 @@
                         <span id="sekkiDate"></span>
                     </div>
                     <div id="nextSekkiInfo" class="text-sm text-gray-600"></div>
+                    <!-- 今日の日付を常に表示 -->
+                    <div class="mt-3 p-3 bg-amber-50 rounded-lg border-2 border-amber-400">
+                        <div class="text-xs text-gray-600" id="todayDateYear"></div>
+                        <div class="text-2xl font-bold text-gray-800" id="todayDateFull"></div>
+                        <div class="text-sm text-gray-600" id="todayDateDay"></div>
+                    </div>
                 </div>
                 
                 <div class="flex items-center justify-between mb-3">
@@ -2057,6 +2063,7 @@
                 }
                 this.updateYearSekkiList();
                 this.render();
+                this.updateTodayDisplay();
              },
             
             updateYearSekkiList() { /* Same as before */
@@ -2550,6 +2557,14 @@
                     day: weekdays[compDate.getDay()],
                     isToday: compDate.toDateString() === today.toDateString()
                 };
+            },
+            
+            updateTodayDisplay() {
+                const today = new Date();
+                const weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+                document.getElementById('todayDateYear').textContent = today.getFullYear() + '年';
+                document.getElementById('todayDateFull').textContent = (today.getMonth() + 1) + '月' + today.getDate() + '日';
+                document.getElementById('todayDateDay').textContent = weekdays[today.getDay()];
             },
 
             showError(message) { /* Same as before */
