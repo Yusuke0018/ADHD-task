@@ -202,7 +202,153 @@
             overflow: hidden;
         }
         
-        /* 桜の花びら */
+        /* 冬 - 小寒 */
+        .ice-crystal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            opacity: 0;
+            animation: gentleSnowDrift 8s linear infinite;
+        }
+        .ice-crystal::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px rgba(173, 216, 230, 0.5);
+        }
+        .ice-crystal::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(60deg);
+        }
+        
+        /* 冬 - 大寒 */
+        .icicle {
+            position: absolute;
+            width: 3px;
+            height: 40px;
+            background: linear-gradient(to bottom, rgba(200,230,255,0.9), rgba(255,255,255,0.6));
+            border-radius: 0 0 50% 50%;
+            opacity: 0;
+            animation: icicleForm 10s ease-in-out infinite;
+            transform-origin: top;
+        }
+        .water-drop {
+            position: absolute;
+            width: 6px;
+            height: 8px;
+            background: radial-gradient(circle at 30% 30%, rgba(135, 206, 250, 0.8), rgba(100, 149, 237, 0.6));
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0;
+            animation: dropFall 3s ease-in infinite;
+        }
+        
+        /* 春 - 立春 */
+        .plum-blossom {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            opacity: 0;
+            animation: blossomBloom 6s ease-in-out infinite;
+        }
+        .plum-blossom::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #ffb3ba 0%, #ff6b9d 70%);
+            border-radius: 50% 0;
+            transform: rotate(0deg);
+        }
+        .plum-blossom::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #ffb3ba 0%, #ff6b9d 70%);
+            border-radius: 50% 0;
+            transform: rotate(72deg);
+        }
+        
+        /* 春 - 雨水 */
+        .rain-drop {
+            position: absolute;
+            width: 4px;
+            height: 15px;
+            background: linear-gradient(to bottom, transparent, rgba(135, 206, 250, 0.6));
+            border-radius: 0 0 50% 50%;
+            opacity: 0;
+            animation: springRain 2s linear infinite;
+        }
+        .sprout {
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background: linear-gradient(to top, #228b22, #90ee90);
+            border-radius: 0 100% 0 100%;
+            transform-origin: bottom;
+            opacity: 0;
+            animation: sproutGrow 5s ease-out infinite;
+        }
+        
+        /* 春 - 啓蟄 */
+        .soil-mound {
+            position: absolute;
+            width: 40px;
+            height: 20px;
+            background: radial-gradient(ellipse at center, #8b4513, #a0522d);
+            border-radius: 50% 50% 0 0;
+            opacity: 0;
+            animation: moundPulse 4s ease-in-out infinite;
+        }
+        .insect {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+            opacity: 0;
+            animation: insectCrawl 6s ease-in-out infinite;
+        }
+        
+        /* 春 - 春分 */
+        .swallow {
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            opacity: 0;
+            animation: swallowFly 8s ease-in-out infinite;
+        }
+        .swallow::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: #333;
+            transform: rotate(-20deg);
+            top: 50%;
+        }
+        .swallow::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: #333;
+            transform: rotate(20deg);
+            top: 50%;
+        }
+        
+        /* 春 - 清明 */
         .sakura-petal {
             position: absolute;
             width: 20px;
@@ -210,20 +356,279 @@
             background: radial-gradient(circle at 30% 30%, #ffb7c5 0%, #ffc0cb 50%, rgba(255, 192, 203, 0.8) 100%);
             border-radius: 0 100% 0 100%;
             opacity: 0;
-            animation: sakuraFall linear infinite;
+            animation: sakuraFall 5s linear infinite;
+        }
+        .young-leaf {
+            position: absolute;
+            width: 15px;
+            height: 20px;
+            background: linear-gradient(135deg, #90ee90, #228b22);
+            border-radius: 0 100% 0 100%;
+            opacity: 0;
+            animation: leafFloat 6s ease-in-out infinite;
         }
         
-        /* 夏の気泡 (海のテーマ) */
-        .sea-bubble {
+        /* 春 - 穀雨 */
+        .grain-rain {
             position: absolute;
-            background: radial-gradient(circle at 30% 30%, rgba(220, 235, 255, 0.8) 0%, rgba(180, 210, 255, 0.5) 60%, rgba(230, 240, 255, 0.3) 100%);
+            width: 3px;
+            height: 20px;
+            background: linear-gradient(to bottom, transparent, rgba(70, 130, 180, 0.6));
+            opacity: 0;
+            animation: gentleRain 1.5s linear infinite;
+        }
+        .ripple {
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            border: 2px solid rgba(70, 130, 180, 0.4);
             border-radius: 50%;
             opacity: 0;
-            animation: bubbleRise linear infinite;
-            box-shadow: inset 0 0 3px rgba(255,255,255,0.6), 0 1px 2px rgba(100,150,200,0.2);
+            animation: waterRipple 3s ease-out infinite;
         }
         
-        /* 紅葉 */
+        /* 夏 - 立夏 */
+        .fresh-green {
+            position: absolute;
+            width: 25px;
+            height: 30px;
+            background: linear-gradient(to top, #228b22, #32cd32, #00ff00);
+            border-radius: 0 80% 0 80%;
+            opacity: 0;
+            animation: leafDance 4s ease-in-out infinite;
+        }
+        .frog {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, #228b22, #006400);
+            border-radius: 50%;
+            opacity: 0;
+            animation: frogJump 3s ease-in-out infinite;
+        }
+        
+        /* 夏 - 小満 */
+        .wheat-stalk {
+            position: absolute;
+            width: 3px;
+            height: 40px;
+            background: linear-gradient(to top, #8b7355, #daa520);
+            opacity: 0;
+            animation: wheatWave 3s ease-in-out infinite;
+            transform-origin: bottom;
+        }
+        .wheat-grain {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            background: radial-gradient(ellipse, #ffd700, #daa520);
+            border-radius: 50%;
+            top: -12px;
+            left: -2.5px;
+        }
+        
+        /* 夏 - 芒種 */
+        .rice-seedling {
+            position: absolute;
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to top, #3cb371, #90ee90);
+            opacity: 0;
+            animation: seedlingGrow 4s ease-out infinite;
+            transform-origin: bottom;
+        }
+        .water-reflection {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(135, 206, 250, 0.5), transparent);
+            opacity: 0;
+            animation: waterShimmer 2s linear infinite;
+        }
+        
+        /* 夏 - 夏至 */
+        .cumulonimbus {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            background: radial-gradient(ellipse at center bottom, #fff, #e0e0e0);
+            border-radius: 50%;
+            opacity: 0;
+            animation: cloudGrow 8s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .lightning {
+            position: absolute;
+            width: 2px;
+            height: 40px;
+            background: linear-gradient(to bottom, #ffeb3b, #fff);
+            opacity: 0;
+            animation: lightningFlash 6s ease-in-out infinite;
+            clip-path: polygon(40% 0, 60% 40%, 100% 45%, 0 100%, 30% 60%, 0 55%);
+        }
+        
+        /* 夏 - 小暑 */
+        .wind-chime {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            opacity: 0;
+            animation: chimeSwing 3s ease-in-out infinite;
+            transform-origin: top;
+        }
+        .wind-chime::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #4169e1, #1e90ff);
+            border-radius: 50% 50% 80% 80%;
+            top: 0;
+            left: 5px;
+        }
+        .wind-chime::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: #fff;
+            top: 25px;
+            left: 7.5px;
+            border-radius: 0 0 50% 50%;
+        }
+        
+        /* 夏 - 大暑 */
+        .heat-wave {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(255, 69, 0, 0.3), transparent);
+            opacity: 0;
+            animation: heatShimmer 2s ease-in-out infinite;
+        }
+        .cicada {
+            position: absolute;
+            width: 15px;
+            height: 25px;
+            background: linear-gradient(to bottom, #8b4513, #d2691e);
+            border-radius: 50% 50% 40% 40%;
+            opacity: 0;
+            animation: cicadaPulse 1s ease-in-out infinite;
+        }
+        
+        /* 秋 - 立秋 */
+        .sunset-cloud {
+            position: absolute;
+            width: 60px;
+            height: 20px;
+            background: linear-gradient(to right, #ff6b6b, #ff8c42, #ffd93d);
+            border-radius: 50px;
+            opacity: 0;
+            animation: cloudDrift 10s linear infinite;
+        }
+        .dragonfly {
+            position: absolute;
+            width: 30px;
+            height: 4px;
+            background: #4169e1;
+            opacity: 0;
+            animation: dragonflyFlight 5s ease-in-out infinite;
+        }
+        .dragonfly::before,
+        .dragonfly::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 10px;
+            background: rgba(135, 206, 250, 0.5);
+            border-radius: 50%;
+            top: -3px;
+        }
+        .dragonfly::before { left: -5px; }
+        .dragonfly::after { right: -5px; }
+        
+        /* 秋 - 処暑 */
+        .rice-ear {
+            position: absolute;
+            width: 4px;
+            height: 50px;
+            background: linear-gradient(to top, #8b7355, #daa520);
+            opacity: 0;
+            animation: riceBow 4s ease-in-out infinite;
+            transform-origin: bottom;
+        }
+        .rice-ear::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 15px;
+            background: radial-gradient(ellipse, #ffd700, #daa520);
+            border-radius: 50%;
+            top: -10px;
+            left: -8px;
+            transform: rotate(15deg);
+        }
+        
+        /* 秋 - 白露 */
+        .dew-drop {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(220, 220, 220, 0.6));
+            border-radius: 50%;
+            opacity: 0;
+            animation: dewTremble 3s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 秋 - 秋分 */
+        .red-spider-lily {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            opacity: 0;
+            animation: lilyBloom 6s ease-in-out infinite;
+        }
+        .red-spider-lily::before {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 100%;
+            background: #228b22;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .red-spider-lily::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 20px;
+            background: radial-gradient(circle, #dc143c, #ff0000);
+            border-radius: 0 0 50% 50%;
+            top: 0;
+            clip-path: polygon(50% 0%, 0% 100%, 20% 100%, 50% 30%, 80% 100%, 100% 100%);
+        }
+        
+        /* 秋 - 寒露 */
+        .wild-geese {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            opacity: 0;
+            animation: geeseFly 12s linear infinite;
+        }
+        .wild-geese::before,
+        .wild-geese::after {
+            content: 'V';
+            position: absolute;
+            font-size: 20px;
+            color: #333;
+            transform: scaleX(3) scaleY(0.5);
+        }
+        .wild-geese::before { left: 0; }
+        .wild-geese::after { left: 30px; top: -10px; }
+        
+        /* 秋 - 霜降 */
         .autumn-leaf {
             position: absolute;
             width: 25px;
@@ -231,65 +636,259 @@
             background: linear-gradient(135deg, #d2691e 0%, #ff6347 50%, #ff8c00 100%);
             clip-path: polygon(50% 0%, 60% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 40% 35%);
             opacity: 0;
-            animation: autumnFall linear infinite;
+            animation: autumnFall 5s linear infinite;
         }
-        
-        /* 雪の結晶 */
-        .snow-flake {
+        .frost {
             position: absolute;
-            width: 15px;  
-            height: 15px;  
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(240, 248, 255, 0.75) 70%, transparent 100%);
-            border-radius: 50%;  
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, rgba(255,255,255,0.9), transparent);
             opacity: 0;
-            animation: largeSnowFall linear infinite;  
+            animation: frostForm 4s ease-in-out infinite;
         }
         
-        /* アニメーション定義 */
+        /* 冬 - 立冬 */
+        .bare-branch {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            opacity: 0;
+            animation: branchSway 8s ease-in-out infinite;
+        }
+        .bare-branch::before {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 100%;
+            background: #8b4513;
+            transform: rotate(-30deg);
+            transform-origin: bottom;
+        }
+        .bare-branch::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 60%;
+            background: #8b4513;
+            transform: rotate(45deg);
+            transform-origin: bottom;
+            left: 20px;
+        }
+        
+        /* 冬 - 小雪 */
+        .light-snow {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(240,248,255,0.7));
+            border-radius: 50%;
+            opacity: 0;
+            animation: lightSnowFall 6s linear infinite;
+        }
+        
+        /* 冬 - 大雪 */
+        .heavy-snow {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle, #fff, rgba(240,248,255,0.8));
+            border-radius: 50%;
+            opacity: 0;
+            animation: heavySnowFall 4s linear infinite;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        /* 冬 - 冬至 */
+        .candle-flame {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background: radial-gradient(ellipse at bottom, #ff6347, #ff8c00, transparent);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0;
+            animation: flameFlicker 2s ease-in-out infinite;
+            transform-origin: bottom;
+        }
+        .yuzu {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle at 30% 30%, #ffd700, #ffa500);
+            border-radius: 50%;
+            opacity: 0;
+            animation: yuzuFloat 5s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(255,215,0,0.3);
+        }
+        
+        /* 冬のアニメーション */
+        @keyframes gentleSnowDrift {
+            0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(calc(100vh + 20px)) translateX(50px) rotate(360deg); opacity: 0; }
+        }
+        @keyframes icicleForm {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.1); }
+        }
+        @keyframes dropFall {
+            0% { transform: translateY(0); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        
+        /* 春のアニメーション */
+        @keyframes blossomBloom {
+            0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1) rotate(180deg); opacity: 0.8; }
+        }
+        @keyframes springRain {
+            0% { transform: translateY(-10px); opacity: 0; }
+            10% { opacity: 0.6; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        @keyframes sproutGrow {
+            0% { transform: scaleY(0); opacity: 0; }
+            50% { transform: scaleY(1); opacity: 0.8; }
+            100% { transform: scaleY(1) rotate(5deg); opacity: 0.6; }
+        }
+        @keyframes moundPulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        @keyframes insectCrawl {
+            0% { transform: translateX(-50px); opacity: 0; }
+            50% { transform: translateX(50px); opacity: 0.8; }
+            100% { transform: translateX(150px); opacity: 0; }
+        }
+        @keyframes swallowFly {
+            0% { transform: translateX(-100px) translateY(0); opacity: 0; }
+            50% { transform: translateX(50vw) translateY(-20px); opacity: 0.8; }
+            100% { transform: translateX(100vw) translateY(0); opacity: 0; }
+        }
         @keyframes sakuraFall {
             0% { transform: translateY(-20px) translateX(0) rotate(-45deg); opacity: 0; }
             10% { opacity: 0.8; }
             90% { opacity: 0.8; }
             100% { transform: translateY(calc(100vh + 20px)) translateX(100px) rotate(315deg); opacity: 0; }
         }
-
-        @keyframes bubbleRise { /* 夏の気泡アニメーション */
-            0% {
-                transform: translateY(100vh) translateX(0px) scale(0.2);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.7;
-                transform: translateY(90vh) translateX(calc(sin(1turn) * 10px)) scale(0.4);
-            }
-            50% {
-                transform: translateY(40vh) translateX(calc(sin(2turn) * -15px)) scale(0.7);
-                opacity: 0.9;
-            }
-            90% {
-                opacity: 0.5;
-                transform: translateY(5vh) translateX(calc(sin(3turn) * 10px)) scale(1);
-            }
-            100% {
-                transform: translateY(-10vh) translateX(calc(sin(3.5turn) * 5px)) scale(1.1);
-                opacity: 0;
-            }
+        @keyframes leafFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
         }
-
+        @keyframes gentleRain {
+            0% { transform: translateY(-10px); opacity: 0; }
+            100% { transform: translateY(100vh); opacity: 0.6; }
+        }
+        @keyframes waterRipple {
+            0% { transform: scale(0); opacity: 0.8; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+        
+        /* 夏のアニメーション */
+        @keyframes leafDance {
+            0%, 100% { transform: rotate(-5deg); opacity: 0.8; }
+            50% { transform: rotate(5deg); opacity: 0.9; }
+        }
+        @keyframes frogJump {
+            0%, 100% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(-30px); opacity: 0.9; }
+        }
+        @keyframes wheatWave {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        @keyframes seedlingGrow {
+            0% { transform: scaleY(0); opacity: 0; }
+            100% { transform: scaleY(1); opacity: 0.8; }
+        }
+        @keyframes waterShimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        @keyframes cloudGrow {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.2); opacity: 0.9; }
+        }
+        @keyframes lightningFlash {
+            0%, 90%, 100% { opacity: 0; }
+            92%, 95% { opacity: 1; }
+        }
+        @keyframes chimeSwing {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+        @keyframes heatShimmer {
+            0%, 100% { transform: scaleY(1); opacity: 0.3; }
+            50% { transform: scaleY(1.5); opacity: 0.5; }
+        }
+        @keyframes cicadaPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        
+        /* 秋のアニメーション */
+        @keyframes cloudDrift {
+            0% { transform: translateX(-100px); opacity: 0; }
+            10% { opacity: 0.7; }
+            90% { opacity: 0.7; }
+            100% { transform: translateX(100vw); opacity: 0; }
+        }
+        @keyframes dragonflyFlight {
+            0% { transform: translateX(-50px) translateY(0); opacity: 0; }
+            25% { transform: translateX(25vw) translateY(-10px); opacity: 0.8; }
+            50% { transform: translateX(50vw) translateY(0); opacity: 0.8; }
+            75% { transform: translateX(75vw) translateY(10px); opacity: 0.8; }
+            100% { transform: translateX(100vw) translateY(0); opacity: 0; }
+        }
+        @keyframes riceBow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-10deg); }
+        }
+        @keyframes dewTremble {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(2px); }
+        }
+        @keyframes lilyBloom {
+            0%, 100% { transform: scale(0.8) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1) rotate(5deg); opacity: 0.9; }
+        }
+        @keyframes geeseFly {
+            0% { transform: translateX(-100px) translateY(0); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateX(100vw) translateY(-50px); opacity: 0; }
+        }
         @keyframes autumnFall {
             0% { transform: translateY(-30px) translateX(0) rotate(0deg); opacity: 0; }
             10% { opacity: 0.9; }
             90% { opacity: 0.9; }
             100% { transform: translateY(calc(100vh + 30px)) translateX(-80px) rotate(360deg); opacity: 0; }
         }
-        @keyframes largeSnowFall {
-            0% { transform: translateY(-50px) translateX(0) rotate(0deg); opacity: 0; }
+        @keyframes frostForm {
+            0%, 100% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1); opacity: 0.6; }
+        }
+        @keyframes branchSway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+        @keyframes lightSnowFall {
+            0% { transform: translateY(-20px) translateX(0); opacity: 0; }
+            10% { opacity: 0.7; }
+            100% { transform: translateY(100vh) translateX(20px); opacity: 0; }
+        }
+        @keyframes heavySnowFall {
+            0% { transform: translateY(-30px); opacity: 0; }
             10% { opacity: 0.9; }
-            25% { transform: translateY(calc(25vh - 50px)) translateX(-20px) rotate(90deg); }
-            50% { transform: translateY(calc(50vh - 50px)) translateX(20px) rotate(180deg); }
-            75% { transform: translateY(calc(75vh - 50px)) translateX(-15px) rotate(270deg); }
-            90% { opacity: 0.9; }
-            100% { transform: translateY(calc(100vh + 50px)) translateX(30px) rotate(360deg); opacity: 0; }
+            100% { transform: translateY(100vh); opacity: 0.7; }
+        }
+        @keyframes flameFlicker {
+            0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.8; }
+            50% { transform: scaleY(1.1) scaleX(0.9); opacity: 0.9; }
+        }
+        @keyframes yuzuFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(180deg); }
         }
         
         /* 波紋エフェクト */
@@ -836,69 +1435,526 @@
             ]
         };
 
-        function createSeasonalAnimation(season) {
+        function createSeasonalAnimation(sekki) {
             const animationEl = document.getElementById('seasonAnimation');
             if (!animationEl) { console.error('Animation element not found'); return; }
             animationEl.innerHTML = '';
-            let particleCount;
-            let particleClass = '';
             
-            switch(season) {
-                case 'spring':
-                    particleCount = window.innerWidth < 640 ? 15 : 30;
-                    particleClass = 'sakura-petal';
+            const isMobile = window.innerWidth < 640;
+            
+            switch(sekki) {
+                case '小寒': // 小寒 - Minor Cold
+                    createIceCrystals(animationEl, isMobile ? 15 : 30);
                     break;
-                case 'summer': // Sea bubbles
-                    particleCount = window.innerWidth < 640 ? 20 : 40; // More bubbles
-                    particleClass = 'sea-bubble';
+                case '大寒': // 大寒 - Major Cold
+                    createIcicles(animationEl, isMobile ? 8 : 15);
                     break;
-                case 'autumn':
-                    particleCount = window.innerWidth < 640 ? 12 : 25;
-                    particleClass = 'autumn-leaf';
+                case '立春': // 立春 - Beginning of Spring
+                    createPlumBlossoms(animationEl, isMobile ? 10 : 20);
                     break;
-                case 'winter':
-                    particleCount = window.innerWidth < 640 ? 10 : 20;
-                    particleClass = 'snow-flake';
+                case '雨水': // 雨水 - Rain Water
+                    createSpringRain(animationEl, isMobile ? 20 : 40);
+                    break;
+                case '啓蟄': // 啓蟄 - Awakening of Insects
+                    createInsects(animationEl, isMobile ? 5 : 10);
+                    break;
+                case '春分': // 春分 - Spring Equinox
+                    createSwallows(animationEl, isMobile ? 3 : 6);
+                    break;
+                case '清明': // 清明 - Clear and Bright
+                    createSakuraAndLeaves(animationEl, isMobile ? 15 : 30);
+                    break;
+                case '穀雨': // 穀雨 - Grain Rain
+                    createGrainRain(animationEl, isMobile ? 25 : 50);
+                    break;
+                case '立夏': // 立夏 - Beginning of Summer
+                    createFreshGreen(animationEl, isMobile ? 10 : 20);
+                    break;
+                case '小満': // 小満 - Grain Buds
+                    createWheatField(animationEl, isMobile ? 15 : 30);
+                    break;
+                case '芒種': // 芒種 - Grain in Ear
+                    createRiceSeedlings(animationEl, isMobile ? 20 : 40);
+                    break;
+                case '夏至': // 夏至 - Summer Solstice
+                    createCumulonimbus(animationEl, isMobile ? 3 : 5);
+                    break;
+                case '小暑': // 小暑 - Minor Heat
+                    createWindChimes(animationEl, isMobile ? 5 : 10);
+                    break;
+                case '大暑': // 大暑 - Major Heat
+                    createHeatWaves(animationEl, isMobile ? 10 : 20);
+                    break;
+                case '立秋': // 立秋 - Beginning of Autumn
+                    createSunsetClouds(animationEl, isMobile ? 3 : 6);
+                    createDragonflies(animationEl, isMobile ? 5 : 10);
+                    break;
+                case '処暑': // 処暑 - End of Heat
+                    createRiceEars(animationEl, isMobile ? 15 : 30);
+                    break;
+                case '白露': // 白露 - White Dew
+                    createDewDrops(animationEl, isMobile ? 20 : 40);
+                    break;
+                case '秋分': // 秋分 - Autumn Equinox
+                    createRedSpiderLilies(animationEl, isMobile ? 8 : 15);
+                    break;
+                case '寒露': // 寒露 - Cold Dew
+                    createWildGeese(animationEl, isMobile ? 2 : 4);
+                    break;
+                case '霜降': // 霜降 - Frost Descent
+                    createAutumnLeaves(animationEl, isMobile ? 15 : 30);
+                    createFrost(animationEl, isMobile ? 10 : 20);
+                    break;
+                case '立冬': // 立冬 - Beginning of Winter
+                    createBareBranches(animationEl, isMobile ? 5 : 10);
+                    break;
+                case '小雪': // 小雪 - Minor Snow
+                    createLightSnow(animationEl, isMobile ? 20 : 40);
+                    break;
+                case '大雪': // 大雪 - Major Snow
+                    createHeavySnow(animationEl, isMobile ? 25 : 50);
+                    break;
+                case '冬至': // 冬至 - Winter Solstice
+                    createCandleFlame(animationEl, 1);
+                    createYuzu(animationEl, isMobile ? 3 : 6);
                     break;
                 default:
-                    particleCount = window.innerWidth < 640 ? 15 : 30;
-                    particleClass = 'sakura-petal'; // Default to spring
+                    // Fallback to current season's default animation
+                    const season = getActualSeason(new Date());
+                    if (season === 'spring') createSakuraAndLeaves(animationEl, isMobile ? 15 : 30);
+                    else if (season === 'summer') createFreshGreen(animationEl, isMobile ? 20 : 40);
+                    else if (season === 'autumn') createAutumnLeaves(animationEl, isMobile ? 15 : 30);
+                    else createLightSnow(animationEl, isMobile ? 20 : 40);
             }
             
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.className = particleClass;
-                const delay = Math.random() * (season === 'summer' ? 8 : 5); // Bubbles can have longer delay variation
-                const startX = Math.random() * 100;
-                particle.style.left = startX + '%';
-                particle.style.animationDelay = delay + 's';
-
-                if (season === 'spring') {
-                    const sakuraDuration = 8 + Math.random() * 6;
-                    particle.style.animationDuration = sakuraDuration + 's';
-                    const sakuraSize = Math.random() * 0.5 + 0.5;
-                    particle.style.transform = `scale(${sakuraSize}) rotate(-45deg)`;
-                } else if (season === 'summer') {
-                    const bubbleDuration = 5 + Math.random() * 8; // Bubbles rise at varying speeds
-                    particle.style.animationDuration = bubbleDuration + 's';
-                    const bubbleSize = (Math.random() * 15 + 5) + 'px'; // Bubbles of 5px to 20px
-                    particle.style.width = bubbleSize;
-                    particle.style.height = bubbleSize;
-                     // Random horizontal start offset for bubbles to not all come from same X point at bottom
-                    particle.style.left = (Math.random() * 90 + 5) + '%'; // From 5% to 95% of width
-                } else if (season === 'autumn') {
-                    const autumnDuration = 7 + Math.random() * 5;
-                    particle.style.animationDuration = autumnDuration + 's';
-                    const autumnSize = Math.random() * 0.6 + 0.4;
-                    particle.style.transform = `scale(${autumnSize})`;
-                } else if (season === 'winter') {
-                    const winterDuration = 10 + Math.random() * 5;
-                    particle.style.animationDuration = winterDuration + 's';
-                    // particle.style.width = (10 + Math.random() * 10) + 'px'; // Example size variation
-                    // particle.style.height = particle.style.width;
-                }
-                animationEl.appendChild(particle);
+            // Add interactive handlers
+            setupInteractiveElements(animationEl);
+        }
+        
+        // Individual animation creation functions
+        function createIceCrystals(container, count) {
+            for (let i = 0; i < count; i++) {
+                const crystal = document.createElement('div');
+                crystal.className = 'ice-crystal interactive-element';
+                crystal.style.left = Math.random() * 100 + '%';
+                crystal.style.animationDelay = Math.random() * 5 + 's';
+                crystal.style.animationDuration = (8 + Math.random() * 4) + 's';
+                container.appendChild(crystal);
             }
+        }
+        
+        function createIcicles(container, count) {
+            for (let i = 0; i < count; i++) {
+                const icicle = document.createElement('div');
+                icicle.className = 'icicle';
+                icicle.style.left = (i / count) * 100 + '%';
+                icicle.style.height = (30 + Math.random() * 30) + 'px';
+                icicle.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(icicle);
+                
+                // Occasionally drop water
+                if (Math.random() > 0.7) {
+                    setTimeout(() => {
+                        const drop = document.createElement('div');
+                        drop.className = 'water-drop';
+                        drop.style.left = icicle.style.left;
+                        drop.style.top = icicle.offsetTop + icicle.offsetHeight + 'px';
+                        drop.style.animationDelay = '0s';
+                        container.appendChild(drop);
+                    }, Math.random() * 5000);
+                }
+            }
+        }
+        
+        function createPlumBlossoms(container, count) {
+            for (let i = 0; i < count; i++) {
+                const blossom = document.createElement('div');
+                blossom.className = 'plum-blossom interactive-element';
+                blossom.style.left = Math.random() * 100 + '%';
+                blossom.style.top = Math.random() * 100 + '%';
+                blossom.style.animationDelay = Math.random() * 6 + 's';
+                container.appendChild(blossom);
+            }
+        }
+        
+        function createSpringRain(container, count) {
+            for (let i = 0; i < count; i++) {
+                const rain = document.createElement('div');
+                rain.className = 'rain-drop';
+                rain.style.left = Math.random() * 100 + '%';
+                rain.style.animationDelay = Math.random() * 2 + 's';
+                rain.style.animationDuration = (1.5 + Math.random()) + 's';
+                container.appendChild(rain);
+            }
+            
+            // Add sprouts
+            for (let i = 0; i < count / 4; i++) {
+                const sprout = document.createElement('div');
+                sprout.className = 'sprout';
+                sprout.style.left = Math.random() * 100 + '%';
+                sprout.style.bottom = '0';
+                sprout.style.animationDelay = (2 + Math.random() * 3) + 's';
+                container.appendChild(sprout);
+            }
+        }
+        
+        function createInsects(container, count) {
+            for (let i = 0; i < count / 2; i++) {
+                const mound = document.createElement('div');
+                mound.className = 'soil-mound';
+                mound.style.left = Math.random() * 80 + 10 + '%';
+                mound.style.bottom = Math.random() * 30 + '%';
+                mound.style.animationDelay = Math.random() * 4 + 's';
+                container.appendChild(mound);
+            }
+            
+            for (let i = 0; i < count; i++) {
+                const insect = document.createElement('div');
+                insect.className = 'insect interactive-element';
+                insect.style.bottom = Math.random() * 50 + '%';
+                insect.style.animationDelay = Math.random() * 6 + 's';
+                container.appendChild(insect);
+            }
+        }
+        
+        function createSwallows(container, count) {
+            for (let i = 0; i < count; i++) {
+                const swallow = document.createElement('div');
+                swallow.className = 'swallow';
+                swallow.style.top = 20 + Math.random() * 60 + '%';
+                swallow.style.animationDelay = Math.random() * 8 + 's';
+                swallow.style.animationDuration = (6 + Math.random() * 4) + 's';
+                container.appendChild(swallow);
+            }
+        }
+        
+        function createSakuraAndLeaves(container, count) {
+            for (let i = 0; i < count * 0.7; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'sakura-petal interactive-element';
+                petal.style.left = Math.random() * 100 + '%';
+                petal.style.animationDelay = Math.random() * 5 + 's';
+                petal.style.animationDuration = (4 + Math.random() * 3) + 's';
+                container.appendChild(petal);
+            }
+            
+            for (let i = 0; i < count * 0.3; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'young-leaf';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.top = Math.random() * 100 + '%';
+                leaf.style.animationDelay = Math.random() * 6 + 's';
+                container.appendChild(leaf);
+            }
+        }
+        
+        function createGrainRain(container, count) {
+            for (let i = 0; i < count; i++) {
+                const rain = document.createElement('div');
+                rain.className = 'grain-rain';
+                rain.style.left = Math.random() * 100 + '%';
+                rain.style.animationDelay = Math.random() * 1.5 + 's';
+                container.appendChild(rain);
+                
+                // Create ripples where rain hits
+                if (Math.random() > 0.8) {
+                    setTimeout(() => {
+                        const ripple = document.createElement('div');
+                        ripple.className = 'ripple';
+                        ripple.style.left = rain.style.left;
+                        ripple.style.bottom = '10%';
+                        ripple.style.animationDelay = '0s';
+                        container.appendChild(ripple);
+                    }, Math.random() * 3000);
+                }
+            }
+        }
+        
+        function createFreshGreen(container, count) {
+            for (let i = 0; i < count; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'fresh-green';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.top = Math.random() * 60 + '%';
+                leaf.style.animationDelay = Math.random() * 4 + 's';
+                leaf.style.transform = `scale(${0.8 + Math.random() * 0.4})`;
+                container.appendChild(leaf);
+            }
+            
+            // Add frogs
+            for (let i = 0; i < Math.max(1, count / 5); i++) {
+                const frog = document.createElement('div');
+                frog.className = 'frog interactive-element';
+                frog.style.left = Math.random() * 80 + 10 + '%';
+                frog.style.bottom = Math.random() * 30 + '%';
+                frog.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(frog);
+            }
+        }
+        
+        function createWheatField(container, count) {
+            for (let i = 0; i < count; i++) {
+                const wheat = document.createElement('div');
+                wheat.className = 'wheat-stalk';
+                const grain = document.createElement('div');
+                grain.className = 'wheat-grain';
+                wheat.appendChild(grain);
+                
+                wheat.style.left = (i / count) * 100 + '%';
+                wheat.style.bottom = Math.random() * 40 + '%';
+                wheat.style.animationDelay = (i / count) * 0.5 + 's';
+                wheat.style.height = (35 + Math.random() * 15) + 'px';
+                container.appendChild(wheat);
+            }
+        }
+        
+        function createRiceSeedlings(container, count) {
+            // Create water reflection effect
+            const water = document.createElement('div');
+            water.className = 'water-reflection';
+            water.style.bottom = '20%';
+            container.appendChild(water);
+            
+            for (let i = 0; i < count; i++) {
+                const seedling = document.createElement('div');
+                seedling.className = 'rice-seedling';
+                seedling.style.left = (i / count) * 100 + '%';
+                seedling.style.bottom = '20%';
+                seedling.style.animationDelay = Math.random() * 4 + 's';
+                seedling.style.height = (25 + Math.random() * 10) + 'px';
+                container.appendChild(seedling);
+            }
+        }
+        
+        function createCumulonimbus(container, count) {
+            for (let i = 0; i < count; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cumulonimbus';
+                cloud.style.left = 20 + (i * 60 / count) + '%';
+                cloud.style.top = 10 + Math.random() * 20 + '%';
+                cloud.style.animationDelay = i * 2 + 's';
+                cloud.style.transform = `scale(${0.8 + Math.random() * 0.4})`;
+                container.appendChild(cloud);
+                
+                // Add lightning
+                if (Math.random() > 0.5) {
+                    const lightning = document.createElement('div');
+                    lightning.className = 'lightning';
+                    lightning.style.left = '50%';
+                    lightning.style.top = '80%';
+                    lightning.style.animationDelay = (i * 2 + 1) + 's';
+                    cloud.appendChild(lightning);
+                }
+            }
+        }
+        
+        function createWindChimes(container, count) {
+            for (let i = 0; i < count; i++) {
+                const chime = document.createElement('div');
+                chime.className = 'wind-chime interactive-element';
+                chime.style.left = (i / count) * 80 + 10 + '%';
+                chime.style.top = Math.random() * 30 + '%';
+                chime.style.animationDelay = Math.random() * 3 + 's';
+                chime.style.animationDuration = (2.5 + Math.random() * 1) + 's';
+                container.appendChild(chime);
+            }
+        }
+        
+        function createHeatWaves(container, count) {
+            for (let i = 0; i < count / 2; i++) {
+                const wave = document.createElement('div');
+                wave.className = 'heat-wave';
+                wave.style.bottom = (i / (count/2)) * 100 + '%';
+                wave.style.animationDelay = i * 0.3 + 's';
+                container.appendChild(wave);
+            }
+            
+            for (let i = 0; i < count / 2; i++) {
+                const cicada = document.createElement('div');
+                cicada.className = 'cicada';
+                cicada.style.left = Math.random() * 100 + '%';
+                cicada.style.top = Math.random() * 50 + '%';
+                cicada.style.animationDelay = Math.random() * 1 + 's';
+                container.appendChild(cicada);
+            }
+        }
+        
+        function createSunsetClouds(container, count) {
+            for (let i = 0; i < count; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'sunset-cloud';
+                cloud.style.top = 20 + Math.random() * 30 + '%';
+                cloud.style.animationDelay = i * 3 + 's';
+                cloud.style.animationDuration = (8 + Math.random() * 4) + 's';
+                cloud.style.transform = `scale(${0.7 + Math.random() * 0.6})`;
+                container.appendChild(cloud);
+            }
+        }
+        
+        function createDragonflies(container, count) {
+            for (let i = 0; i < count; i++) {
+                const dragonfly = document.createElement('div');
+                dragonfly.className = 'dragonfly interactive-element';
+                dragonfly.style.top = 30 + Math.random() * 40 + '%';
+                dragonfly.style.animationDelay = Math.random() * 5 + 's';
+                dragonfly.style.animationDuration = (4 + Math.random() * 2) + 's';
+                container.appendChild(dragonfly);
+            }
+        }
+        
+        function createRiceEars(container, count) {
+            for (let i = 0; i < count; i++) {
+                const rice = document.createElement('div');
+                rice.className = 'rice-ear';
+                rice.style.left = (i / count) * 100 + '%';
+                rice.style.bottom = Math.random() * 40 + '%';
+                rice.style.animationDelay = (i / count) * 0.3 + 's';
+                rice.style.height = (40 + Math.random() * 20) + 'px';
+                container.appendChild(rice);
+            }
+        }
+        
+        function createDewDrops(container, count) {
+            for (let i = 0; i < count; i++) {
+                const dew = document.createElement('div');
+                dew.className = 'dew-drop interactive-element';
+                dew.style.left = Math.random() * 100 + '%';
+                dew.style.top = 40 + Math.random() * 40 + '%';
+                dew.style.animationDelay = Math.random() * 3 + 's';
+                dew.style.transform = `scale(${0.6 + Math.random() * 0.8})`;
+                container.appendChild(dew);
+            }
+        }
+        
+        function createRedSpiderLilies(container, count) {
+            for (let i = 0; i < count; i++) {
+                const lily = document.createElement('div');
+                lily.className = 'red-spider-lily';
+                lily.style.left = Math.random() * 80 + 10 + '%';
+                lily.style.bottom = Math.random() * 30 + '%';
+                lily.style.animationDelay = Math.random() * 6 + 's';
+                container.appendChild(lily);
+            }
+        }
+        
+        function createWildGeese(container, count) {
+            for (let i = 0; i < count; i++) {
+                const geese = document.createElement('div');
+                geese.className = 'wild-geese';
+                geese.style.top = 10 + i * 20 + '%';
+                geese.style.animationDelay = i * 4 + 's';
+                geese.style.animationDuration = (10 + Math.random() * 4) + 's';
+                container.appendChild(geese);
+            }
+        }
+        
+        function createAutumnLeaves(container, count) {
+            for (let i = 0; i < count; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'autumn-leaf interactive-element';
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.animationDelay = Math.random() * 5 + 's';
+                leaf.style.animationDuration = (4 + Math.random() * 3) + 's';
+                leaf.style.transform = `scale(${0.7 + Math.random() * 0.6}) rotate(${Math.random() * 360}deg)`;
+                container.appendChild(leaf);
+            }
+        }
+        
+        function createFrost(container, count) {
+            for (let i = 0; i < count; i++) {
+                const frost = document.createElement('div');
+                frost.className = 'frost';
+                frost.style.left = Math.random() * 100 + '%';
+                frost.style.top = Math.random() * 100 + '%';
+                frost.style.animationDelay = Math.random() * 4 + 's';
+                frost.style.transform = `scale(${0.5 + Math.random() * 1})`;
+                container.appendChild(frost);
+            }
+        }
+        
+        function createBareBranches(container, count) {
+            for (let i = 0; i < count; i++) {
+                const branch = document.createElement('div');
+                branch.className = 'bare-branch';
+                branch.style.left = Math.random() * 80 + 10 + '%';
+                branch.style.top = Math.random() * 50 + '%';
+                branch.style.animationDelay = Math.random() * 8 + 's';
+                branch.style.transform = `scale(${0.8 + Math.random() * 0.4})`;
+                container.appendChild(branch);
+            }
+        }
+        
+        function createLightSnow(container, count) {
+            for (let i = 0; i < count; i++) {
+                const snow = document.createElement('div');
+                snow.className = 'light-snow interactive-element';
+                snow.style.left = Math.random() * 100 + '%';
+                snow.style.animationDelay = Math.random() * 6 + 's';
+                snow.style.animationDuration = (5 + Math.random() * 3) + 's';
+                container.appendChild(snow);
+            }
+        }
+        
+        function createHeavySnow(container, count) {
+            for (let i = 0; i < count; i++) {
+                const snow = document.createElement('div');
+                snow.className = 'heavy-snow interactive-element';
+                snow.style.left = Math.random() * 100 + '%';
+                snow.style.animationDelay = Math.random() * 4 + 's';
+                snow.style.animationDuration = (3 + Math.random() * 2) + 's';
+                snow.style.transform = `scale(${0.8 + Math.random() * 0.4})`;
+                container.appendChild(snow);
+            }
+        }
+        
+        function createCandleFlame(container, count) {
+            const flame = document.createElement('div');
+            flame.className = 'candle-flame';
+            flame.style.left = '50%';
+            flame.style.bottom = '30%';
+            flame.style.transform = 'translateX(-50%)';
+            container.appendChild(flame);
+        }
+        
+        function createYuzu(container, count) {
+            for (let i = 0; i < count; i++) {
+                const yuzu = document.createElement('div');
+                yuzu.className = 'yuzu interactive-element';
+                yuzu.style.left = 30 + Math.random() * 40 + '%';
+                yuzu.style.bottom = 20 + Math.random() * 20 + '%';
+                yuzu.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(yuzu);
+            }
+        }
+        
+        function setupInteractiveElements(container) {
+            const interactiveEls = container.querySelectorAll('.interactive-element');
+            
+            interactiveEls.forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.style.animation = 'none';
+                    setTimeout(() => {
+                        this.style.animation = '';
+                        this.style.animationPlayState = 'running';
+                    }, 100);
+                    
+                    // Create a visual effect on click
+                    const effect = document.createElement('div');
+                    effect.style.position = 'absolute';
+                    effect.style.width = '50px';
+                    effect.style.height = '50px';
+                    effect.style.borderRadius = '50%';
+                    effect.style.background = 'rgba(255,255,255,0.5)';
+                    effect.style.left = e.offsetX - 25 + 'px';
+                    effect.style.top = e.offsetY - 25 + 'px';
+                    effect.style.pointerEvents = 'none';
+                    effect.style.animation = 'ripple 0.6s ease-out';
+                    this.appendChild(effect);
+                    
+                    setTimeout(() => effect.remove(), 600);
+                });
+            });
         }
 
         function createRipple(e) {
@@ -963,8 +2019,7 @@
                     const bg = document.getElementById('backgroundSeason');
                     bg.className = bg.className.replace(/bg-[\u4E00-\u9FA5]+/g, '');
                     bg.classList.add(`bg-${currentSekki.name}`);
-                    const actualSeason = getActualSeason(now); 
-                    createSeasonalAnimation(actualSeason); 
+                    createSeasonalAnimation(currentSekki.name); 
                     this.showSekkiDetail(currentSekki);
                 }
                 if (nextSekki) {
@@ -1011,8 +2066,7 @@
                 const bg = document.getElementById('backgroundSeason');
                 bg.className = bg.className.replace(/bg-[\u4E00-\u9FA5]+/g, '');
                 bg.classList.add(`bg-${sekki.name}`);
-                const sekkiEffectiveSeason = getActualSeason(sekki.date);
-                createSeasonalAnimation(sekkiEffectiveSeason);},
+                createSeasonalAnimation(sekki.name);},
             
             isCurrentSekki(sekkiToCheck, referenceDate) { /* Same as before */
                 const year = referenceDate.getFullYear();
@@ -1241,8 +2295,7 @@
                     const bg = document.getElementById('backgroundSeason');
                     bg.className = bg.className.replace(/bg-[\u4E00-\u9FA5]+/g, '');
                     bg.classList.add(`bg-${currentSekkiForDisplay.name}`);
-                    const actualSeasonOfSelectedDate = getActualSeason(this.selectedDate);
-                    createSeasonalAnimation(actualSeasonOfSelectedDate);
+                    createSeasonalAnimation(currentSekkiForDisplay.name);
                     this.showSekkiDetail(currentSekkiForDisplay);
                 }
                 if (nextSekkiForDisplay) {
