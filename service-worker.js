@@ -1,10 +1,8 @@
 const CACHE_NAME = 'sekki-task-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  'https://cdn.tailwindcss.com',
-  'https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&family=Zen+Old+Mincho&display=swap'
+  './',
+  './index.html',
+  './manifest.json'
 ];
 
 // インストール時にキャッシュ
