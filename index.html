@@ -1161,7 +1161,7 @@
                 </div>
                 
                 <!-- カレンダー -->
-                <div id="calendarInput" class="mt-4 animate-fadeInUp">
+                <div id="calendarInput" class="hidden mt-4 animate-fadeInUp">
                     <input type="date" id="dateInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
                     <div id="calendarSekkiInfo" class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-600"></div>
                 </div>
@@ -2019,7 +2019,6 @@
                 this.loadData();
                 this.bindEvents();
                 this.updateSekki();
-                this.updateDateInput();
             },
 
             updateSekki() { /* Same as before */
@@ -2284,19 +2283,18 @@
                 newDate.setDate(newDate.getDate() + days);
                 this.selectedDate = newDate;
                 this.updateSekkiForSelectedDate();
-                this.updateDateInput();
                 this.render();},
 
             goToToday() { /* Same as before */
                 this.selectedDate = new Date();
                 this.updateSekkiForSelectedDate();
-                this.updateDateInput();
                 this.render();},
 
             selectDate(dateStr) { /* Same as before */
                 const newDate = new Date(dateStr);
                 if (!isNaN(newDate.getTime())) {
                     this.selectedDate = newDate;
+                    document.getElementById('calendarInput').classList.add('hidden');
                     this.updateCalendarSekkiInfo(); 
                     this.updateSekkiForSelectedDate(); 
                     this.render();
@@ -2336,15 +2334,14 @@
                 this.updateYearSekkiList();},
 
             toggleCalendar() { /* Same as before */
-                // Calendar is now always visible, so just focus on the input
+                const inputContainer = document.getElementById('calendarInput');
                 const dateInputEl = document.getElementById('dateInput');
-                dateInputEl.focus();
-            },
-            
-            updateDateInput() {
-                const dateInputEl = document.getElementById('dateInput');
-                dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
-                this.updateCalendarSekkiInfo();
+                inputContainer.classList.toggle('hidden');
+                if (!inputContainer.classList.contains('hidden')) {
+                    dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
+                    this.updateCalendarSekkiInfo(); 
+                    dateInputEl.focus(); 
+                }
             },
 
             setTaskType(type) { /* Same as before */
