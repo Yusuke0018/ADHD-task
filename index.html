@@ -1161,7 +1161,7 @@
                 </div>
                 
                 <!-- カレンダー -->
-                <div id="calendarInput" class="hidden mt-4 animate-fadeInUp">
+                <div id="calendarInput" class="mt-4 animate-fadeInUp">
                     <input type="date" id="dateInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
                     <div id="calendarSekkiInfo" class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-600"></div>
                 </div>
@@ -2294,7 +2294,7 @@
                 const newDate = new Date(dateStr);
                 if (!isNaN(newDate.getTime())) {
                     this.selectedDate = newDate;
-                    document.getElementById('calendarInput').classList.add('hidden');
+                    // Calendar always visible, no need to hide
                     this.updateCalendarSekkiInfo(); 
                     this.updateSekkiForSelectedDate(); 
                     this.render();
@@ -2334,14 +2334,11 @@
                 this.updateYearSekkiList();},
 
             toggleCalendar() { /* Same as before */
-                const inputContainer = document.getElementById('calendarInput');
                 const dateInputEl = document.getElementById('dateInput');
-                inputContainer.classList.toggle('hidden');
-                if (!inputContainer.classList.contains('hidden')) {
-                    dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
-                    this.updateCalendarSekkiInfo(); 
-                    dateInputEl.focus(); 
-                }
+                // Always visible, so just update the date and focus
+                dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
+                this.updateCalendarSekkiInfo(); 
+                dateInputEl.focus();
             },
 
             setTaskType(type) { /* Same as before */
@@ -3216,6 +3213,11 @@
         };
         app.init();
         
+        // Initialize calendar input on load
+        const dateInputEl = document.getElementById('dateInput');
+        dateInputEl.value = app.selectedDate.toISOString().split('T')[0];
+        app.updateCalendarSekkiInfo();
+        
         // Service Workerの登録
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -3230,25 +3232,7 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            
-            // インストールボタンを表示する場合はここに追加
-            const installButton = document.createElement('button');
-            installButton.className = 'fixed bottom-4 left-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-            installButton.textContent = 'アプリをインストール';
-            installButton.onclick = async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log(`User response to the install prompt: ${outcome}`);
-                    deferredPrompt = null;
-                    installButton.remove();
-                }
-            };
-            
-            // インストール済みでない場合のみボタンを表示
-            if (!window.matchMedia('(display-mode: standalone)').matches) {
-                document.body.appendChild(installButton);
-            }
+            // インストールボタンは表示しない
         });
     </script>
 </body>
