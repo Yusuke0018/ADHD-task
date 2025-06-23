@@ -23,48 +23,171 @@
             font-family: 'Zen Old Mincho', serif;
         }
         
-        /* 季節ごとの背景 - 和の伝統色 */
-        .bg-spring {  
-            background:  
-                radial-gradient(circle at 20% 80%, rgba(255, 183, 197, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 214, 221, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(255, 240, 245, 0.2) 0%, transparent 50%),
-                linear-gradient(135deg, #faf0e6 0%, #fff5ee 100%);
-            position: relative;
-            overflow: hidden;
+        /* 24節気ごとの背景 */
+        /* 春 - Spring */
+        .bg-立春 { /* 立春 - Beginning of Spring */
+            background: 
+                radial-gradient(circle at 30% 70%, rgba(255, 182, 193, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 70% 30%, rgba(255, 218, 185, 0.25) 0%, transparent 45%),
+                linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%);
         }
-        .bg-summer {  /* 海のテーマに変更 */
+        .bg-雨水 { /* 雨水 - Rain Water */
             background:
-                /* Sun glare */
-                radial-gradient(ellipse at 70% 15%, rgba(255, 235, 180, 0.5) 0%, rgba(255, 235, 180, 0) 45%),
-                /* Water layers */
-                linear-gradient(to bottom,
-                    #B2EBF2 0%,  /* Light Cyan / Sky Blueish */
-                    #80DEEA 25%, /* Medium Cyan */
-                    #4DD0E1 50%, /* Cyan */
-                    #26C6DA 75%, /* Darker Cyan */
-                    #00BCD4 100% /* Deep Cyan */
-                );
-            position: relative;
-            overflow: hidden;
+                radial-gradient(ellipse at 20% 80%, rgba(173, 216, 230, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(135, 206, 250, 0.25) 0%, transparent 40%),
+                linear-gradient(180deg, #e6f3ff 0%, #f0f8ff 100%);
         }
-        .bg-autumn {  
-            background:  
-                radial-gradient(circle at 20% 80%, rgba(219, 112, 47, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 218, 185, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(255, 248, 220, 0.2) 0%, transparent 50%),
-                linear-gradient(135deg, #fdf5e6 0%, #ffefd5 100%);
-            position: relative;
-            overflow: hidden;
+        .bg-啓蟄 { /* 啓蟄 - Awakening of Insects */
+            background:
+                radial-gradient(circle at 25% 75%, rgba(144, 238, 144, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 75% 25%, rgba(152, 251, 152, 0.25) 0%, transparent 45%),
+                linear-gradient(135deg, #f0fff0 0%, #e8f5e8 100%);
         }
-        .bg-winter {  
-            background:  
-                radial-gradient(circle at 20% 80%, rgba(135, 206, 235, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(176, 224, 230, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(240, 248, 255, 0.3) 0%, transparent 50%),
-                linear-gradient(135deg, #e6f3ff 0%, #f0f8ff 100%);
+        .bg-春分 { /* 春分 - Spring Equinox */
+            background:
+                radial-gradient(circle at 50% 50%, rgba(255, 192, 203, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(255, 182, 193, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(255, 218, 185, 0.25) 0%, transparent 40%),
+                linear-gradient(135deg, #fff5ee 0%, #ffe4e1 100%);
+        }
+        .bg-清明 { /* 清明 - Clear and Bright */
+            background:
+                radial-gradient(circle at 30% 60%, rgba(255, 228, 225, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 70% 40%, rgba(255, 192, 203, 0.3) 0%, transparent 45%),
+                linear-gradient(120deg, #fff5f5 0%, #ffe0e6 100%);
+        }
+        .bg-穀雨 { /* 穀雨 - Grain Rain */
+            background:
+                radial-gradient(ellipse at 40% 60%, rgba(135, 206, 235, 0.3) 0%, transparent 45%),
+                radial-gradient(ellipse at 60% 40%, rgba(176, 224, 230, 0.3) 0%, transparent 50%),
+                linear-gradient(180deg, #e6f7ff 0%, #f0ffff 100%);
+        }
+        
+        /* 夏 - Summer */
+        .bg-立夏 { /* 立夏 - Beginning of Summer */
+            background:
+                radial-gradient(circle at 30% 70%, rgba(144, 238, 144, 0.35) 0%, transparent 45%),
+                radial-gradient(circle at 70% 30%, rgba(124, 252, 0, 0.25) 0%, transparent 40%),
+                linear-gradient(135deg, #f0fff4 0%, #e6ffe6 100%);
+        }
+        .bg-小満 { /* 小満 - Grain Buds */
+            background:
+                radial-gradient(circle at 25% 75%, rgba(255, 215, 0, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 75% 25%, rgba(255, 255, 224, 0.3) 0%, transparent 45%),
+                linear-gradient(120deg, #fffef0 0%, #fff8dc 100%);
+        }
+        .bg-芒種 { /* 芒種 - Grain in Ear */
+            background:
+                radial-gradient(ellipse at 50% 80%, rgba(189, 183, 107, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 20%, rgba(238, 232, 170, 0.25) 0%, transparent 45%),
+                linear-gradient(180deg, #f5f5dc 0%, #fafad2 100%);
+        }
+        .bg-夏至 { /* 夏至 - Summer Solstice */
+            background:
+                radial-gradient(ellipse at 50% 10%, rgba(255, 223, 0, 0.4) 0%, transparent 35%),
+                radial-gradient(circle at 30% 90%, rgba(135, 206, 250, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 90%, rgba(0, 191, 255, 0.25) 0%, transparent 45%),
+                linear-gradient(to bottom, #fff8dc 0%, #e0f7fa 100%);
+        }
+        .bg-小暑 { /* 小暑 - Minor Heat */
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255, 160, 122, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(255, 218, 185, 0.3) 0%, transparent 45%),
+                linear-gradient(135deg, #fff5ee 0%, #ffe4b5 100%);
+        }
+        .bg-大暑 { /* 大暑 - Major Heat */
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(255, 140, 0, 0.35) 0%, transparent 40%),
+                radial-gradient(circle at 25% 100%, rgba(255, 69, 0, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 75% 100%, rgba(255, 99, 71, 0.2) 0%, transparent 50%),
+                linear-gradient(180deg, #fff4e6 0%, #ffe0cc 100%);
+        }
+        
+        /* 秋 - Autumn */
+        .bg-立秋 { /* 立秋 - Beginning of Autumn */
+            background:
+                radial-gradient(circle at 30% 70%, rgba(255, 222, 173, 0.35) 0%, transparent 45%),
+                radial-gradient(circle at 70% 30%, rgba(255, 228, 181, 0.3) 0%, transparent 40%),
+                linear-gradient(135deg, #fffaf0 0%, #ffefd5 100%);
+        }
+        .bg-処暑 { /* 処暑 - End of Heat */
+            background:
+                radial-gradient(ellipse at 40% 60%, rgba(176, 196, 222, 0.3) 0%, transparent 45%),
+                radial-gradient(ellipse at 60% 40%, rgba(176, 224, 230, 0.25) 0%, transparent 40%),
+                linear-gradient(120deg, #f0f8ff 0%, #e6e6fa 100%);
+        }
+        .bg-白露 { /* 白露 - White Dew */
+            background:
+                radial-gradient(circle at 25% 75%, rgba(245, 245, 245, 0.5) 0%, transparent 35%),
+                radial-gradient(circle at 75% 25%, rgba(220, 220, 220, 0.3) 0%, transparent 40%),
+                linear-gradient(135deg, #f8f8ff 0%, #f0f0f0 100%);
+        }
+        .bg-秋分 { /* 秋分 - Autumn Equinox */
+            background:
+                radial-gradient(circle at 20% 80%, rgba(255, 140, 0, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(218, 165, 32, 0.25) 0%, transparent 40%),
+                linear-gradient(135deg, #fffaf0 0%, #fff8dc 100%);
+        }
+        .bg-寒露 { /* 寒露 - Cold Dew */
+            background:
+                radial-gradient(ellipse at 30% 70%, rgba(221, 160, 221, 0.3) 0%, transparent 45%),
+                radial-gradient(ellipse at 70% 30%, rgba(186, 85, 211, 0.2) 0%, transparent 40%),
+                linear-gradient(120deg, #f8f0ff 0%, #f0e6ff 100%);
+        }
+        .bg-霜降 { /* 霜降 - Frost Descent */
+            background:
+                radial-gradient(circle at 40% 60%, rgba(230, 230, 250, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 60% 40%, rgba(216, 191, 216, 0.3) 0%, transparent 45%),
+                linear-gradient(180deg, #f0f0ff 0%, #e6e6fa 100%);
+        }
+        
+        /* 冬 - Winter */
+        .bg-立冬 { /* 立冬 - Beginning of Winter */
+            background:
+                radial-gradient(circle at 30% 70%, rgba(176, 196, 222, 0.35) 0%, transparent 45%),
+                radial-gradient(circle at 70% 30%, rgba(173, 216, 230, 0.3) 0%, transparent 40%),
+                linear-gradient(135deg, #f0f8ff 0%, #e0efff 100%);
+        }
+        .bg-小雪 { /* 小雪 - Minor Snow */
+            background:
+                radial-gradient(circle at 25% 75%, rgba(248, 248, 255, 0.5) 0%, transparent 40%),
+                radial-gradient(circle at 75% 25%, rgba(240, 248, 255, 0.4) 0%, transparent 45%),
+                linear-gradient(120deg, #f8f8ff 0%, #f0f8ff 100%);
+        }
+        .bg-大雪 { /* 大雪 - Major Snow */
+            background:
+                radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(240, 248, 255, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(248, 248, 255, 0.4) 0%, transparent 40%),
+                linear-gradient(180deg, #ffffff 0%, #f0f8ff 100%);
+        }
+        .bg-冬至 { /* 冬至 - Winter Solstice */
+            background:
+                radial-gradient(ellipse at 50% 90%, rgba(70, 130, 180, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 25% 25%, rgba(100, 149, 237, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 75% 25%, rgba(65, 105, 225, 0.2) 0%, transparent 40%),
+                linear-gradient(to top, #e6f0ff 0%, #f0f4ff 100%);
+        }
+        .bg-小寒 { /* 小寒 - Minor Cold */
+            background:
+                radial-gradient(circle at 30% 70%, rgba(135, 206, 235, 0.3) 0%, transparent 45%),
+                radial-gradient(circle at 70% 30%, rgba(176, 224, 230, 0.25) 0%, transparent 40%),
+                linear-gradient(135deg, #e6f3ff 0%, #e0f0ff 100%);
+        }
+        .bg-大寒 { /* 大寒 - Major Cold */
+            background:
+                radial-gradient(ellipse at 50% 50%, rgba(112, 128, 144, 0.2) 0%, transparent 60%),
+                radial-gradient(circle at 10% 90%, rgba(119, 136, 153, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 90% 10%, rgba(176, 196, 222, 0.25) 0%, transparent 40%),
+                linear-gradient(135deg, #e8ecf0 0%, #e0e8f0 100%);
+        }
+        
+        /* 共通背景スタイル */
+        [class*="bg-"] {
             position: relative;
             overflow: hidden;
+            transition: all 1s ease;
         }
         
         /* 季節のアニメーション背景 */
@@ -655,10 +778,6 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             const now = new Date();
-            const actualSeason = getActualSeason(now);
-            const bg = document.getElementById('backgroundSeason');
-            bg.className = bg.className.replace(/bg-(spring|summer|autumn|winter)/g, '');
-            bg.classList.add(`bg-${actualSeason}`);
             app.updateSekki();
         });
 
@@ -841,10 +960,10 @@
                     document.getElementById('currentSekki').textContent = currentSekki.name;
                     const dateStr = currentSekki.date.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
                     document.getElementById('sekkiDate').textContent = `${dateStr}より`;
-                    const actualSeason = getActualSeason(now); 
                     const bg = document.getElementById('backgroundSeason');
-                    bg.className = bg.className.replace(/bg-(spring|summer|autumn|winter)/g, '');
-                    bg.classList.add(`bg-${actualSeason}`);
+                    bg.className = bg.className.replace(/bg-[\u4E00-\u9FA5]+/g, '');
+                    bg.classList.add(`bg-${currentSekki.name}`);
+                    const actualSeason = getActualSeason(now); 
                     createSeasonalAnimation(actualSeason); 
                     this.showSekkiDetail(currentSekki);
                 }
@@ -889,10 +1008,10 @@
                     year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric'
                 });
                 document.getElementById('sekkiDescription').textContent = sekki.description;
-                const sekkiEffectiveSeason = getActualSeason(sekki.date);
                 const bg = document.getElementById('backgroundSeason');
-                bg.className = bg.className.replace(/bg-(spring|summer|autumn|winter)/g, '');
-                bg.classList.add(`bg-${sekkiEffectiveSeason}`);
+                bg.className = bg.className.replace(/bg-[\u4E00-\u9FA5]+/g, '');
+                bg.classList.add(`bg-${sekki.name}`);
+                const sekkiEffectiveSeason = getActualSeason(sekki.date);
                 createSeasonalAnimation(sekkiEffectiveSeason);},
             
             isCurrentSekki(sekkiToCheck, referenceDate) { /* Same as before */
@@ -1119,10 +1238,10 @@
                     document.getElementById('currentSekki').textContent = currentSekkiForDisplay.name;
                     const dateStr = currentSekkiForDisplay.date.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
                     document.getElementById('sekkiDate').textContent = `${dateStr}より`;
-                    const actualSeasonOfSelectedDate = getActualSeason(this.selectedDate);
                     const bg = document.getElementById('backgroundSeason');
-                    bg.className = bg.className.replace(/bg-(spring|summer|autumn|winter)/g, '');
-                    bg.classList.add(`bg-${actualSeasonOfSelectedDate}`);
+                    bg.className = bg.className.replace(/bg-[\u4E00-\u9FA5]+/g, '');
+                    bg.classList.add(`bg-${currentSekkiForDisplay.name}`);
+                    const actualSeasonOfSelectedDate = getActualSeason(this.selectedDate);
                     createSeasonalAnimation(actualSeasonOfSelectedDate);
                     this.showSekkiDetail(currentSekkiForDisplay);
                 }
