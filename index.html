@@ -2025,7 +2025,10 @@
                 this.loadData();
                 this.bindEvents();
                 this.updateSekki();
-                this.updateTodayDisplay();
+                // DOMが完全に読み込まれてから実行
+                requestAnimationFrame(() => {
+                    this.updateTodayDisplay();
+                });
             },
 
             updateSekki() { /* Same as before */
@@ -2064,7 +2067,8 @@
                 }
                 this.updateYearSekkiList();
                 this.render();
-                this.updateTodayDisplay();
+                // 少し遅延させて確実に表示
+                setTimeout(() => this.updateTodayDisplay(), 100);
              },
             
             updateYearSekkiList() { /* Same as before */
@@ -2563,9 +2567,13 @@
             updateTodayDisplay() {
                 const today = new Date();
                 const weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
-                document.getElementById('todayDateYear').textContent = today.getFullYear() + '年';
-                document.getElementById('todayDateFull').textContent = (today.getMonth() + 1) + '月' + today.getDate() + '日';
-                document.getElementById('todayDateDay').textContent = weekdays[today.getDay()];
+                const yearEl = document.getElementById('todayDateYear');
+                const fullEl = document.getElementById('todayDateFull');
+                const dayEl = document.getElementById('todayDateDay');
+                
+                if (yearEl) yearEl.textContent = today.getFullYear() + '年';
+                if (fullEl) fullEl.textContent = (today.getMonth() + 1) + '月' + today.getDate() + '日';
+                if (dayEl) dayEl.textContent = weekdays[today.getDay()];
             },
 
             showError(message) { /* Same as before */
