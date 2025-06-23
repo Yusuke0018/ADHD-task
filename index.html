@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>二十四節気タスク管理</title>
+    
+    <!-- PWA設定 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1f2937">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="二十四節気">
 
     <!-- Favicon Links: Added for bookmarking and browser tabs -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23fdfdfd'/%3E%3Cpath d='M 50 0 A 50 50 0 0 1 100 50 L 50 50 Z' fill='%23a7e0e8'/%3E%3Cpath d='M 100 50 A 50 50 0 0 1 50 100 L 50 50 Z' fill='%23e09a73'/%3E%3Cpath d='M 50 100 A 50 50 0 0 1 0 50 L 50 50 Z' fill='%23ddebf0'/%3E%3Cpath d='M 0 50 A 50 50 0 0 1 50 0 L 50 50 Z' fill='%23ffd9e1'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23fdfdfd'/%3E%3Ctext x='50' y='62' font-family='Shippori Mincho, serif' font-size='38' fill='%234a4a4a' text-anchor='middle'%3E暦%3C/text%3E%3C/svg%3E">
@@ -1154,7 +1161,7 @@
                 </div>
                 
                 <!-- カレンダー -->
-                <div id="calendarInput" class="hidden mt-4 animate-fadeInUp">
+                <div id="calendarInput" class="mt-4 animate-fadeInUp">
                     <input type="date" id="dateInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
                     <div id="calendarSekkiInfo" class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-600"></div>
                 </div>
@@ -2011,7 +2018,8 @@
             init() {
                 this.loadData();
                 this.bindEvents();
-                this.updateSekki(); 
+                this.updateSekki();
+                this.updateDateInput();
             },
 
             updateSekki() { /* Same as before */
@@ -2275,19 +2283,20 @@
                 const newDate = new Date(this.selectedDate);
                 newDate.setDate(newDate.getDate() + days);
                 this.selectedDate = newDate;
-                this.updateSekkiForSelectedDate(); 
+                this.updateSekkiForSelectedDate();
+                this.updateDateInput();
                 this.render();},
 
             goToToday() { /* Same as before */
                 this.selectedDate = new Date();
                 this.updateSekkiForSelectedDate();
+                this.updateDateInput();
                 this.render();},
 
             selectDate(dateStr) { /* Same as before */
                 const newDate = new Date(dateStr);
                 if (!isNaN(newDate.getTime())) {
                     this.selectedDate = newDate;
-                    document.getElementById('calendarInput').classList.add('hidden');
                     this.updateCalendarSekkiInfo(); 
                     this.updateSekkiForSelectedDate(); 
                     this.render();
@@ -2327,14 +2336,16 @@
                 this.updateYearSekkiList();},
 
             toggleCalendar() { /* Same as before */
-                const inputContainer = document.getElementById('calendarInput');
+                // Calendar is now always visible, so just focus on the input
                 const dateInputEl = document.getElementById('dateInput');
-                inputContainer.classList.toggle('hidden');
-                if (!inputContainer.classList.contains('hidden')) {
-                    dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
-                    this.updateCalendarSekkiInfo(); 
-                    dateInputEl.focus(); 
-                }},
+                dateInputEl.focus();
+            },
+            
+            updateDateInput() {
+                const dateInputEl = document.getElementById('dateInput');
+                dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
+                this.updateCalendarSekkiInfo();
+            },
 
             setTaskType(type) { /* Same as before */
                 this.taskType = type;
@@ -3207,6 +3218,41 @@
             }
         };
         app.init();
+        
+        // Service Workerの登録
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => console.log('ServiceWorker registration successful:', registration.scope))
+                    .catch(err => console.log('ServiceWorker registration failed:', err));
+            });
+        }
+        
+        // PWAインストールプロンプト
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // インストールボタンを表示する場合はここに追加
+            const installButton = document.createElement('button');
+            installButton.className = 'fixed bottom-4 left-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            installButton.textContent = 'アプリをインストール';
+            installButton.onclick = async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`User response to the install prompt: ${outcome}`);
+                    deferredPrompt = null;
+                    installButton.remove();
+                }
+            };
+            
+            // インストール済みでない場合のみボタンを表示
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                document.body.appendChild(installButton);
+            }
+        });
     </script>
 </body>
 </html>
