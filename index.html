@@ -1126,11 +1126,11 @@
                                 </svg>
                             </button>
                             
-                            <button id="calendarToggle" class="flex flex-col items-center px-3 sm:px-6 py-2 hover:bg-gray-50 rounded-2xl transition-all border-2 border-gray-300">
+                            <div id="calendarToggle" class="flex flex-col items-center px-3 sm:px-6 py-2 rounded-2xl border-2 border-gray-300">
                                 <span id="currentDateYear" class="text-xs text-gray-600"></span>
                                 <span id="currentDate" class="text-lg sm:text-xl font-bold text-gray-800"></span>
                                 <span id="currentDateDay" class="text-xs text-gray-600"></span>
-                            </button>
+                            </div>
                             
                             <button id="nextDay" class="p-3 hover:bg-gray-100 rounded-full transition-all">
                                 <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2188,7 +2188,7 @@
                 document.getElementById('prevDay').addEventListener('click', () => this.navigateDate(-1));
                 document.getElementById('nextDay').addEventListener('click', () => this.navigateDate(1));
                 document.getElementById('todayButton').addEventListener('click', () => this.goToToday());
-                document.getElementById('calendarToggle').addEventListener('click', () => this.toggleCalendar());
+                // Calendar is always visible, no toggle needed
                 const dateInputElement = document.getElementById('dateInput');
                 dateInputElement.addEventListener('change', (e) => this.selectDate(e.target.value));
                 dateInputElement.addEventListener('input', () => this.updateCalendarSekkiInfo()); 
