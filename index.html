@@ -284,17 +284,40 @@
 
         /* 完了済みタスク */
         .task-completed {
-            background-color: rgba(235, 235, 230, 0.9);  
-            opacity: 0.65;  
-            border: 1px solid #ccc;
+            background-color: rgba(236, 253, 245, 0.95);  
+            border: 2px solid #10b981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .task-completed::before {
+            content: '✓';
+            position: absolute;
+            top: -5px;
+            right: 10px;
+            font-size: 3rem;
+            color: rgba(16, 185, 129, 0.2);
+            font-weight: bold;
         }
         .task-completed .task-text-lg {
-            text-decoration: line-through;
-            color: #777;
+            color: #059669;
+            font-weight: 500;
         }
         .task-completed .task-type-label {
-             background-color: #f0f0f0;
-             color: #888;
+             background-color: #10b981;
+             color: white;
+             font-weight: bold;
+        }
+        .task-completed-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background-color: #10b981;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -1445,7 +1468,7 @@
                                 content: prompt
                             }],
                             temperature: 0.7,
-                            max_tokens: period === 'quarterly' ? 1200 : period === 'monthly' ? 800 : period === 'sekki' ? 600 : period === 'weekly' ? 400 : 300
+                            max_tokens: period === 'quarterly' ? 3000 : period === 'monthly' ? 1500 : period === 'sekki' ? 1200 : period === 'weekly' ? 900 : 600
                         })
                     });
                     
@@ -1495,7 +1518,10 @@
                         if (stats.todayReflection) {
                             prompt += `振り返り: ${stats.todayReflection}\n`;
                         }
-                        prompt += `\nADHD傾向がある私に、今日の振り返りと明日へのアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
+                        if (stats.daysToNextSekki <= 3) {
+                            prompt += `※${stats.daysToNextSekki}日後に${stats.nextSekkiName}に変わります\n`;
+                        }
+                        prompt += `\nADHD傾向がある私に、今日の振り返りと明日へのアドバイスを400文字程度でお願いします。${stats.daysToNextSekki <= 3 ? '節気の変わり目を意識したアドバイスも含めてください。' : ''}必ず最後まで完結した文章でお願いします。`;
                         break;
                         
                     case 'weekly':
@@ -1504,15 +1530,19 @@
                         prompt += `- 目標タスク: ${stats.goalCompleted}/${stats.goalTotal}完了\n`;
                         prompt += `- 獲得ポイント: ${stats.totalPoints}pt\n`;
                         prompt += `- 期限付きタスク: ${stats.deadlineCompleted}完了\n`;
-                        prompt += `\nADHD傾向がある私に、今週の振り返りと来週へのアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
+                        if (stats.weeklyReflections && stats.weeklyReflections.length > 0) {
+                            prompt += `今週の振り返りテーマ: ${stats.weeklyReflections.join('、')}\n`;
+                        }
+                        prompt += `\nADHD傾向がある私に、今週の振り返りと来週へのアドバイスを600文字程度でお願いします。現在の${currentSekki}の季節感を意識したアドバイスを含めてください。必ず最後まで完結した文章でお願いします。`;
                         break;
                         
                     case 'sekki':
-                        prompt += `この節気期間のタスク実績:\n`;
+                        prompt += `${currentSekki}期間（${stats.sekkiStartDate}〜現在）のタスク実績:\n`;
                         prompt += `- 実施日数: ${stats.activeDays}日\n`;
                         prompt += `- 総ポイント: ${stats.totalPoints}pt\n`;
                         prompt += `- 平均完了率: ${stats.avgCompletionRate}%\n`;
-                        prompt += `\n${currentSekki}という季節を踏まえて、ADHD傾向がある私に季節に合わせた生活のアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
+                        prompt += `- 最も達成した目標タイプ: ${stats.topGoalTheme || 'まだデータがありません'}\n`;
+                        prompt += `\n${currentSekki}という節気の特徴と季節の変化を踏まえて、ADHD傾向がある私に季節に合わせた生活のアドバイスを800文字程度でお願いします。節気の意味や季節の風物詩、体調管理のポイントなども含めてください。必ず最後まで完結した文章でお願いします。`;
                         break;
                         
                     case 'monthly':
@@ -1521,7 +1551,8 @@
                         prompt += `- 総ポイント: ${stats.totalPoints}pt\n`;
                         prompt += `- 目標達成率: ${stats.goalCompletionRate}%\n`;
                         prompt += `- 最も多かった振り返りテーマ: ${stats.commonReflectionTheme || '特になし'}\n`;
-                        prompt += `\nADHD傾向がある私に、今月の総括と来月の目標設定についてアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
+                        prompt += `- 今月含まれる節気: ${stats.monthSekki.join('、')}\n`;
+                        prompt += `\nADHD傾向がある私に、今月の総括と来月の目標設定についてアドバイスを1000文字程度でお願いします。今月通過した節気の変化も踏まえた分析を含めてください。必ず最後まで完結した文章でお願いします。`;
                         break;
                         
                     case 'quarterly':
@@ -1531,7 +1562,9 @@
                         prompt += `- 平均ポイント/日: ${stats.avgPointsPerDay}pt\n`;
                         prompt += `- 最高連続日数: ${stats.maxStreak}日\n`;
                         prompt += `- 成長傾向: ${stats.growthTrend}\n`;
-                        prompt += `\nADHD傾向がある私に、3ヶ月間の成長と今後の長期目標についてアドバイスをお願いします。必ず最後まで完結した文章でお願いします。`;
+                        prompt += `- 3ヶ月間に経験した節気: ${stats.quarterSekki.join('、')}\n`;
+                        prompt += `- 季節の変化: ${stats.seasonalTransition}\n`;
+                        prompt += `\nADHD傾向がある私に、3ヶ月間の成長と今後の長期目標についてアドバイスを2000文字程度でお願いします。季節の移り変わりとともにどのような変化があったか、季節ごとのアドバイスも含めてください。必ず最後まで完結した文章でお願いします。`;
                         break;
                 }
                 
@@ -1541,6 +1574,21 @@
             gatherStatsForPeriod(period) {
                 const now = new Date();
                 const stats = {};
+                
+                // 次の節気までの日数を計算
+                const year = now.getFullYear();
+                const allSekki = [...(sekkiData[year] || []), ...(sekkiData[year + 1] || [])];
+                let nextSekki = null;
+                for (const sekki of allSekki) {
+                    if (sekki.date > now) {
+                        nextSekki = sekki;
+                        break;
+                    }
+                }
+                if (nextSekki) {
+                    stats.daysToNextSekki = Math.ceil((nextSekki.date - now) / (1000 * 60 * 60 * 24));
+                    stats.nextSekkiName = nextSekki.name;
+                }
                 
                 switch(period) {
                     case 'daily':
@@ -1581,6 +1629,12 @@
                         break;
                         
                     case 'sekki':
+                        // 現在の節気の開始日を取得
+                        const currentSekkiData = this.getCurrentSekkiData();
+                        if (currentSekkiData) {
+                            stats.sekkiStartDate = currentSekkiData.date.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
+                        }
+                        
                     case 'monthly':
                     case 'quarterly':
                         const days = period === 'sekki' ? 15 : period === 'monthly' ? 30 : 90;
@@ -1590,6 +1644,8 @@
                         let completedTasks = 0;
                         let goalTasks = 0;
                         let completedGoals = 0;
+                        const reflectionThemes = [];
+                        const weeklyReflectionSet = new Set();
                         
                         for (let i = 0; i < days; i++) {
                             const date = new Date(now);
@@ -1603,11 +1659,51 @@
                             goalTasks += dayTasks.filter(t => t.type === 'urgent').length;
                             completedGoals += dayTasks.filter(t => t.type === 'urgent' && t.isCompleted).length;
                             stats.totalPoints += this.dailyPointHistory[dateStr] || 0;
+                            
+                            // 振り返りの収集
+                            if (this.dailyReflections[dateStr]) {
+                                reflectionThemes.push(this.dailyReflections[dateStr]);
+                                if (period === 'weekly' && i < 7) {
+                                    weeklyReflectionSet.add(this.dailyReflections[dateStr].substring(0, 20) + '...');
+                                }
+                            }
+                        }
+                        
+                        if (period === 'weekly') {
+                            stats.weeklyReflections = Array.from(weeklyReflectionSet).slice(0, 3);
                         }
                         
                         stats.avgCompletionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
                         stats.goalCompletionRate = goalTasks > 0 ? Math.round((completedGoals / goalTasks) * 100) : 0;
                         stats.avgPointsPerDay = stats.activeDays > 0 ? (stats.totalPoints / stats.activeDays).toFixed(1) : 0;
+                        
+                        // 期間中の節気を収集
+                        if (period === 'monthly' || period === 'quarterly') {
+                            const sekkiSet = new Set();
+                            const startDate = new Date(now);
+                            startDate.setDate(startDate.getDate() - days);
+                            
+                            for (const sekki of allSekki) {
+                                if (sekki.date >= startDate && sekki.date <= now) {
+                                    sekkiSet.add(sekki.name);
+                                }
+                            }
+                            
+                            if (period === 'monthly') {
+                                stats.monthSekki = Array.from(sekkiSet);
+                            } else {
+                                stats.quarterSekki = Array.from(sekkiSet);
+                                
+                                // 季節の変化を分析
+                                const startSeason = getActualSeason(startDate);
+                                const endSeason = getActualSeason(now);
+                                if (startSeason === endSeason) {
+                                    stats.seasonalTransition = `${this.getSeasonName(startSeason)}の期間`;
+                                } else {
+                                    stats.seasonalTransition = `${this.getSeasonName(startSeason)}から${this.getSeasonName(endSeason)}へ`;
+                                }
+                            }
+                        }
                         
                         if (period === 'quarterly') {
                             // 連続日数計算
@@ -1661,6 +1757,27 @@
                 return points;
             },
             
+            getCurrentSekkiData() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const allSekki = [...(sekkiData[year - 1] || []), ...(sekkiData[year] || []), ...(sekkiData[year + 1] || [])];
+                let currentSekki = null;
+                
+                for (const sekki of allSekki) {
+                    if (now >= sekki.date) {
+                        currentSekki = sekki;
+                    } else {
+                        break;
+                    }
+                }
+                
+                return currentSekki;
+            },
+            
+            getSeasonName(season) {
+                return season === 'spring' ? '春' : season === 'summer' ? '夏' : season === 'autumn' ? '秋' : '冬';
+            },
+            
             render() {
                 const selectedDateTasks = this.getTodayTasks(); 
                 const completedCount = selectedDateTasks.filter(t => t.isCompleted).length;
@@ -1701,7 +1818,7 @@
                                     <span class="task-type-label"> <!-- Styling now comes from parent context -->
                                         ${task.type === 'urgent' ? `【目標】${task.points ? ` ${task.points}pt` : ''}` : '【通常】'}
                                     </span>
-                                    ${task.completedAt ? `<span class="text-xs text-gray-600">完了 ${new Date(task.completedAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</span>` : ''}
+                                    ${task.completedAt ? `<span class="task-completed-badge"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>完了!</span>` : ''}
                                 </div>
                             </div>
                             <div class="flex items-center gap-1">
@@ -1739,9 +1856,9 @@
                     taskEl.innerHTML = `
                         <div class="flex items-center justify-between">
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm sm:text-base font-medium break-words ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-800'}">${task.text}</p>
+                                <p class="text-sm sm:text-base font-medium break-words ${task.isCompleted ? 'text-green-700' : 'text-gray-800'}">${task.text}</p>
                                 <p class="text-xs sm:text-sm mt-1 ${ task.isCompleted ? 'text-gray-500' : isOverdue ? 'text-red-700 font-medium' : isUrgent ? 'text-orange-700 font-medium' : 'text-gray-600' }">
-                                    ${task.isCompleted ? `完了 (${new Date(task.completedAt).toLocaleDateString('ja-JP', {month:'numeric', day:'numeric'})})` : isOverdue ? `${Math.abs(daysLeft)}日超過` : daysLeft === 0 ? '本日まで' : `あと${daysLeft}日`}
+                                    ${task.isCompleted ? `✓ 完了済み (${new Date(task.completedAt).toLocaleDateString('ja-JP', {month:'numeric', day:'numeric'})})` : isOverdue ? `${Math.abs(daysLeft)}日超過` : daysLeft === 0 ? '本日まで' : `あと${daysLeft}日`}
                                     ・期限: ${new Date(task.deadline).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}
                                 </p>
                             </div>
