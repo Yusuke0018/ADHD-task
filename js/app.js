@@ -29,6 +29,13 @@ const app = {
         requestAnimationFrame(() => {
             this.updateTodayDisplay();
         });
+        setTimeout(() => this.updateTodayDisplay(), 500);
+        window.addEventListener('orientationchange', () => this.updateTodayDisplay());
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                this.updateTodayDisplay();
+            }
+        });
     },
 
     updateSekki() {
@@ -940,7 +947,7 @@ const app = {
         }).join('');},
 
 
-    updateTodayDisplay() {
+    updateTodayDisplay(retry = 0) {
         const today = new Date();
         const todayDateYearEl = document.getElementById('todayDateYear');
         const todayDateFullEl = document.getElementById('todayDateFull');
@@ -948,6 +955,9 @@ const app = {
         
         // 要素が存在しない場合は処理をスキップ
         if (!todayDateYearEl || !todayDateFullEl || !todayDateDayEl) {
+            if (retry < 5) {
+                setTimeout(() => this.updateTodayDisplay(retry + 1), 200);
+            }
             return;
         }
         
