@@ -22,12 +22,14 @@ const app = {
         this.loadData();
         this.bindEvents();
         this.updateSekki();
-        // DOMが完全に読み込まれてから実行
+        // スマホ対応：複数回実行して確実に表示
         this.updateTodayDisplay();
-        // 再度実行して確実に表示
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             this.updateTodayDisplay();
-        }, 500);
+            setTimeout(() => {
+                this.updateTodayDisplay();
+            }, 100);
+        });
     },
 
     updateSekki() {
@@ -992,15 +994,35 @@ const app = {
         const todayDateFullEl = document.getElementById('todayDateFull');
         const todayDateDayEl = document.getElementById('todayDateDay');
         
-        if (todayDateYearEl) {
-            todayDateYearEl.textContent = today.getFullYear() + '年';
+        // 要素が存在しない場合はリトライ
+        if (!todayDateYearEl || !todayDateFullEl || !todayDateDayEl) {
+            console.warn('Today display elements not found, retrying...');
+            return;
         }
-        if (todayDateFullEl) {
-            todayDateFullEl.textContent = (today.getMonth() + 1) + '月' + today.getDate() + '日';
-        }
-        if (todayDateDayEl) {
-            const weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
-            todayDateDayEl.textContent = weekdays[today.getDay()];
+        
+        // 強制的にスタイルを適用して表示を確実に
+        const yearText = today.getFullYear() + '年';
+        const monthDayText = (today.getMonth() + 1) + '月' + today.getDate() + '日';
+        const weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+        const dayText = weekdays[today.getDay()];
+        
+        todayDateYearEl.textContent = yearText;
+        todayDateYearEl.style.display = 'block';
+        todayDateYearEl.style.visibility = 'visible';
+        
+        todayDateFullEl.textContent = monthDayText;
+        todayDateFullEl.style.display = 'block';
+        todayDateFullEl.style.visibility = 'visible';
+        
+        todayDateDayEl.textContent = dayText;
+        todayDateDayEl.style.display = 'block';
+        todayDateDayEl.style.visibility = 'visible';
+        
+        // 親要素も表示を確実に
+        const parentEl = todayDateYearEl.parentElement;
+        if (parentEl) {
+            parentEl.style.display = 'block';
+            parentEl.style.visibility = 'visible';
         }
     },
 
@@ -1148,14 +1170,20 @@ const app = {
     calendarMonth: new Date(),
     
     toggleCustomCalendar(show = null) {
-        const calendar = document.getElementById('customCalendar');
-        const shouldShow = show !== null ? show : calendar.classList.contains('hidden');
+        const popup = document.getElementById('customCalendarPopup');
+        const shouldShow = show !== null ? show : popup.classList.contains('hidden');
         
         if (shouldShow) {
-            calendar.classList.remove('hidden');
+            popup.classList.remove('hidden');
             this.renderCalendar();
+            // ポップアップ外をクリックしたら閉じる
+            popup.addEventListener('click', (e) => {
+                if (e.target === popup) {
+                    this.toggleCustomCalendar(false);
+                }
+            });
         } else {
-            calendar.classList.add('hidden');
+            popup.classList.add('hidden');
         }
     },
     
