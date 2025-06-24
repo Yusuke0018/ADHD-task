@@ -264,29 +264,36 @@ const app = {
 
         // --- NEW: スワイプによる日付移動機能 ---
         const swipeArea = document.body;
-        let touchStartX = 0;
-        let touchStartY = 0;
+        let swipeStartX = 0;
+        let swipeStartY = 0;
         let isSwipeActive = false; // スワイプ操作中かどうかのフラグ
 
-        swipeArea.addEventListener('touchstart', (e) => {
+        const swipeStart = (e) => {
             // ボタンや入力、特定の操作エリアではスワイプを開始しない
             if (e.target.closest('button, input, textarea, a, .sekki-grid, .point-select-button, #menuHandle, #menuItems, #customCalendarPopup, #calendarToggle')) {
                 isSwipeActive = false;
                 return;
             }
             isSwipeActive = true;
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
+            const point = e.changedTouches ? e.changedTouches[0] : e;
+            swipeStartX = point.clientX;
+            swipeStartY = point.clientY;
+        };
 
-        swipeArea.addEventListener('touchend', (e) => {
+        const swipeEnd = (e) => {
             if (!isSwipeActive) return;
             isSwipeActive = false; // フラグをリセット
 
-            const touchEndX = e.changedTouches[0].screenX;
-            const touchEndY = e.changedTouches[0].screenY;
-            this.handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
-        }, { passive: true });
+            const point = e.changedTouches ? e.changedTouches[0] : e;
+            const endX = point.clientX;
+            const endY = point.clientY;
+            this.handleSwipe(swipeStartX, swipeStartY, endX, endY);
+        };
+
+        swipeArea.addEventListener('touchstart', swipeStart, { passive: true });
+        swipeArea.addEventListener('touchend', swipeEnd, { passive: true });
+        swipeArea.addEventListener('pointerdown', swipeStart);
+        swipeArea.addEventListener('pointerup', swipeEnd);
     },
     
     // --- NEW: スワイプ操作を処理するメソッド ---
