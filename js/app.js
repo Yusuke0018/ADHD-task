@@ -13,7 +13,6 @@ if (document.readyState === 'loading') {
 const app = {
     tasks: [],
     deadlineTasks: [],
-    inboxItems: [],
     selectedDate: new Date(),
     taskType: 'normal',
     totalPoints: 0,
@@ -26,13 +25,9 @@ const app = {
         this.loadData();
         this.bindEvents();
         this.updateSekki();
-        // スマホ対応：複数回実行して確実に表示
-        this.updateTodayDisplay();
+        // スマホ対応：確実に表示
         requestAnimationFrame(() => {
             this.updateTodayDisplay();
-            setTimeout(() => {
-                this.updateTodayDisplay();
-            }, 100);
         });
     },
 
@@ -183,7 +178,6 @@ const app = {
             const data = JSON.parse(saved);
             this.tasks = (data.tasks || []).map(t => ({ ...t, createdAt: new Date(t.createdAt), completedAt: t.completedAt ? new Date(t.completedAt) : null, scheduledFor: new Date(t.scheduledFor), points: t.points || 0 }));
             this.deadlineTasks = (data.deadlineTasks || []).map(t => ({ ...t, deadline: new Date(t.deadline), createdAt: new Date(t.createdAt), completedAt: t.completedAt ? new Date(t.completedAt) : null }));
-            this.inboxItems = data.inboxItems || [];
             this.totalPoints = data.totalPoints || 0;
             this.dailyPointHistory = data.dailyPointHistory || {};
             this.dailyReflections = data.dailyReflections || {};
@@ -195,7 +189,7 @@ const app = {
         localStorage.setItem('focusTaskData', JSON.stringify({ 
             tasks: this.tasks, 
             deadlineTasks: this.deadlineTasks, 
-            inboxItems: this.inboxItems, 
+ 
             totalPoints: this.totalPoints, 
             dailyPointHistory: this.dailyPointHistory,
             dailyReflections: this.dailyReflections,
@@ -234,13 +228,9 @@ const app = {
         document.getElementById('deadlineToggle').addEventListener('click', () => this.toggleDeadlineForm());
         document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
         document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
-        // Inboxボタン削除に伴いコメントアウト
-        // document.getElementById('inboxToggle').addEventListener('click', () => this.toggleInbox());
         
         // スワイプメニューの初期化
         this.setupSwipeMenu();
-        document.getElementById('addInbox').addEventListener('click', () => this.addInboxItem());
-        document.getElementById('inboxInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.addInboxItem(); });
         document.getElementById('reflectionToggle').addEventListener('click', () => this.toggleReflection());
         document.getElementById('saveReflection').addEventListener('click', () => this.saveReflection());
         document.getElementById('cancelReflection').addEventListener('click', () => this.toggleReflection(false));
@@ -365,13 +355,6 @@ const app = {
         }
         this.updateYearSekkiList();},
 
-    toggleCalendar() {
-        const dateInputEl = document.getElementById('dateInput');
-        // Always visible, so just update the date and focus
-        dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
-        this.updateCalendarSekkiInfo(); 
-        dateInputEl.focus();
-    },
 
     setTaskType(type) {
         this.taskType = type;
@@ -570,27 +553,8 @@ const app = {
         });
     },
     
-    showSettings() {
-        // 設定画面を表示する機能（今後実装）
-        alert('設定機能はまだ実装されていません');
-    },
     
-    toggleInbox() {
-        const inboxSection = document.getElementById('inboxSection');
-        inboxSection.classList.toggle('hidden');},
 
-    addInboxItem() {
-        const input = document.getElementById('inboxInput');
-        const text = input.value.trim();
-        if (!text) return;
-        const newItem = { id: Date.now().toString(), text: text, createdAt: new Date() };
-        this.inboxItems.push(newItem);
-        input.value = '';
-        this.saveData(); this.renderInbox();},
-
-    deleteInboxItem(itemId) {
-        this.inboxItems = this.inboxItems.filter(i => i.id !== itemId);
-        this.saveData(); this.renderInbox();},
 
 
     toggleReflection() {
@@ -975,23 +939,6 @@ const app = {
                 </div>`;
         }).join('');},
 
-    renderInbox() {
-        const listEl = document.getElementById('inboxList');
-        
-        if (this.inboxItems.length === 0) {
-            listEl.innerHTML = '<p class="text-center py-4 text-gray-500 text-sm">覚書はありません</p>';
-            return;
-        }
-        
-        listEl.innerHTML = this.inboxItems.map(item => `
-            <div class="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-lg">
-                <span class="text-sm text-gray-700 flex-1">${this.escapeHtml(item.text)}</span>
-                <button onclick="app.deleteInboxItem('${item.id}')" class="p-1 text-gray-400 hover:text-gray-600 transition-all">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>`).join('');},
 
     updateTodayDisplay() {
         const today = new Date();
@@ -999,9 +946,8 @@ const app = {
         const todayDateFullEl = document.getElementById('todayDateFull');
         const todayDateDayEl = document.getElementById('todayDateDay');
         
-        // 要素が存在しない場合はリトライ
+        // 要素が存在しない場合は処理をスキップ
         if (!todayDateYearEl || !todayDateFullEl || !todayDateDayEl) {
-            console.warn('Today display elements not found, retrying...');
             return;
         }
         
@@ -1126,7 +1072,6 @@ const app = {
         }
         
         this.renderDeadlineTasks();
-        this.renderInbox();
         this.renderReflection();
         this.renderAISection();},
 

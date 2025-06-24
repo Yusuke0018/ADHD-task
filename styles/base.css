@@ -52,9 +52,6 @@ body {
     }
 }
 
-@media (hover: none) {
-    .wa-button:active { transform: scale(0.95); }
-}
 
 /* ポイント選択ボタン */
 .point-select-button {
@@ -408,10 +405,6 @@ body {
     transform: scale(0.9);
 }
 
-/* 完了タスクの削除ボタンを非表示 */
-.task-completed .delete-task {
-    display: none !important;
-}
 
 /* 今日の日付表示を強制的に表示 */
 #todayDateYear, #todayDateFull, #todayDateDay {
@@ -458,7 +451,7 @@ body {
     }
     
     /* タッチターゲットの最適化 */
-    button, .wa-button, .wa-checkbox {
+    button, .wa-checkbox {
         min-height: 44px;
         min-width: 44px;
     }
@@ -486,10 +479,4 @@ body {
         -webkit-overflow-scrolling: touch;
     }
     
-    /* メニューボタンの位置調整 */
-    #menuToggle {
-        left: -5px;
-        padding: 0.75rem;
-        border-radius: 0 8px 8px 0;
-    }
 }
