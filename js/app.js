@@ -269,8 +269,8 @@ const app = {
         let isSwipeActive = false; // スワイプ操作中かどうかのフラグ
 
         const swipeStart = (e) => {
-            // ボタンや入力、特定の操作エリアではスワイプを開始しない
-            if (e.target.closest('button, input, textarea, a, .sekki-grid, .point-select-button, #menuHandle, #menuItems, #customCalendarPopup, #calendarToggle')) {
+            // スワイプを無効化するエリアを、本当に必要なものだけに限定する
+            if (e.target.closest('#menuHandle, #menuItems, #customCalendarPopup, .point-select-button, .sekki-grid, textarea')) {
                 isSwipeActive = false;
                 return;
             }
