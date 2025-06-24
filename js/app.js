@@ -269,8 +269,10 @@ const app = {
         let isSwipeActive = false; // スワイプ操作中かどうかのフラグ
 
         const swipeStart = (e) => {
+            console.log("--- swipeStart triggered ---"); // ログを追加
             // スワイプを無効化するエリアを、本当に必要なものだけに限定する
             if (e.target.closest('#menuHandle, #menuItems, #customCalendarPopup, .point-select-button, .sekki-grid, textarea')) {
+                console.log("Swipe disabled on this element."); // ログを追加
                 isSwipeActive = false;
                 return;
             }
@@ -278,15 +280,21 @@ const app = {
             const point = e.changedTouches ? e.changedTouches[0] : e;
             swipeStartX = point.clientX;
             swipeStartY = point.clientY;
+            console.log(`Start coordinates: X=${swipeStartX}, Y=${swipeStartY}`); // ログを追加
         };
 
         const swipeEnd = (e) => {
-            if (!isSwipeActive) return;
+            console.log("--- swipeEnd triggered ---"); // ログを追加
+            if (!isSwipeActive) {
+                console.log("Swipe was not active."); // ログを追加
+                return;
+            }
             isSwipeActive = false; // フラグをリセット
 
             const point = e.changedTouches ? e.changedTouches[0] : e;
             const endX = point.clientX;
             const endY = point.clientY;
+            console.log(`End coordinates: X=${endX}, Y=${endY}`); // ログを追加
             this.handleSwipe(swipeStartX, swipeStartY, endX, endY);
         };
 
@@ -298,19 +306,26 @@ const app = {
     
     // --- NEW: スワイプ操作を処理するメソッド ---
     handleSwipe(startX, startY, endX, endY) {
+        console.log("--- handleSwipe triggered ---"); // ログを追加
         const thresholdX = 50;  // 横スワイプとして認識する最小距離
         const restraintY = 100; // 横スワイプ中に許容される縦の最大移動距離
 
         const diffX = endX - startX;
         const diffY = endY - startY;
+        console.log(`Swipe difference: diffX=${diffX}, diffY=${diffY}`); // ログを追加
 
         // 横方向の移動がしきい値を超え、縦方向の移動が抑制範囲内かをチェック
         if (Math.abs(diffX) > thresholdX && Math.abs(diffY) < restraintY) {
+            console.log("Swipe DETECTED."); // ログを追加
             if (diffX > 0) {
+                console.log("Navigating to previous day."); // ログを追加
                 this.navigateDate(-1); // 右スワイプで前の日へ
             } else {
+                console.log("Navigating to next day."); // ログを追加
                 this.navigateDate(1);  // 左スワイプで次の日へ
             }
+        } else {
+            console.log("Swipe NOT detected (did not meet threshold)."); // ログを追加
         }
     },
 
