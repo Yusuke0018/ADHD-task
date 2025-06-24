@@ -269,7 +269,7 @@ const app = {
         });
 
         // --- NEW: スワイプによる日付移動機能 ---
-        const swipeArea = document;
+        const swipeArea = document.body;
         let swipeStartX = 0;
         let swipeStartY = 0;
         let isSwipeActive = false; // スワイプ操作中かどうかのフラグ
@@ -470,6 +470,7 @@ const app = {
         }
         
         modal.classList.remove('hidden');
+        modal.classList.remove('pointer-events-none');
     },
     
     // ポイント選択（完了時）
@@ -522,7 +523,9 @@ const app = {
     
     // モーダルを閉じる
     closeTaskCompletionModal() {
-        document.getElementById('taskCompletionModal').classList.add('hidden');
+        const modal = document.getElementById('taskCompletionModal');
+        modal.classList.add('hidden');
+        modal.classList.add('pointer-events-none');
         this.currentCompletingTaskId = null;
         this.selectedCompletionPoints = 0;
     },
@@ -1329,6 +1332,7 @@ const app = {
         
         if (shouldShow) {
             popup.classList.remove('hidden');
+            popup.classList.remove('pointer-events-none');
             this.renderCalendar();
             // ポップアップ外をクリックしたら閉じる
             popup.addEventListener('click', (e) => {
@@ -1338,6 +1342,7 @@ const app = {
             });
         } else {
             popup.classList.add('hidden');
+            popup.classList.add('pointer-events-none');
         }
     },
     
