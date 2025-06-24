@@ -25,69 +25,34 @@
     <link rel="stylesheet" href="styles/components.css?v=3">
 </head>
 <body>
-    <!-- 左手操作用スライドメニュー -->
-    <div id="slideMenu" class="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 z-50">
-        <div class="p-4">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold">メニュー</h3>
-                <button onclick="app.toggleSlideMenu()" class="p-2 hover:bg-gray-100 rounded-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    <!-- スワイプメニュー -->
+    <div id="swipeMenu" class="fixed left-0 top-0 bottom-0 w-16 z-50">
+        <!-- メニューオープンエリア -->
+        <div id="menuHandle" class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-32 cursor-pointer">
+            <div class="w-full h-full bg-gradient-to-r from-gray-800 to-transparent opacity-30 rounded-r-full"></div>
+        </div>
+        
+        <!-- メニューアイテム -->
+        <div id="menuItems" class="fixed left-0 top-1/2 transform -translate-y-1/2 -translate-x-full transition-transform duration-300">
+            <div class="bg-gray-800 rounded-r-2xl shadow-2xl p-2 space-y-2">
+                <a href="index.html" class="menu-item block w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center transition-all hover:bg-gray-600" title="ホーム">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
                     </svg>
-                </button>
+                </a>
+                <a href="statistics.html" class="menu-item block w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center transition-all hover:bg-gray-600" title="統計">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </a>
+                <a href="ai-comments.html" class="menu-item block w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center transition-all hover:bg-gray-600" title="AIコメント">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                </a>
             </div>
-            <nav class="space-y-2">
-                <a href="index.html" class="block p-3 hover:bg-gray-100 rounded-lg transition-all">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                        </svg>
-                        <span>ホーム</span>
-                    </div>
-                </a>
-                <a href="statistics.html" class="block p-3 hover:bg-gray-100 rounded-lg transition-all">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                        <span>統計</span>
-                    </div>
-                </a>
-                <a href="ai-comments.html" class="block p-3 hover:bg-gray-100 rounded-lg transition-all">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                        </svg>
-                        <span>AIコメント</span>
-                    </div>
-                </a>
-                <button onclick="app.toggleInbox()" class="w-full text-left p-3 hover:bg-gray-100 rounded-lg transition-all">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                        </svg>
-                        <span>Inbox</span>
-                    </div>
-                </button>
-                <button onclick="app.showSettings()" class="w-full text-left p-3 hover:bg-gray-100 rounded-lg transition-all">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span>設定</span>
-                    </div>
-                </button>
-            </nav>
         </div>
     </div>
-    
-    <!-- スライドメニューオープンボタン -->
-    <button id="menuToggle" class="fixed left-0 top-1/2 transform -translate-y-1/2 bg-gray-800 text-white p-3 rounded-r-lg shadow-lg z-40 transition-all duration-300">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-    </button>
     <div id="backgroundSeason" class="min-h-screen bg-summer gradient-animation transition-all duration-1000 relative">
         <!-- 季節のアニメーション -->
         <div id="seasonAnimation" class="season-animation"></div>

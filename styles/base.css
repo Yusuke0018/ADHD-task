@@ -359,26 +359,50 @@ body {
     background: #3b82f6;
 }
 
-/* スライドメニュー関連 */
-#slideMenu {
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+/* スワイプメニュー関連 */
+#menuHandle {
+    touch-action: pan-y;
 }
 
-#slideMenu.open {
-    transform: translateX(0);
+#menuItems {
+    pointer-events: none;
 }
 
-#menuToggle {
+#menuItems.open {
+    transform: translateX(100%) translateY(-50%);
+    pointer-events: all;
+}
+
+.menu-item {
+    transform: scale(0);
+    opacity: 0;
     transition: all 0.3s ease;
 }
 
-#menuToggle:hover {
-    padding-left: 20px;
-    background: #1f2937;
+#menuItems.open .menu-item {
+    transform: scale(1);
+    opacity: 1;
 }
 
-#menuToggle.menu-open {
-    transform: translateX(256px) translateY(-50%);
+#menuItems.open .menu-item:nth-child(1) {
+    transition-delay: 0.1s;
+}
+
+#menuItems.open .menu-item:nth-child(2) {
+    transition-delay: 0.15s;
+}
+
+#menuItems.open .menu-item:nth-child(3) {
+    transition-delay: 0.2s;
+}
+
+.menu-item:active {
+    transform: scale(0.9);
+}
+
+/* 完了タスクの削除ボタンを非表示 */
+.task-completed .delete-task {
+    display: none !important;
 }
 
 /* スマホ専用スタイル */

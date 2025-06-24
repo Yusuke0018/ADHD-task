@@ -225,8 +225,8 @@ const app = {
         document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
         document.getElementById('inboxToggle').addEventListener('click', () => this.toggleInbox());
         
-        // スライドメニューのイベントリスナー
-        document.getElementById('menuToggle').addEventListener('click', () => this.toggleSlideMenu());
+        // スワイプメニューの初期化
+        this.setupSwipeMenu();
         document.getElementById('addInbox').addEventListener('click', () => this.addInboxItem());
         document.getElementById('inboxInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.addInboxItem(); });
         document.getElementById('reflectionToggle').addEventListener('click', () => this.toggleReflection());
@@ -517,17 +517,45 @@ const app = {
         this.deadlineTasks = this.deadlineTasks.filter(t => t.id !== taskId);
         this.saveData(); this.render();},
 
-    toggleSlideMenu() {
-        const menu = document.getElementById('slideMenu');
-        const button = document.getElementById('menuToggle');
+    setupSwipeMenu() {
+        const menuHandle = document.getElementById('menuHandle');
+        const menuItems = document.getElementById('menuItems');
+        let isMenuOpen = false;
+        let touchStartX = 0;
         
-        if (menu.classList.contains('open')) {
-            menu.classList.remove('open');
-            button.classList.remove('menu-open');
-        } else {
-            menu.classList.add('open');
-            button.classList.add('menu-open');
-        }
+        // タッチイベント
+        menuHandle.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        
+        menuHandle.addEventListener('touchmove', (e) => {
+            const touchX = e.touches[0].clientX;
+            const diff = touchX - touchStartX;
+            
+            if (diff > 30 && !isMenuOpen) {
+                menuItems.classList.add('open');
+                isMenuOpen = true;
+            }
+        });
+        
+        // クリックイベント
+        menuHandle.addEventListener('click', () => {
+            if (isMenuOpen) {
+                menuItems.classList.remove('open');
+                isMenuOpen = false;
+            } else {
+                menuItems.classList.add('open');
+                isMenuOpen = true;
+            }
+        });
+        
+        // メニュー外をタップしたら閉じる
+        document.addEventListener('click', (e) => {
+            if (!menuHandle.contains(e.target) && !menuItems.contains(e.target) && isMenuOpen) {
+                menuItems.classList.remove('open');
+                isMenuOpen = false;
+            }
+        });
     },
     
     showSettings() {
