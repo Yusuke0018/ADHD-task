@@ -183,7 +183,14 @@ const app = {
         const saved = localStorage.getItem('focusTaskData');
         if (saved) {
             const data = JSON.parse(saved);
-            this.tasks = (data.tasks || []).map(t => ({ ...t, createdAt: new Date(t.createdAt), completedAt: t.completedAt ? new Date(t.completedAt) : null, scheduledFor: new Date(t.scheduledFor), points: t.points || 0 }));
+            this.tasks = (data.tasks || []).map(t => ({ 
+                ...t, 
+                createdAt: new Date(t.createdAt), 
+                completedAt: t.completedAt ? new Date(t.completedAt) : null, 
+                scheduledFor: new Date(t.scheduledFor), 
+                points: t.points || 0,
+                status: t.status || (t.isCompleted ? 'achieved' : 'pending') // 旧データの互換性
+            }));
             this.deadlineTasks = (data.deadlineTasks || []).map(t => ({ ...t, deadline: new Date(t.deadline), createdAt: new Date(t.createdAt), completedAt: t.completedAt ? new Date(t.completedAt) : null }));
             this.totalPoints = data.totalPoints || 0;
             this.dailyPointHistory = data.dailyPointHistory || {};
@@ -217,24 +224,23 @@ const app = {
         document.getElementById('addTask').addEventListener('click', () => this.addTask());
         document.getElementById('taskInput').addEventListener('keypress', (e) => { 
             if (e.key === 'Enter') {
-                if (this.taskType === 'urgent' && this.selectedPoints === 0) {
-                    // 目標タスクでポイント未選択の場合は何もしない
-                    return;
-                }
                 this.addTask();
             }
-        });
-        document.querySelectorAll('.point-select-button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const points = parseInt(e.currentTarget.dataset.points);
-                this.selectPoints(points);
-                // ポイント選択後、自動的にタスクを追加
-                setTimeout(() => this.addTask(), 200);
-            });
         });
         document.getElementById('deadlineToggle').addEventListener('click', () => this.toggleDeadlineForm());
         document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
         document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
+        
+        // タスク完了モーダルのイベント
+        document.getElementById('taskAchievedBtn').addEventListener('click', () => this.completeTask(true));
+        document.getElementById('taskNotAchievedBtn').addEventListener('click', () => this.completeTask(false));
+        document.getElementById('taskCompletionCancelBtn').addEventListener('click', () => this.closeTaskCompletionModal());
+        document.querySelectorAll('.completion-point-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const points = parseInt(e.currentTarget.dataset.points);
+                this.selectCompletionPoints(points);
+            });
+        });
         
         // スワイプメニューの初期化
         this.setupSwipeMenu();
@@ -374,31 +380,102 @@ const app = {
         this.taskType = type;
         const normalButton = document.getElementById('normalType');
         const urgentButton = document.getElementById('urgentType');
-        const pointSelector = document.getElementById('pointSelector');
-        const addButton = document.getElementById('addTask');
         
         normalButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${ type === 'normal' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }`;
         urgentButton.className = `flex-1 px-4 py-2 rounded-full font-medium transition-all button-large ${ type === 'urgent' ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }`;
+    },
+
+    
+    addTask() {
+        const input = document.getElementById('taskInput');
+        const text = input.value.trim();
+        if (!text) { this.showError('予定を入力してください'); return; }
         
-        if (type === 'urgent') {
+        const todayTasks = this.getTodayTasks();
+        const normalCount = todayTasks.filter(t => t.type === 'normal' && t.status === 'pending').length; 
+        const urgentCount = todayTasks.filter(t => t.type === 'urgent' && t.status === 'pending').length; 
+        if (this.taskType === 'normal' && normalCount >= 3) { this.showError('通常タスクは3件までです（未完了）'); return; }
+        if (this.taskType === 'urgent' && urgentCount >= 3) { this.showError('目標タスクは3件までです（未完了）'); return; }
+        
+        const newTask = { 
+            id: Date.now().toString(), 
+            text: text, 
+            type: this.taskType, 
+            points: 0, // ポイントは完了時に設定
+            createdAt: new Date(), 
+            completedAt: null, 
+            status: 'pending', // pending, achieved, notAchieved
+            scheduledFor: new Date(this.selectedDate) 
+        };
+        this.tasks.push(newTask);
+        input.value = '';
+        
+        this.saveData();
+        this.render();
+    },
+
+    // タスククリック時の処理
+    toggleTask(taskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        // 既に完了している場合はpendingに戻す
+        if (task.status !== 'pending') {
+            if (task.type === 'urgent' && task.points > 0) {
+                this.totalPoints -= task.points;
+                const dateStr = new Date(task.scheduledFor).toDateString();
+                if (this.dailyPointHistory[dateStr]) {
+                    this.dailyPointHistory[dateStr] -= task.points;
+                }
+            }
+            task.status = 'pending';
+            task.completedAt = null;
+            task.points = 0;
+            this.saveData();
+            this.render();
+            this.updateDailyStatusIndicators();
+        } else {
+            // 未完了の場合は完了モーダルを表示
+            this.showTaskCompletionModal(taskId);
+        }
+    },
+    
+    // 現在処理中のタスクID
+    currentCompletingTaskId: null,
+    selectedCompletionPoints: 0,
+    
+    // タスク完了モーダルを表示
+    showTaskCompletionModal(taskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        this.currentCompletingTaskId = taskId;
+        this.selectedCompletionPoints = 0;
+        
+        const modal = document.getElementById('taskCompletionModal');
+        const taskText = document.getElementById('taskCompletionText');
+        const pointSelector = document.getElementById('completionPointSelector');
+        
+        taskText.textContent = `「${task.text}」を完了しますか？`;
+        
+        // 目標タスクの場合はポイント選択を表示
+        if (task.type === 'urgent') {
             pointSelector.classList.remove('hidden');
-            addButton.classList.add('hidden');
-            this.selectedPoints = 0;
-            document.querySelectorAll('.point-select-button').forEach(btn => {
+            document.querySelectorAll('.completion-point-button').forEach(btn => {
                 btn.classList.remove('border-gray-800', 'bg-gray-100');
                 btn.classList.add('border-gray-300');
             });
         } else {
             pointSelector.classList.add('hidden');
-            addButton.classList.remove('hidden');
-            this.selectedPoints = 0;
-        }},
-
-    selectedPoints: 0,
+        }
+        
+        modal.classList.remove('hidden');
+    },
     
-    selectPoints(points) {
-        this.selectedPoints = points;
-        document.querySelectorAll('.point-select-button').forEach(btn => {
+    // ポイント選択（完了時）
+    selectCompletionPoints(points) {
+        this.selectedCompletionPoints = points;
+        document.querySelectorAll('.completion-point-button').forEach(btn => {
             const btnPoints = parseInt(btn.dataset.points);
             if (btnPoints === points) {
                 btn.classList.add('border-gray-800', 'bg-gray-100');
@@ -410,69 +487,52 @@ const app = {
         });
     },
     
-    addTask() {
-        const input = document.getElementById('taskInput');
-        const text = input.value.trim();
-        if (!text) { this.showError('予定を入力してください'); return; }
+    // タスクを完了する
+    completeTask(isAchieved) {
+        const task = this.tasks.find(t => t.id === this.currentCompletingTaskId);
+        if (!task) return;
         
-        if (this.taskType === 'urgent' && this.selectedPoints === 0) {
-            this.showError('目標タスクにはポイントを設定してください');
+        // 目標タスクでポイントが未選択の場合
+        if (isAchieved && task.type === 'urgent' && this.selectedCompletionPoints === 0) {
+            this.showError('ポイントを選択してください');
             return;
         }
         
-        const todayTasks = this.getTodayTasks();
-        const normalCount = todayTasks.filter(t => t.type === 'normal' && !t.isCompleted).length; 
-        const urgentCount = todayTasks.filter(t => t.type === 'urgent' && !t.isCompleted).length; 
-        if (this.taskType === 'normal' && normalCount >= 3) { this.showError('通常タスクは3件までです（未完了）'); return; }
-        if (this.taskType === 'urgent' && urgentCount >= 3) { this.showError('目標タスクは3件までです（未完了）'); return; }
-        const newTask = { id: Date.now().toString(), text: text, type: this.taskType, points: this.taskType === 'urgent' ? this.selectedPoints : 0, createdAt: new Date(), completedAt: null, isCompleted: false, scheduledFor: new Date(this.selectedDate) };
-        this.tasks.push(newTask);
-        input.value = '';
+        task.status = isAchieved ? 'achieved' : 'notAchieved';
+        task.completedAt = new Date();
         
-        // リセット
-        this.selectedPoints = 0;
-        document.querySelectorAll('.point-select-button').forEach(btn => {
-            btn.classList.remove('border-gray-800', 'bg-gray-100');
-            btn.classList.add('border-gray-300');
-        });
-        
-        this.saveData();
-        this.render();},
-
-    toggleTask(taskId) {
-        const task = this.tasks.find(t => t.id === taskId);
-        if (!task) return;
-        if (!task.isCompleted) { 
+        if (isAchieved) {
             this.showCelebration();
-            if (task.type === 'urgent' && task.points > 0) {
+            if (task.type === 'urgent') {
+                task.points = this.selectedCompletionPoints;
                 this.totalPoints += task.points;
-                const today = new Date().toDateString();
-                if (!this.dailyPointHistory[today]) {
-                    this.dailyPointHistory[today] = 0;
+                const dateStr = new Date(task.scheduledFor).toDateString();
+                if (!this.dailyPointHistory[dateStr]) {
+                    this.dailyPointHistory[dateStr] = 0;
                 }
-                this.dailyPointHistory[today] += task.points;
-            }
-        } else {
-            if (task.type === 'urgent' && task.points > 0) {
-                this.totalPoints -= task.points;
-                const today = new Date().toDateString();
-                if (this.dailyPointHistory[today]) {
-                    this.dailyPointHistory[today] -= task.points;
-                }
+                this.dailyPointHistory[dateStr] += task.points;
             }
         }
-        task.isCompleted = !task.isCompleted;
-        task.completedAt = task.isCompleted ? new Date() : null;
+        
+        this.closeTaskCompletionModal();
         this.saveData();
         this.render();
-        this.updateDailyStatusIndicators();},
+        this.updateDailyStatusIndicators();
+    },
+    
+    // モーダルを閉じる
+    closeTaskCompletionModal() {
+        document.getElementById('taskCompletionModal').classList.add('hidden');
+        this.currentCompletingTaskId = null;
+        this.selectedCompletionPoints = 0;
+    },
 
     postponeTask(taskId) {
         const task = this.tasks.find(t => t.id === taskId);
         if (!task) return;
         const tomorrow = new Date(this.selectedDate);
         tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowTasks = this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === tomorrow.toDateString() && !t.isCompleted );
+        const tomorrowTasks = this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === tomorrow.toDateString() && t.status === 'pending' );
         const normalCount = tomorrowTasks.filter(t => t.type === 'normal').length;
         const urgentCount = tomorrowTasks.filter(t => t.type === 'urgent').length;
         if (task.type === 'normal' && normalCount >= 3) { this.showError('翌日の通常タスクは既に3件です（未完了）'); return; }
@@ -844,8 +904,8 @@ const app = {
             return taskDate >= startDate && taskDate <= endDate;
         });
         
-        const completedTasks = tasksInPeriod.filter(t => t.isCompleted);
-        const incompleteTasks = tasksInPeriod.filter(t => !t.isCompleted);
+        const completedTasks = tasksInPeriod.filter(t => t.status === 'achieved');
+        const incompleteTasks = tasksInPeriod.filter(t => t.status === 'pending' || t.status === 'notAchieved');
         const totalPointsInPeriod = completedTasks.filter(t => t.type === 'urgent').reduce((sum, t) => sum + (t.points || 0), 0);
         
         const reflections = [];
@@ -1001,11 +1061,11 @@ const app = {
 
     render() {
         const todayTasks = this.getTodayTasks();
-        const completedCount = todayTasks.filter(t => t.isCompleted).length;
+        const achievedCount = todayTasks.filter(t => t.status === 'achieved').length;
         const totalCount = todayTasks.length;
-        const totalPointsToday = todayTasks.filter(t => t.isCompleted && t.type === 'urgent').reduce((sum, t) => sum + (t.points || 0), 0);
+        const totalPointsToday = todayTasks.filter(t => t.status === 'achieved' && t.type === 'urgent').reduce((sum, t) => sum + (t.points || 0), 0);
         
-        document.getElementById('completedCount').textContent = completedCount;
+        document.getElementById('completedCount').textContent = achievedCount;
         document.getElementById('totalCount').textContent = totalCount;
         document.getElementById('totalPointsDisplay').textContent = totalPointsToday;
         
@@ -1036,8 +1096,8 @@ const app = {
         
         const normalSlots = document.getElementById('normalSlots');
         const urgentSlots = document.getElementById('urgentSlots');
-        const normalUncompletedCount = todayTasks.filter(t => t.type === 'normal' && !t.isCompleted).length;
-        const urgentUncompletedCount = todayTasks.filter(t => t.type === 'urgent' && !t.isCompleted).length;
+        const normalUncompletedCount = todayTasks.filter(t => t.type === 'normal' && t.status === 'pending').length;
+        const urgentUncompletedCount = todayTasks.filter(t => t.type === 'urgent' && t.status === 'pending').length;
         normalSlots.textContent = 3 - normalUncompletedCount;
         urgentSlots.textContent = 3 - urgentUncompletedCount;
         
@@ -1045,7 +1105,11 @@ const app = {
         const noTasksEl = document.getElementById('noTasks');
         
         const sortedTasks = [...todayTasks].sort((a, b) => {
-            if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
+            // pendingが最初、その後achieved、最後にnotAchieved
+            const statusOrder = { pending: 0, achieved: 1, notAchieved: 2 };
+            if (statusOrder[a.status] !== statusOrder[b.status]) {
+                return statusOrder[a.status] - statusOrder[b.status];
+            }
             if (a.type !== b.type) return a.type === 'urgent' ? -1 : 1;
             return new Date(a.createdAt) - new Date(b.createdAt);
         });
@@ -1055,29 +1119,40 @@ const app = {
             noTasksEl.classList.remove('hidden');
         } else {
             noTasksEl.classList.add('hidden');
-            taskListEl.innerHTML = sortedTasks.map(task => `
-                <div class="washi-card rounded-xl p-4 task-card mobile-compact animate-fadeInUp ${
-                    task.isCompleted ? 'task-completed' : 
-                    task.type === 'urgent' ? 'task-urgent-active' : 'task-normal-active'
-                }">
+            taskListEl.innerHTML = sortedTasks.map(task => {
+                let cardClass = 'task-normal-active';
+                let statusBadge = '';
+                
+                if (task.status === 'achieved') {
+                    cardClass = 'task-completed';
+                    statusBadge = '<span class="task-completed-badge">達成</span>';
+                } else if (task.status === 'notAchieved') {
+                    cardClass = 'bg-gray-200 border-gray-400';
+                    statusBadge = '<span class="inline-flex items-center gap-1 bg-gray-600 text-white px-2 py-1 rounded text-xs font-bold">未達成</span>';
+                } else if (task.type === 'urgent') {
+                    cardClass = 'task-urgent-active';
+                }
+                
+                return `
+                <div class="washi-card rounded-xl p-4 task-card mobile-compact animate-fadeInUp ${cardClass}">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3 flex-1">
-                            <button onclick="app.toggleTask('${task.id}')" class="wa-checkbox rounded-lg ${task.isCompleted ? 'checked' : ''} mt-0.5"></button>
+                            <button onclick="app.toggleTask('${task.id}')" class="wa-checkbox rounded-lg ${task.status !== 'pending' ? 'checked' : ''} mt-0.5"></button>
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     ${task.type === 'urgent' ? `
                                         <span class="task-type-label">
-                                            目標 ${task.points ? `${task.points}pt` : ''}
+                                            目標 ${task.points > 0 ? `${task.points}pt` : ''}
                                         </span>` : 
                                         '<span class="task-type-label">通常</span>'
                                     }
-                                    ${task.isCompleted ? '<span class="task-completed-badge">完了</span>' : ''}
+                                    ${statusBadge}
                                 </div>
-                                <div class="task-text-lg ${task.isCompleted ? 'line-through' : ''}">${this.escapeHtml(task.text)}</div>
+                                <div class="task-text-lg ${task.status !== 'pending' ? 'line-through' : ''}">${this.escapeHtml(task.text)}</div>
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
-                            ${!task.isCompleted && !isToday ? `
+                            ${task.status === 'pending' && !isToday ? `
                                 <button onclick="app.postponeTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="翌日へ先送り">
                                     <svg class="w-4 h-4 mobile-text-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -1090,7 +1165,8 @@ const app = {
                             </button>
                         </div>
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         }
         
         this.renderDeadlineTasks();
@@ -1340,7 +1416,7 @@ const app = {
         const dayTasks = this.tasks.filter(t => 
             new Date(t.scheduledFor).toDateString() === dateStr
         );
-        const completedTasks = dayTasks.filter(t => t.isCompleted).length;
+        const completedTasks = dayTasks.filter(t => t.status === 'achieved').length;
         const totalTasks = dayTasks.length;
         const points = this.dailyPointHistory[dateStr] || 0;
         const hasAIComment = this.dailyAIComments[dateStr] && 
@@ -1410,7 +1486,7 @@ const app = {
     updateDailyStatusIndicators() {
         const dateStr = this.selectedDate.toDateString();
         const todayTasks = this.getTodayTasks();
-        const completedCount = todayTasks.filter(t => t.isCompleted).length;
+        const completedCount = todayTasks.filter(t => t.status === 'achieved').length;
         const totalCount = todayTasks.length;
         const calendarToggle = document.getElementById('calendarToggle');
         
