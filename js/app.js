@@ -304,28 +304,40 @@ const app = {
     
     // --- NEW: スワイプ操作を処理するメソッド ---
     handleSwipe(startX, startY, endX, endY) {
+        console.log('handleSwipe called');
         const thresholdX = 50;  // 横スワイプとして認識する最小距離
         const restraintY = 100; // 横スワイプ中に許容される縦の最大移動距離
 
         const diffX = endX - startX;
         const diffY = endY - startY;
+        console.log('Swipe diff:', { diffX, diffY });
 
         // 横方向の移動がしきい値を超え、縦方向の移動が抑制範囲内かをチェック
         if (Math.abs(diffX) > thresholdX && Math.abs(diffY) < restraintY) {
+            console.log('Swipe detected!');
             if (diffX > 0) {
+                console.log('Right swipe - navigating to previous day');
                 this.navigateDate(-1); // 右スワイプで前の日へ
             } else {
+                console.log('Left swipe - navigating to next day');
                 this.navigateDate(1);  // 左スワイプで次の日へ
             }
+        } else {
+            console.log('Swipe not detected - threshold not met');
         }
     },
 
     navigateDate(days) {
+        console.log('navigateDate called with days:', days);
+        console.log('Current selectedDate:', this.selectedDate);
         const newDate = new Date(this.selectedDate);
         newDate.setDate(newDate.getDate() + days);
+        console.log('New date:', newDate);
         this.selectedDate = newDate;
         this.updateSekkiForSelectedDate();
-        this.render();},
+        this.render();
+        console.log('After render, selectedDate:', this.selectedDate);
+    },
 
     goToToday() {
         this.selectedDate = new Date();
@@ -1075,9 +1087,12 @@ const app = {
         const dateEl = document.getElementById('currentDate');
         const dateYearEl = document.getElementById('currentDateYear');
         const dateDayEl = document.getElementById('currentDateDay');
-        dateEl.textContent = this.selectedDate.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
-        dateYearEl.textContent = this.selectedDate.toLocaleDateString('ja-JP', { year: 'numeric' });
-        dateDayEl.textContent = this.selectedDate.toLocaleDateString('ja-JP', { weekday: 'short' });
+        console.log('Updating date display elements:', { dateEl, dateYearEl, dateDayEl });
+        console.log('Selected date in render:', this.selectedDate);
+        
+        if (dateEl) dateEl.textContent = this.selectedDate.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
+        if (dateYearEl) dateYearEl.textContent = this.selectedDate.toLocaleDateString('ja-JP', { year: 'numeric' });
+        if (dateDayEl) dateDayEl.textContent = this.selectedDate.toLocaleDateString('ja-JP', { weekday: 'short' });
         
         const isToday = this.selectedDate.toDateString() === new Date().toDateString();
         const todayButton = document.getElementById('todayButton');
