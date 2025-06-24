@@ -868,11 +868,16 @@ const app = {
         return prompt;},
 
     renderAISection() {
-        const noApiKeyEl = document.getElementById('noApiKey');
         const contentEl = document.getElementById('aiCommentContent');
+        // この関数が必要とする主要なDOM要素がなければ、何もせずに処理を終了する
+        if (!contentEl) {
+            return;
+        }
+        
+        const noApiKeyEl = document.getElementById('noApiKey');
         const loadingEl = document.getElementById('aiCommentLoading');
         
-        if (this.openaiApiKey) {
+        if (this.openaiApiKey && noApiKeyEl) {
             noApiKeyEl.classList.add('hidden');
             
             // Check for saved comments for current date
@@ -897,12 +902,12 @@ const app = {
                 }
             } else {
                 contentEl.classList.add('hidden');
-                loadingEl.classList.add('hidden');
+                if (loadingEl) loadingEl.classList.add('hidden');
             }
         } else {
-            noApiKeyEl.classList.remove('hidden');
+            if (noApiKeyEl) noApiKeyEl.classList.remove('hidden');
             contentEl.classList.add('hidden');
-            loadingEl.classList.add('hidden');
+            if (loadingEl) loadingEl.classList.add('hidden');
         }},
 
     getTodayTasks() {
