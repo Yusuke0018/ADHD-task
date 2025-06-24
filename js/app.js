@@ -1,6 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
-    app.updateSekki();
-    app.updateTodayDisplay();
+    // DOMが完全に読み込まれた後に実行
+    setTimeout(() => {
+        app.updateSekki();
+        app.updateTodayDisplay();
+    }, 100);
 });
 
 const app = {
@@ -989,15 +992,15 @@ const app = {
         const todayDateFullEl = document.getElementById('todayDateFull');
         const todayDateDayEl = document.getElementById('todayDateDay');
         
-        console.log('updateTodayDisplay called', { todayDateYearEl, todayDateFullEl, todayDateDayEl });
-        
-        if (todayDateYearEl && todayDateFullEl && todayDateDayEl) {
-            todayDateYearEl.textContent = today.toLocaleDateString('ja-JP', { year: 'numeric' });
-            todayDateFullEl.textContent = today.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
-            todayDateDayEl.textContent = today.toLocaleDateString('ja-JP', { weekday: 'long' });
-            console.log('Today display updated successfully');
-        } else {
-            console.error('Today display elements not found');
+        if (todayDateYearEl) {
+            todayDateYearEl.textContent = today.getFullYear() + '年';
+        }
+        if (todayDateFullEl) {
+            todayDateFullEl.textContent = (today.getMonth() + 1) + '月' + today.getDate() + '日';
+        }
+        if (todayDateDayEl) {
+            const weekdays = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+            todayDateDayEl.textContent = weekdays[today.getDay()];
         }
     },
 
