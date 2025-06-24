@@ -246,29 +246,50 @@ const app = {
         
         // スワイプメニューの初期化
         this.setupSwipeMenu();
-        document.getElementById('reflectionToggle').addEventListener('click', () => this.toggleReflection());
-        document.getElementById('saveReflection').addEventListener('click', () => this.saveReflection());
-        document.getElementById('cancelReflection').addEventListener('click', () => this.toggleReflection(false));
-        document.getElementById('reflectionInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && e.ctrlKey) this.saveReflection();
-        });
-        document.getElementById('aiSettingsToggle').addEventListener('click', () => this.toggleApiKeyForm());
-        document.getElementById('saveApiKey').addEventListener('click', () => this.saveApiKey());
-        document.getElementById('cancelApiKey').addEventListener('click', () => this.toggleApiKeyForm(false));
+        
+        // Add event listeners with null checks
+        const reflectionToggle = document.getElementById('reflectionToggle');
+        const saveReflection = document.getElementById('saveReflection');
+        const cancelReflection = document.getElementById('cancelReflection');
+        const reflectionInput = document.getElementById('reflectionInput');
+        
+        if (reflectionToggle) reflectionToggle.addEventListener('click', () => this.toggleReflection());
+        if (saveReflection) saveReflection.addEventListener('click', () => this.saveReflection());
+        if (cancelReflection) cancelReflection.addEventListener('click', () => this.toggleReflection(false));
+        if (reflectionInput) {
+            reflectionInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) this.saveReflection();
+            });
+        }
+        const aiSettingsToggle = document.getElementById('aiSettingsToggle');
+        const saveApiKey = document.getElementById('saveApiKey');
+        const cancelApiKey = document.getElementById('cancelApiKey');
+        
+        if (aiSettingsToggle) aiSettingsToggle.addEventListener('click', () => this.toggleApiKeyForm());
+        if (saveApiKey) saveApiKey.addEventListener('click', () => this.saveApiKey());
+        if (cancelApiKey) cancelApiKey.addEventListener('click', () => this.toggleApiKeyForm(false));
+        
         document.querySelectorAll('.ai-period-button').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleAIPeriodClick(e.target.dataset.period));
         });
         
         // カスタムカレンダーのイベント
-        document.getElementById('calendarToggle').addEventListener('click', () => this.toggleCustomCalendar());
-        document.getElementById('calPrevMonth').addEventListener('click', () => this.changeCalendarMonth(-1));
-        document.getElementById('calNextMonth').addEventListener('click', () => this.changeCalendarMonth(1));
+        const calendarToggle = document.getElementById('calendarToggle');
+        const calPrevMonth = document.getElementById('calPrevMonth');
+        const calNextMonth = document.getElementById('calNextMonth');
+        const dateInput = document.getElementById('dateInput');
+        
+        if (calendarToggle) calendarToggle.addEventListener('click', () => this.toggleCustomCalendar());
+        if (calPrevMonth) calPrevMonth.addEventListener('click', () => this.changeCalendarMonth(-1));
+        if (calNextMonth) calNextMonth.addEventListener('click', () => this.changeCalendarMonth(1));
         
         // 日付入力をクリックしたときもカスタムカレンダーを表示
-        document.getElementById('dateInput').addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleCustomCalendar(true);
-        });
+        if (dateInput) {
+            dateInput.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.toggleCustomCalendar(true);
+            });
+        }
 
         // --- NEW: スワイプによる日付移動機能 ---
         const swipeArea = document.body;
@@ -1573,8 +1594,13 @@ const app = {
     }
 };
 
-// Initialize app
-app.init();
+// Initialize app when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => app.init());
+} else {
+    // DOM is already ready
+    app.init();
+}
 
 // PWAインストールプロンプト
 let deferredPrompt;
