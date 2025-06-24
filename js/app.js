@@ -22,6 +22,7 @@ const app = {
     openaiApiKey: null,
 
     init() {
+        console.log('App initializing...');
         this.loadData();
         this.bindEvents();
         this.updateSekki();
@@ -212,6 +213,7 @@ const app = {
         }));},
 
     bindEvents() { 
+        console.log('bindEvents called');
         document.getElementById('prevDay').addEventListener('click', () => this.navigateDate(-1));
         document.getElementById('nextDay').addEventListener('click', () => this.navigateDate(1));
         document.getElementById('todayButton').addEventListener('click', () => this.goToToday());
@@ -270,13 +272,16 @@ const app = {
 
         // --- NEW: スワイプによる日付移動機能 ---
         const swipeArea = document.body;
+        console.log('Setting up swipe listeners on:', swipeArea);
         let swipeStartX = 0;
         let swipeStartY = 0;
         let isSwipeActive = false; // スワイプ操作中かどうかのフラグ
 
         const swipeStart = (e) => {
+            console.log('swipeStart triggered', e.type);
             // スワイプを無効化するエリアを、本当に必要なものだけに限定する
             if (e.target.closest('#menuHandle, #menuItems, #customCalendarPopup, .point-select-button, .sekki-grid, textarea')) {
+                console.log('Swipe blocked by element');
                 isSwipeActive = false;
                 return;
             }
@@ -284,15 +289,21 @@ const app = {
             const point = e.changedTouches ? e.changedTouches[0] : e;
             swipeStartX = point.clientX;
             swipeStartY = point.clientY;
+            console.log('Swipe started at:', swipeStartX, swipeStartY);
         };
 
         const swipeEnd = (e) => {
-            if (!isSwipeActive) return;
+            console.log('swipeEnd triggered', e.type);
+            if (!isSwipeActive) {
+                console.log('Swipe was not active');
+                return;
+            }
             isSwipeActive = false; // フラグをリセット
 
             const point = e.changedTouches ? e.changedTouches[0] : e;
             const endX = point.clientX;
             const endY = point.clientY;
+            console.log('Swipe ended at:', endX, endY);
             this.handleSwipe(swipeStartX, swipeStartY, endX, endY);
         };
 
