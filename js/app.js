@@ -290,8 +290,8 @@ const app = {
             this.handleSwipe(swipeStartX, swipeStartY, endX, endY);
         };
 
-        swipeArea.addEventListener('touchstart', swipeStart, { passive: true });
-        swipeArea.addEventListener('touchend', swipeEnd, { passive: true });
+        swipeArea.addEventListener('touchstart', swipeStart, { passive: false });
+        swipeArea.addEventListener('touchend', swipeEnd, { passive: false });
         swipeArea.addEventListener('pointerdown', swipeStart);
         swipeArea.addEventListener('pointerup', swipeEnd);
     },
