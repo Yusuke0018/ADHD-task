@@ -269,7 +269,7 @@ const app = {
         });
 
         // --- NEW: スワイプによる日付移動機能 ---
-        const swipeArea = document.getElementById('backgroundSeason');
+        const swipeArea = document;
         let swipeStartX = 0;
         let swipeStartY = 0;
         let isSwipeActive = false; // スワイプ操作中かどうかのフラグ
