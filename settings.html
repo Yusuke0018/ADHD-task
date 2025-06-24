@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>設定 - 二十四節気タスク</title>
+    <link rel="stylesheet" href="styles/base.css?v=3">
+    <link rel="stylesheet" href="styles/sekki-backgrounds.css?v=3">
+    <link rel="stylesheet" href="styles/animations.css?v=3">
+    <link rel="stylesheet" href="styles/components.css?v=3">
+    <style>
+        .settings-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 60px 10px 20px;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateX(-5px);
+        }
+        
+        .settings-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .settings-section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #4a5568;
+            box-shadow: 0 0 0 3px rgba(74, 85, 104, 0.1);
+        }
+        
+        .form-hint {
+            margin-top: 6px;
+            font-size: 14px;
+            color: #718096;
+        }
+        
+        .save-button {
+            width: 100%;
+            padding: 14px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .save-button:hover {
+            background: #2d3748;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .success-message {
+            padding: 12px 16px;
+            background: #c6f6d5;
+            border: 1px solid #9ae6b4;
+            border-radius: 8px;
+            color: #22543d;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .error-message {
+            padding: 12px 16px;
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            border-radius: 8px;
+            color: #742a2a;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .api-key-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .api-key-status.active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .api-key-status.inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        @media (max-width: 640px) {
+            .settings-container {
+                padding: 50px 5px 20px;
+            }
+            
+            .settings-section {
+                padding: 15px;
+            }
+            
+            .form-input {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">← 戻る</button>
+    
+    <div id="animationContainer"></div>
+    
+    <div class="settings-container">
+        <h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">設定</h1>
+        
+        <div id="successMessage" class="success-message">
+            設定を保存しました
+        </div>
+        
+        <div id="errorMessage" class="error-message">
+            エラーが発生しました
+        </div>
+        
+        <div class="settings-section">
+            <h2>
+                OpenAI API設定
+                <span id="apiKeyStatus" class="api-key-status inactive">未設定</span>
+            </h2>
+            
+            <div class="form-group">
+                <label class="form-label" for="apiKeyInput">APIキー</label>
+                <input 
+                    type="password" 
+                    id="apiKeyInput" 
+                    class="form-input" 
+                    placeholder="sk-..."
+                    autocomplete="off"
+                >
+                <div class="form-hint">
+                    OpenAIのAPIキーを入力してください。キーは暗号化されて保存されます。
+                </div>
+            </div>
+            
+            <button id="saveApiKey" class="save-button">
+                APIキーを保存
+            </button>
+        </div>
+        
+        <div class="settings-section">
+            <h2>データ管理</h2>
+            
+            <div class="form-group">
+                <button id="exportData" class="save-button" style="background: #3182ce;">
+                    データをエクスポート
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <button id="clearData" class="save-button" style="background: #e53e3e;">
+                    すべてのデータをクリア
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/data/sekki-data.js?v=3"></script>
+    <script src="js/animations/seasonal-animations.js?v=3"></script>
+    <script>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set animation
+            const now = new Date();
+            const year = now.getFullYear();
+            const yearSekki = window.sekkiDates && window.sekkiDates[year] ? window.sekkiDates[year] : [];
+            
+            for (let i = 0; i < yearSekki.length; i++) {
+                const current = new Date(yearSekki[i].date);
+                const next = i < yearSekki.length - 1 ? 
+                    new Date(yearSekki[i + 1].date) : 
+                    new Date(year + 1, 0, 1);
+                
+                if (now >= current && now < next) {
+                    document.body.className = `sekki-${yearSekki[i].name}`;
+                    createSeasonalAnimation(yearSekki[i].name);
+                    break;
+                }
+            }
+            
+            // Check API key status
+            const apiKey = localStorage.getItem('openaiApiKey');
+            const statusEl = document.getElementById('apiKeyStatus');
+            if (apiKey) {
+                statusEl.textContent = '設定済み';
+                statusEl.classList.remove('inactive');
+                statusEl.classList.add('active');
+                document.getElementById('apiKeyInput').value = '••••••••••••••••';
+            }
+            
+            // Event listeners
+            document.getElementById('saveApiKey').addEventListener('click', saveApiKey);
+            document.getElementById('exportData').addEventListener('click', exportData);
+            document.getElementById('clearData').addEventListener('click', clearData);
+        });
+        
+        function showMessage(type, message) {
+            const messageEl = document.getElementById(type + 'Message');
+            messageEl.textContent = message;
+            messageEl.style.display = 'block';
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        function saveApiKey() {
+            const input = document.getElementById('apiKeyInput');
+            const apiKey = input.value.trim();
+            
+            if (!apiKey || apiKey === '••••••••••••••••') {
+                showMessage('error', 'APIキーを入力してください');
+                return;
+            }
+            
+            if (!apiKey.startsWith('sk-')) {
+                showMessage('error', 'APIキーの形式が正しくありません');
+                return;
+            }
+            
+            localStorage.setItem('openaiApiKey', apiKey);
+            
+            const statusEl = document.getElementById('apiKeyStatus');
+            statusEl.textContent = '設定済み';
+            statusEl.classList.remove('inactive');
+            statusEl.classList.add('active');
+            
+            input.value = '••••••••••••••••';
+            showMessage('success', 'APIキーを保存しました');
+        }
+        
+        function exportData() {
+            const data = {
+                focusTaskData: localStorage.getItem('focusTaskData'),
+                openaiApiKey: localStorage.getItem('openaiApiKey'),
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sekki-task-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showMessage('success', 'データをエクスポートしました');
+        }
+        
+        function clearData() {
+            if (!confirm('すべてのデータを削除します。この操作は取り消せません。よろしいですか？')) {
+                return;
+            }
+            
+            localStorage.clear();
+            showMessage('success', 'すべてのデータを削除しました');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
