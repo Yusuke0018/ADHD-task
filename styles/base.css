@@ -359,6 +359,29 @@ body {
     background: #3b82f6;
 }
 
+/* スライドメニュー関連 */
+#slideMenu {
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+#slideMenu.open {
+    transform: translateX(0);
+}
+
+#menuToggle {
+    transition: all 0.3s ease;
+}
+
+#menuToggle:hover {
+    padding-left: 20px;
+    background: #1f2937;
+}
+
+#menuToggle.menu-open {
+    transform: translateX(256px) translateY(-50%);
+}
+
+/* スマホ専用スタイル */
 @media (max-width: 640px) {
     .calendar-day {
         min-height: 50px;
@@ -377,5 +400,57 @@ body {
     .calendar-indicator {
         width: 4px;
         height: 4px;
+    }
+    
+    /* スマホ用のUI最適化 */
+    .washi-card {
+        border-radius: 12px;
+        padding: 1rem;
+    }
+    
+    .task-card {
+        border-radius: 10px;
+        padding: 0.875rem;
+    }
+    
+    .point-select-button {
+        min-height: 44px;
+        font-size: 14px;
+    }
+    
+    /* タッチターゲットの最適化 */
+    button, .wa-button, .wa-checkbox {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* フォントサイズの調整 */
+    .text-sm {
+        font-size: 0.875rem;
+    }
+    
+    .text-base {
+        font-size: 1rem;
+    }
+    
+    /* スペーシングの最適化 */
+    .gap-2 {
+        gap: 0.375rem;
+    }
+    
+    .gap-3 {
+        gap: 0.5rem;
+    }
+    
+    /* スクロール性能の向上 */
+    * {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* メニューボタンの位置調整 */
+    #menuToggle {
+        left: -5px;
+        padding: 0.75rem;
+        border-radius: 0 8px 8px 0;
     }
 }

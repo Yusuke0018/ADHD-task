@@ -224,6 +224,9 @@ const app = {
         document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
         document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
         document.getElementById('inboxToggle').addEventListener('click', () => this.toggleInbox());
+        
+        // スライドメニューのイベントリスナー
+        document.getElementById('menuToggle').addEventListener('click', () => this.toggleSlideMenu());
         document.getElementById('addInbox').addEventListener('click', () => this.addInboxItem());
         document.getElementById('inboxInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.addInboxItem(); });
         document.getElementById('reflectionToggle').addEventListener('click', () => this.toggleReflection());
@@ -514,6 +517,24 @@ const app = {
         this.deadlineTasks = this.deadlineTasks.filter(t => t.id !== taskId);
         this.saveData(); this.render();},
 
+    toggleSlideMenu() {
+        const menu = document.getElementById('slideMenu');
+        const button = document.getElementById('menuToggle');
+        
+        if (menu.classList.contains('open')) {
+            menu.classList.remove('open');
+            button.classList.remove('menu-open');
+        } else {
+            menu.classList.add('open');
+            button.classList.add('menu-open');
+        }
+    },
+    
+    showSettings() {
+        // 設定画面を表示する機能（今後実装）
+        alert('設定機能はまだ実装されていません');
+    },
+    
     toggleInbox() {
         const inboxSection = document.getElementById('inboxSection');
         inboxSection.classList.toggle('hidden');},
