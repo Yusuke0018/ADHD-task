@@ -1,10 +1,14 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // DOMが完全に読み込まれた後に実行
-    setTimeout(() => {
+// ページ読み込み完了後の処理
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
         app.updateSekki();
         app.updateTodayDisplay();
-    }, 100);
-});
+    });
+} else {
+    // 既に読み込み完了している場合
+    app.updateSekki();
+    app.updateTodayDisplay();
+}
 
 const app = {
     tasks: [],

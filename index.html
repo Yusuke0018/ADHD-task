@@ -172,43 +172,6 @@
                 <div id="calendarInput" class="mt-4 animate-fadeInUp">
                     <input type="date" id="dateInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
                     <div id="calendarSekkiInfo" class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-600"></div>
-                    
-                    <!-- カスタムカレンダーポップアップ -->
-                    <div id="customCalendarPopup" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-                        <div id="customCalendar" class="bg-white rounded-2xl shadow-2xl p-4 max-w-md w-full max-h-[90vh] overflow-y-auto">
-                        <div class="flex items-center justify-between mb-4">
-                            <button id="calPrevMonth" class="p-2 hover:bg-gray-100 rounded-lg transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                </svg>
-                            </button>
-                            <h3 id="calendarMonth" class="text-lg font-bold text-gray-800"></h3>
-                            <button id="calNextMonth" class="p-2 hover:bg-gray-100 rounded-lg transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        
-                        <div class="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-                            <div class="text-red-500 font-medium">日</div>
-                            <div class="text-gray-600 font-medium">月</div>
-                            <div class="text-gray-600 font-medium">火</div>
-                            <div class="text-gray-600 font-medium">水</div>
-                            <div class="text-gray-600 font-medium">木</div>
-                            <div class="text-gray-600 font-medium">金</div>
-                            <div class="text-blue-500 font-medium">土</div>
-                        </div>
-                        
-                        <div id="calendarGrid" class="grid grid-cols-7 gap-1">
-                            <!-- カレンダーの日付がここに動的に生成されます -->
-                        </div>
-                        
-                        <button onclick="app.toggleCustomCalendar(false)" class="mt-4 w-full py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-all font-medium">
-                            閉じる
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <!-- エラーメッセージ -->
@@ -368,6 +331,43 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
             </svg>
             <span class="text-base font-medium text-gray-700">明日へ</span>
+        </div>
+    </div>
+    
+    <!-- カスタムカレンダーポップアップ -->
+    <div id="customCalendarPopup" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div id="customCalendar" class="bg-white rounded-2xl shadow-2xl p-4 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <button id="calPrevMonth" class="p-2 hover:bg-gray-100 rounded-lg transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <h3 id="calendarMonth" class="text-lg font-bold text-gray-800"></h3>
+                <button id="calNextMonth" class="p-2 hover:bg-gray-100 rounded-lg transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-7 gap-1 text-center text-xs mb-2">
+                <div class="text-red-500 font-medium">日</div>
+                <div class="text-gray-600 font-medium">月</div>
+                <div class="text-gray-600 font-medium">火</div>
+                <div class="text-gray-600 font-medium">水</div>
+                <div class="text-gray-600 font-medium">木</div>
+                <div class="text-gray-600 font-medium">金</div>
+                <div class="text-blue-500 font-medium">土</div>
+            </div>
+            
+            <div id="calendarGrid" class="grid grid-cols-7 gap-1">
+                <!-- カレンダーの日付がここに動的に生成されます -->
+            </div>
+            
+            <button onclick="app.toggleCustomCalendar(false)" class="mt-4 w-full py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-all font-medium">
+                閉じる
+            </button>
         </div>
     </div>
 

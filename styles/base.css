@@ -413,6 +413,13 @@ body {
     display: none !important;
 }
 
+/* 今日の日付表示を強制的に表示 */
+#todayDateYear, #todayDateFull, #todayDateDay {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
 /* スマホ専用スタイル */
 @media (max-width: 640px) {
     .calendar-day {
