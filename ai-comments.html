@@ -329,23 +329,21 @@
             const container = document.getElementById('commentsContainer');
             container.innerHTML = '';
             
-            // Filter comments by period
+            // Filter comments by period type (not by date)
             const relevantComments = [];
             Object.entries(data.dailyAIComments).forEach(([dateStr, comments]) => {
                 const date = new Date(dateStr);
-                if (isDateInPeriod(date, currentPeriod)) {
-                    Object.entries(comments).forEach(([period, comment]) => {
-                        if (period === currentPeriod || currentPeriod === 'all') {
-                            relevantComments.push({
-                                date: date,
-                                period: period,
-                                content: comment.content || comment.comment || comment,
-                                createdAt: comment.createdAt || null,
-                                dateStr: dateStr
-                            });
-                        }
-                    });
-                }
+                Object.entries(comments).forEach(([period, comment]) => {
+                    if (period === currentPeriod) {
+                        relevantComments.push({
+                            date: date,
+                            period: period,
+                            content: comment.content || comment.comment || comment,
+                            createdAt: comment.createdAt || null,
+                            dateStr: dateStr
+                        });
+                    }
+                });
             });
             
             // Sort by creation time (newest first)
