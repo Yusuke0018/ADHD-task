@@ -605,7 +605,8 @@ const app = {
         
         if (savedComments && savedComments[period]) {
             // Display saved comment
-            this.displayAIComment(savedComments[period].comment, period);
+            const commentText = savedComments[period].content || savedComments[period].comment || savedComments[period];
+            this.displayAIComment(commentText, period);
             this.updateAIButtonStates(period);
         } else {
             // Generate new comment
@@ -637,19 +638,17 @@ const app = {
                     'Authorization': `Bearer ${this.openaiApiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
+                    model: 'o3',
                     messages: [
                         {
                             role: 'system',
-                            content: 'あなたは優しく励ましてくれるメンタルコーチです。ユーザーの振り返りやタスク完了状況を見て、温かく前向きなコメントを日本語で提供してください。短く簡潔に、1-3文程度でお願いします。'
+                            content: 'You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Ensure your response is a complete, coherent message.'
                         },
                         {
                             role: 'user',
                             content: prompt
                         }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 150
+                    ]
                 })
             });
             
@@ -666,7 +665,7 @@ const app = {
                 this.dailyAIComments[dateStr] = {};
             }
             this.dailyAIComments[dateStr][period] = {
-                comment: comment,
+                content: comment,
                 createdAt: new Date().toISOString()
             };
             this.saveData();
