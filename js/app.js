@@ -1073,7 +1073,8 @@ const app = {
         
         this.renderDeadlineTasks();
         this.renderReflection();
-        this.renderAISection();},
+        this.renderAISection();
+        this.renderDailyAIComment();},
 
     renderReflection() {
         const dateStr = this.selectedDate.toDateString();
@@ -1104,6 +1105,111 @@ const app = {
         const effect = document.getElementById('postponeEffect');
         effect.classList.remove('hidden');
         setTimeout(() => effect.classList.add('hidden'), 1000);},
+
+    renderDailyAIComment() {
+        const dateStr = this.selectedDate.toDateString();
+        const savedComments = this.dailyAIComments[dateStr];
+        const dailyComment = savedComments && savedComments.daily;
+        
+        const emptyEl = document.getElementById('dailyAIEmpty');
+        const contentEl = document.getElementById('dailyAIContent');
+        const textEl = document.getElementById('dailyAIText');
+        
+        if (dailyComment) {
+            // コメントがある場合
+            const commentText = dailyComment.content || dailyComment.comment || dailyComment;
+            textEl.textContent = commentText;
+            emptyEl.classList.add('hidden');
+            contentEl.classList.remove('hidden');
+        } else {
+            // コメントがない場合
+            emptyEl.classList.remove('hidden');
+            contentEl.classList.add('hidden');
+        }
+    },
+    
+    async generateDailyAIComment() {
+        if (!this.openaiApiKey) {
+            alert('APIキーを設定してください。左メニューの設定から設定できます。');
+            return;
+        }
+        
+        const loadingEl = document.getElementById('dailyAILoading');
+        const emptyEl = document.getElementById('dailyAIEmpty');
+        const contentEl = document.getElementById('dailyAIContent');
+        
+        loadingEl.classList.remove('hidden');
+        emptyEl.classList.add('hidden');
+        contentEl.classList.add('hidden');
+        
+        try {
+            const prompt = this.buildAIPrompt('daily');
+            const charLimit = 400;
+            
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.openaiApiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'o3',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese. Your response should be approximately ${charLimit} characters in Japanese. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Ensure your response is a complete, coherent message.`
+                        },
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ]
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('APIリクエストが失敗しました');
+            }
+            
+            const data = await response.json();
+            const comment = data.choices[0].message.content;
+            
+            // コメントを保存
+            const dateStr = this.selectedDate.toDateString();
+            if (!this.dailyAIComments[dateStr]) {
+                this.dailyAIComments[dateStr] = {};
+            }
+            this.dailyAIComments[dateStr].daily = {
+                content: comment,
+                createdAt: new Date().toISOString()
+            };
+            this.saveData();
+            
+            // 表示を更新
+            this.renderDailyAIComment();
+            this.updateDailyStatusIndicators();
+            
+        } catch (error) {
+            console.error('AI comment generation error:', error);
+            this.showError('AIコメントの生成に失敗しました');
+            emptyEl.classList.remove('hidden');
+        } finally {
+            loadingEl.classList.add('hidden');
+        }
+    },
+    
+    deleteDailyAIComment() {
+        const dateStr = this.selectedDate.toDateString();
+        if (this.dailyAIComments[dateStr] && this.dailyAIComments[dateStr].daily) {
+            delete this.dailyAIComments[dateStr].daily;
+            if (Object.keys(this.dailyAIComments[dateStr]).length === 0) {
+                delete this.dailyAIComments[dateStr];
+            }
+            this.saveData();
+            this.renderDailyAIComment();
+            this.updateDailyStatusIndicators();
+        }
+    },
 
     showError(message) {
         const errorEl = document.getElementById('errorMessage');
