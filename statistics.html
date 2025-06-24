@@ -143,6 +143,134 @@
             color: #333;
         }
         
+        .reflection-item {
+            background: #f0f9ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .reflection-date {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .reflection-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .ai-comment-item {
+            background: #faf5ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .ai-comment-period {
+            font-size: 12px;
+            color: #666;
+            background: #e9d5ff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        
+        .ai-comment-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .achievement-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .achievement-excellent {
+            background: #10b981;
+            color: white;
+        }
+        
+        .achievement-good {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .achievement-normal {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .achievement-low {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .task-completion-chart {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .completion-bar {
+            flex: 1;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .completion-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        
+        .trend-up {
+            color: #10b981;
+            background: #d1fae5;
+        }
+        
+        .trend-down {
+            color: #ef4444;
+            background: #fee2e2;
+        }
+        
+        .trend-neutral {
+            color: #6b7280;
+            background: #f3f4f6;
+        }
+        
         @media (max-width: 640px) {
             .statistics-container {
                 padding: 10px;
@@ -249,6 +377,13 @@
             let aiCommentDays = 0;
             let tasksByType = { normal: 0, urgent: 0 };
             let completedByType = { normal: 0, urgent: 0 };
+            let dailyCompletionRates = [];
+            let reflections = [];
+            let aiComments = [];
+            let streakDays = 0;
+            let currentStreak = 0;
+            let maxStreak = 0;
+            let previousDayCompleted = false;
             
             // 日付範囲内のデータを集計
             for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
@@ -260,19 +395,47 @@
                     return taskDate.toDateString() === dateStr;
                 });
                 
+                let dayCompleted = 0;
+                let dayTotal = 0;
+                
                 if (dayTasks.length > 0) {
                     daysWithData++;
                     dayTasks.forEach(task => {
                         totalTasks++;
+                        dayTotal++;
                         if (task.type === 'normal') tasksByType.normal++;
                         else tasksByType.urgent++;
                         
                         if (task.isCompleted) {
                             completedTasks++;
+                            dayCompleted++;
                             if (task.type === 'normal') completedByType.normal++;
                             else completedByType.urgent++;
                         }
                     });
+                    
+                    // 日別達成率を記録
+                    const dayRate = Math.round((dayCompleted / dayTotal) * 100);
+                    dailyCompletionRates.push({
+                        date: new Date(d),
+                        rate: dayRate,
+                        completed: dayCompleted,
+                        total: dayTotal
+                    });
+                    
+                    // ストリーク計算
+                    if (dayRate >= 80) {
+                        if (previousDayCompleted) {
+                            currentStreak++;
+                        } else {
+                            currentStreak = 1;
+                        }
+                        previousDayCompleted = true;
+                        maxStreak = Math.max(maxStreak, currentStreak);
+                    } else {
+                        previousDayCompleted = false;
+                        currentStreak = 0;
+                    }
                 }
                 
                 // ポイント
@@ -283,11 +446,23 @@
                 // 振り返り
                 if (data.dailyReflections && data.dailyReflections[dateStr]) {
                     reflectionDays++;
+                    reflections.push({
+                        date: new Date(d),
+                        text: data.dailyReflections[dateStr]
+                    });
                 }
                 
                 // AIコメント
-                if (data.dailyAIComments && data.dailyAIComments[dateStr] && Object.keys(data.dailyAIComments[dateStr]).length > 0) {
-                    aiCommentDays++;
+                if (data.dailyAIComments && data.dailyAIComments[dateStr]) {
+                    const comments = data.dailyAIComments[dateStr];
+                    for (const [period, comment] of Object.entries(comments)) {
+                        aiCommentDays++;
+                        aiComments.push({
+                            date: new Date(d),
+                            period: period,
+                            text: comment.content
+                        });
+                    }
                 }
             }
             
@@ -304,6 +479,23 @@
                 });
             }
             
+            // 平均達成率
+            const avgCompletionRate = dailyCompletionRates.length > 0
+                ? Math.round(dailyCompletionRates.reduce((sum, d) => sum + d.rate, 0) / dailyCompletionRates.length)
+                : 0;
+            
+            // 前期間との比較（トレンド分析）
+            let trend = 'neutral';
+            if (period !== 'all' && daysWithData > 0) {
+                const prevStats = calculatePreviousPeriodStats(period, startDate);
+                if (prevStats && prevStats.completionRate > 0) {
+                    const rateDiff = totalTasks > 0 ? 
+                        Math.round((completedTasks / totalTasks) * 100) - prevStats.completionRate : 0;
+                    if (rateDiff > 5) trend = 'up';
+                    else if (rateDiff < -5) trend = 'down';
+                }
+            }
+            
             return {
                 period: period,
                 startDate: startDate,
@@ -318,7 +510,62 @@
                 averagePointsPerDay: daysWithData > 0 ? Math.round(totalPoints / daysWithData) : 0,
                 tasksByType: tasksByType,
                 completedByType: completedByType,
-                pointHistory: pointHistory
+                pointHistory: pointHistory,
+                dailyCompletionRates: dailyCompletionRates,
+                avgCompletionRate: avgCompletionRate,
+                maxStreak: maxStreak,
+                reflections: reflections.slice(-5), // 最新5件
+                aiComments: aiComments.slice(-5), // 最新5件
+                trend: trend
+            };
+        }
+        
+        function calculatePreviousPeriodStats(period, currentStartDate) {
+            const data = loadData();
+            if (!data) return null;
+            
+            let startDate, endDate;
+            const prevDate = new Date(currentStartDate);
+            
+            switch(period) {
+                case 'daily':
+                    prevDate.setDate(prevDate.getDate() - 1);
+                    startDate = new Date(prevDate);
+                    endDate = new Date(prevDate);
+                    break;
+                case 'weekly':
+                    prevDate.setDate(prevDate.getDate() - 7);
+                    startDate = new Date(prevDate);
+                    endDate = new Date(prevDate);
+                    endDate.setDate(endDate.getDate() + 6);
+                    break;
+                case 'monthly':
+                    prevDate.setMonth(prevDate.getMonth() - 1);
+                    startDate = new Date(prevDate.getFullYear(), prevDate.getMonth(), 1);
+                    endDate = new Date(prevDate.getFullYear(), prevDate.getMonth() + 1, 0);
+                    break;
+                default:
+                    return null;
+            }
+            
+            let totalTasks = 0;
+            let completedTasks = 0;
+            
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toDateString();
+                const dayTasks = data.tasks.filter(t => {
+                    const taskDate = new Date(t.scheduledFor);
+                    return taskDate.toDateString() === dateStr;
+                });
+                
+                dayTasks.forEach(task => {
+                    totalTasks++;
+                    if (task.isCompleted) completedTasks++;
+                });
+            }
+            
+            return {
+                completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
             };
         }
         
@@ -390,18 +637,50 @@
             
             const sekkiInfo = period === 'sekki' ? getCurrentSekki() : null;
             
+            // 達成度バッジを決定
+            let achievementClass = 'achievement-low';
+            let achievementText = '要改善';
+            if (stats.completionRate >= 90) {
+                achievementClass = 'achievement-excellent';
+                achievementText = '素晴らしい！';
+            } else if (stats.completionRate >= 70) {
+                achievementClass = 'achievement-good';
+                achievementText = '良好';
+            } else if (stats.completionRate >= 50) {
+                achievementClass = 'achievement-normal';
+                achievementText = '普通';
+            }
+            
+            // トレンドアイコン
+            const trendIcon = stats.trend === 'up' ? '↑' : stats.trend === 'down' ? '↓' : '→';
+            const trendClass = `trend-${stats.trend}`;
+            
             content.innerHTML = `
                 <div class="stats-section">
-                    <h2>期間</h2>
+                    <h2>期間サマリー</h2>
                     ${sekkiInfo ? `<div class="stat-item"><span class="stat-label">節気</span><span class="stat-value">${sekkiInfo.name}</span></div>` : ''}
                     <div class="stat-item">
                         <span class="stat-label">期間</span>
                         <span class="stat-value">${formatDateRange(stats.startDate, stats.endDate)}</span>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-label">達成度</span>
+                        <span class="stat-value">
+                            <span class="achievement-badge ${achievementClass}">${achievementText}</span>
+                            ${stats.trend !== 'neutral' ? `<span class="trend-indicator ${trendClass}">${trendIcon}</span>` : ''}
+                        </span>
+                    </div>
                 </div>
                 
                 <div class="stats-section">
-                    <h2>タスク統計</h2>
+                    <h2>タスク達成率</h2>
+                    <div class="task-completion-chart">
+                        <div class="completion-bar">
+                            <div class="completion-fill" style="width: ${stats.completionRate}%">
+                                ${stats.completionRate}%
+                            </div>
+                        </div>
+                    </div>
                     <div class="stat-item">
                         <span class="stat-label">総タスク数</span>
                         <span class="stat-value">${stats.totalTasks}</span>
@@ -411,8 +690,8 @@
                         <span class="stat-value">${stats.completedTasks}</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">達成率</span>
-                        <span class="stat-value">${stats.completionRate}%</span>
+                        <span class="stat-label">平均達成率</span>
+                        <span class="stat-value">${stats.avgCompletionRate}%</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">通常タスク</span>
@@ -422,6 +701,12 @@
                         <span class="stat-label">目標タスク</span>
                         <span class="stat-value">${stats.completedByType.urgent}/${stats.tasksByType.urgent}</span>
                     </div>
+                    ${stats.maxStreak > 0 ? `
+                    <div class="stat-item">
+                        <span class="stat-label">最長連続達成</span>
+                        <span class="stat-value">${stats.maxStreak}日間</span>
+                    </div>
+                    ` : ''}
                 </div>
                 
                 <div class="stats-section">
@@ -443,14 +728,44 @@
                         <span class="stat-value">${stats.daysWithData}日</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">振り返り記入日数</span>
-                        <span class="stat-value">${stats.reflectionDays}日</span>
+                        <span class="stat-label">振り返り記入率</span>
+                        <span class="stat-value">${stats.daysWithData > 0 ? Math.round((stats.reflectionDays / stats.daysWithData) * 100) : 0}%</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">AIコメント生成日数</span>
-                        <span class="stat-value">${stats.aiCommentDays}日</span>
+                        <span class="stat-label">AIコメント利用率</span>
+                        <span class="stat-value">${stats.daysWithData > 0 ? Math.round((stats.aiCommentDays / stats.daysWithData) * 100) : 0}%</span>
                     </div>
                 </div>
+                
+                ${stats.reflections.length > 0 ? `
+                <div class="stats-section">
+                    <h2>最近の振り返り</h2>
+                    ${stats.reflections.map(r => `
+                        <div class="reflection-item">
+                            <div class="reflection-date">${r.date.toLocaleDateString('ja-JP')}</div>
+                            <div class="reflection-text">${r.text}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+                
+                ${stats.aiComments.length > 0 ? `
+                <div class="stats-section">
+                    <h2>最近のAIコメント</h2>
+                    ${stats.aiComments.map(c => `
+                        <div class="ai-comment-item">
+                            <div class="reflection-date">${c.date.toLocaleDateString('ja-JP')}</div>
+                            <span class="ai-comment-period">${
+                                c.period === 'daily' ? 'デイリー' :
+                                c.period === 'weekly' ? '週間' :
+                                c.period === 'sekki' ? '節気' :
+                                c.period === 'monthly' ? '月間' : '四半期'
+                            }</span>
+                            <div class="ai-comment-text">${c.text.substring(0, 200)}${c.text.length > 200 ? '...' : ''}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
                 
                 ${period === 'daily' || period === 'weekly' ? `
                 <div class="stats-section">
