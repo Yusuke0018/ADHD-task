@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sekki-task-v2'; // バージョンを更新
+const CACHE_NAME = 'sekki-task-v3'; // バージョンを更新
 const urlsToCache = [
   './',
   './index.html',

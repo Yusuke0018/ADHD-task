@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>統計 - 二十四節気タスク</title>
-    <link rel="stylesheet" href="styles/base.css">
-    <link rel="stylesheet" href="styles/sekki-backgrounds.css">
-    <link rel="stylesheet" href="styles/animations.css">
-    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/base.css?v=3">
+    <link rel="stylesheet" href="styles/sekki-backgrounds.css?v=3">
+    <link rel="stylesheet" href="styles/animations.css?v=3">
+    <link rel="stylesheet" href="styles/components.css?v=3">
     <style>
         .statistics-container {
             max-width: 600px;
@@ -314,20 +314,27 @@
         </div>
     </div>
     
-    <script src="js/data/sekki-data.js"></script>
-    <script src="js/animations/seasonal-animations.js"></script>
+    <script src="js/data/sekki-data.js?v=3"></script>
+    <script src="js/animations/seasonal-animations.js?v=3"></script>
     <script>
         let currentPeriod = 'daily';
         
         function loadData() {
-            const saved = localStorage.getItem('sekkiTaskData');
+            const saved = localStorage.getItem('focusTaskData');
             if (!saved) return null;
             return JSON.parse(saved);
         }
         
         function calculateStats(period) {
             const data = loadData();
-            if (!data) return null;
+            if (!data) {
+                console.log('No data found in localStorage');
+                return null;
+            }
+            
+            console.log('Loaded data:', data);
+            console.log('Tasks:', data.tasks);
+            console.log('Tasks length:', data.tasks ? data.tasks.length : 0);
             
             const now = new Date();
             const today = now.toDateString();
@@ -390,7 +397,8 @@
                 const dateStr = d.toDateString();
                 
                 // その日のタスクを確認
-                const dayTasks = data.tasks.filter(t => {
+                const dayTasks = (data.tasks || []).filter(t => {
+                    if (!t || !t.scheduledFor) return false;
                     const taskDate = new Date(t.scheduledFor);
                     return taskDate.toDateString() === dateStr;
                 });
@@ -455,13 +463,16 @@
                 // AIコメント
                 if (data.dailyAIComments && data.dailyAIComments[dateStr]) {
                     const comments = data.dailyAIComments[dateStr];
-                    for (const [period, comment] of Object.entries(comments)) {
+                    const hasComments = Object.keys(comments).length > 0;
+                    if (hasComments) {
                         aiCommentDays++;
-                        aiComments.push({
-                            date: new Date(d),
-                            period: period,
-                            text: comment.content
-                        });
+                        for (const [period, comment] of Object.entries(comments)) {
+                            aiComments.push({
+                                date: new Date(d),
+                                period: period,
+                                text: comment.content || comment
+                            });
+                        }
                     }
                 }
             }
@@ -572,7 +583,9 @@
         function getCurrentSekki() {
             const now = new Date();
             const year = now.getFullYear();
-            const sekkiData = window.sekkiDates[year] || window.sekkiDates[2025];
+            
+            // sekki-data.jsからのデータ
+            const sekkiData = window.sekkiDates && window.sekkiDates[year] ? window.sekkiDates[year] : [];
             
             for (let i = 0; i < sekkiData.length; i++) {
                 const current = new Date(sekkiData[i].date);
