@@ -245,6 +245,7 @@ const app = {
         });
         
         // カスタムカレンダーのイベント
+        document.getElementById('calendarToggle').addEventListener('click', () => this.toggleCustomCalendar());
         document.getElementById('calPrevMonth').addEventListener('click', () => this.changeCalendarMonth(-1));
         document.getElementById('calNextMonth').addEventListener('click', () => this.changeCalendarMonth(1));
         
@@ -262,7 +263,7 @@ const app = {
 
         swipeArea.addEventListener('touchstart', (e) => {
             // ボタンや入力、特定の操作エリアではスワイプを開始しない
-            if (e.target.closest('button, input, textarea, a, .sekki-grid, .point-select-button, #menuHandle, #menuItems, #customCalendarPopup')) {
+            if (e.target.closest('button, input, textarea, a, .sekki-grid, .point-select-button, #menuHandle, #menuItems, #customCalendarPopup, #calendarToggle')) {
                 isSwipeActive = false;
                 return;
             }
@@ -995,11 +996,14 @@ const app = {
         
         const isToday = this.selectedDate.toDateString() === new Date().toDateString();
         const todayButton = document.getElementById('todayButton');
+        const calendarToggle = document.getElementById('calendarToggle');
         
         if (isToday) {
             todayButton.classList.add('hidden');
+            calendarToggle.classList.add('bg-amber-50', 'border-amber-400');
         } else {
             todayButton.classList.remove('hidden');
+            calendarToggle.classList.remove('bg-amber-50', 'border-amber-400');
         }
         
         // Update daily status indicators
@@ -1386,6 +1390,7 @@ const app = {
         const todayTasks = this.getTodayTasks();
         const completedCount = todayTasks.filter(t => t.isCompleted).length;
         const totalCount = todayTasks.length;
+        const calendarToggle = document.getElementById('calendarToggle');
         
         // Get elements
         const completionRateBadge = document.getElementById('completionRateBadge');
@@ -1400,6 +1405,7 @@ const app = {
         dailyPointsBadge.classList.add('hidden');
         aiCommentBadge.classList.add('hidden');
         reflectionBadge.classList.add('hidden');
+        calendarToggle.classList.remove('has-status-badges');
         
         let hasAnyBadge = false;
         
@@ -1431,7 +1437,10 @@ const app = {
             hasAnyBadge = true;
         }
         
-        // Badge display logic complete
+        // Add class to calendar toggle if any badges are shown
+        if (hasAnyBadge) {
+            calendarToggle.classList.add('has-status-badges');
+        }
     }
 };
 
