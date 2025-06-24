@@ -1,0 +1,268 @@
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&family=Zen+Old+Mincho&display=swap');
+
+body {
+    font-family: 'Shippori Mincho', serif;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.sekki-title {
+    font-family: 'Zen Old Mincho', serif;
+}
+
+/* 共通背景スタイル */
+[class*="bg-"] {
+    position: relative;
+    overflow: hidden;
+    transition: all 1s ease;
+}
+
+/* 波紋エフェクト */
+@keyframes ripple {
+    0% { transform: scale(0); opacity: 1; }
+    100% { transform: scale(4); opacity: 0; }
+}
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    animation: ripple 1s ease-out;
+}
+
+/* 和紙風カード */
+.washi-card {
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.9) 1px, rgba(255,255,255,0.95) 1px, rgba(255,255,255,0.95) 3px), rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5);  
+    border: 1px solid rgba(0,0,0,0.08);  
+}
+
+/* スマホ用調整 */
+@media (max-width: 640px) {
+    .task-text-lg { font-size: 1.05rem; line-height: 1.55; }  
+    .button-large { min-height: 48px; font-size: 1rem; }
+    .sekki-grid { grid-template-columns: repeat(3, 1fr) !important; }
+    .mobile-compact { padding: 0.75rem !important; }
+    .mobile-text-sm { font-size: 0.875rem !important; }
+    .mobile-gap-2 { gap: 0.5rem !important; }
+    .point-display-mobile { 
+        flex-direction: column !important; 
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+}
+
+@media (hover: none) {
+    .wa-button:active { transform: scale(0.95); }
+}
+
+/* ポイント選択ボタン */
+.point-select-button {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+.point-select-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.point-select-button:active {
+    transform: translateY(0);
+}
+
+/* 日付表示の強調 */
+#calendarToggle {
+    min-width: 120px;
+    position: relative;
+}
+#calendarToggle.bg-amber-50::after {
+    content: '今日';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #f59e0b;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeInUp { animation: fadeInUp 0.8s ease-out forwards; }
+
+/* チェックボックス */
+.wa-checkbox {
+    border: 2px solid #8b7355;
+    position: relative;
+    transition: all 0.3s ease;
+    min-width: 44px;
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+}
+.wa-checkbox.checked { background-color: #8b7355; border-color: #8b7355; }
+.wa-checkbox.checked::after {
+    content: ''; position: absolute; width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
+    background-size: 70%; background-position: center; background-repeat: no-repeat;
+}
+
+.hidden { display: none; }
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.gradient-animation { background-size: 200% 200%; animation: gradientShift 15s ease infinite; }
+
+/* --- タスク表示改善のためのスタイル --- */
+.task-card {  
+     box-shadow: 0 4px 15px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.5);  
+}
+.task-text-lg {  
+    font-size: 1.1rem;  
+    line-height: 1.6;
+}
+.task-type-label {  
+    font-size: 0.8rem;  
+    padding: 2px 6px;
+    border-radius: 0.375rem; /* rounded-md */
+}
+
+/* 未完了の通常タスク */
+.task-normal-active {
+    background-color: #FEFBF3; /* 温かみのあるクリーム色 */
+    border: 1px solid #D4C2AD; /* やや濃いめの枠線 */
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.task-normal-active .task-text-lg {
+    color: #5D4037; /* 濃い茶色の文字 */
+}
+.task-normal-active .task-type-label {
+    background-color: #E0D8CC; /* カードに合わせたベージュ */
+    color: #6A5ACD; /* SlateBlue 文字 */
+    font-weight: 500;
+}
+
+/* 未完了の目標タスク */
+.task-urgent-active {
+    background-color: rgba(255, 235, 224, 0.98); /* 薄いオレンジ */
+    border: 2px solid #FF8C69; /* やや濃いオレンジの枠線 */
+}
+ .task-urgent-active .task-text-lg {
+    color: #BF360C; /* 深いオレンジ/茶色の文字 */
+}
+.task-urgent-active .task-type-label {
+    background-color: #FF4500; /* 明るい赤オレンジ */
+    color: white;
+    font-weight: bold;
+}
+
+/* 完了済みタスク */
+.task-completed {
+    background-color: rgba(236, 253, 245, 0.95);  
+    border: 2px solid #10b981;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+.task-completed::before {
+    content: '✓';
+    position: absolute;
+    top: -5px;
+    right: 10px;
+    font-size: 3rem;
+    color: rgba(16, 185, 129, 0.2);
+    font-weight: bold;
+}
+.task-completed .task-text-lg {
+    color: #059669;
+    font-weight: 500;
+}
+.task-completed .task-type-label {
+     background-color: #10b981;
+     color: white;
+     font-weight: bold;
+}
+.task-completed-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: #10b981;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+/* Daily Status Badges */
+.daily-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 0.625rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.daily-status-badge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Completion rate badge - green gradient */
+.daily-status-badge:not(.badge-points):not(.badge-ai):not(.badge-reflection) {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+/* Points badge - amber/gold gradient */
+.daily-status-badge.badge-points {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #7c2d12;
+}
+
+/* AI comment badge - purple gradient */
+.daily-status-badge.badge-ai {
+    background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+    color: white;
+}
+
+/* Reflection badge - blue gradient */
+.daily-status-badge.badge-reflection {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    color: white;
+}
+
+/* Badge icon styling */
+.daily-status-badge svg {
+    flex-shrink: 0;
+}
+
+/* Adjust calendar toggle when badges are present */
+#calendarToggle.has-status-badges {
+    padding-bottom: 0.5rem;
+}
+
+@media (max-width: 640px) {
+    .daily-status-badge {
+        padding: 1px 4px;
+        font-size: 0.5rem;
+    }
+    
+    .daily-status-badge svg {
+        width: 0.625rem;
+        height: 0.625rem;
+    }
+    
+    #dailyStatusIndicators {
+        gap: 2px;
+    }
+}

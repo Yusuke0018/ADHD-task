@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>統計 - 二十四節気タスク</title>
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/sekki-backgrounds.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <style>
+        .statistics-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 80px;
+        }
+        
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateX(-5px);
+        }
+        
+        .stats-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stats-section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .stat-value {
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .date-range-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .period-button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .period-button:hover {
+            background: #f5f5f5;
+        }
+        
+        .period-button.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .chart-label {
+            width: 100px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .chart-bar-bg {
+            flex: 1;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        
+        .chart-bar-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        .chart-value {
+            width: 50px;
+            text-align: right;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        @media (max-width: 640px) {
+            .statistics-container {
+                padding: 10px;
+                padding-top: 70px;
+            }
+            
+            .back-button {
+                top: 10px;
+                left: 10px;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .period-button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-button" onclick="window.location.href='index.html'">← 戻る</button>
+    
+    <div id="animationContainer"></div>
+    
+    <div class="statistics-container">
+        <h1 style="text-align: center; margin-bottom: 30px;">統計情報</h1>
+        
+        <div class="date-range-selector">
+            <button class="period-button active" onclick="showStats('daily')">今日</button>
+            <button class="period-button" onclick="showStats('weekly')">今週</button>
+            <button class="period-button" onclick="showStats('sekki')">今節気</button>
+            <button class="period-button" onclick="showStats('monthly')">今月</button>
+            <button class="period-button" onclick="showStats('quarterly')">四半期</button>
+            <button class="period-button" onclick="showStats('yearly')">年間</button>
+            <button class="period-button" onclick="showStats('all')">全期間</button>
+        </div>
+        
+        <div id="statsContent">
+            <!-- 統計情報がここに動的に表示されます -->
+        </div>
+    </div>
+    
+    <script src="js/data/sekki-data.js"></script>
+    <script src="js/animations/seasonal-animations.js"></script>
+    <script>
+        let currentPeriod = 'daily';
+        
+        function loadData() {
+            const saved = localStorage.getItem('sekkiTaskData');
+            if (!saved) return null;
+            return JSON.parse(saved);
+        }
+        
+        function calculateStats(period) {
+            const data = loadData();
+            if (!data) return null;
+            
+            const now = new Date();
+            const today = now.toDateString();
+            let startDate, endDate;
+            
+            switch(period) {
+                case 'daily':
+                    startDate = new Date(today);
+                    endDate = new Date(today);
+                    break;
+                case 'weekly':
+                    startDate = new Date(now);
+                    startDate.setDate(now.getDate() - now.getDay());
+                    endDate = new Date(now);
+                    endDate.setDate(startDate.getDate() + 6);
+                    break;
+                case 'sekki':
+                    const currentSekki = getCurrentSekki();
+                    startDate = new Date(currentSekki.start);
+                    endDate = new Date(currentSekki.end);
+                    break;
+                case 'monthly':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'quarterly':
+                    const quarter = Math.floor(now.getMonth() / 3);
+                    startDate = new Date(now.getFullYear(), quarter * 3, 1);
+                    endDate = new Date(now.getFullYear(), quarter * 3 + 3, 0);
+                    break;
+                case 'yearly':
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    endDate = new Date(now.getFullYear(), 11, 31);
+                    break;
+                case 'all':
+                    startDate = new Date('2000-01-01');
+                    endDate = new Date('2100-12-31');
+                    break;
+            }
+            
+            // タスク統計
+            let totalTasks = 0;
+            let completedTasks = 0;
+            let totalPoints = 0;
+            let daysWithData = 0;
+            let reflectionDays = 0;
+            let aiCommentDays = 0;
+            let tasksByType = { normal: 0, urgent: 0 };
+            let completedByType = { normal: 0, urgent: 0 };
+            
+            // 日付範囲内のデータを集計
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toDateString();
+                
+                // その日のタスクを確認
+                const dayTasks = data.tasks.filter(t => {
+                    const taskDate = new Date(t.scheduledFor);
+                    return taskDate.toDateString() === dateStr;
+                });
+                
+                if (dayTasks.length > 0) {
+                    daysWithData++;
+                    dayTasks.forEach(task => {
+                        totalTasks++;
+                        if (task.type === 'normal') tasksByType.normal++;
+                        else tasksByType.urgent++;
+                        
+                        if (task.isCompleted) {
+                            completedTasks++;
+                            if (task.type === 'normal') completedByType.normal++;
+                            else completedByType.urgent++;
+                        }
+                    });
+                }
+                
+                // ポイント
+                if (data.dailyPointHistory && data.dailyPointHistory[dateStr]) {
+                    totalPoints += data.dailyPointHistory[dateStr];
+                }
+                
+                // 振り返り
+                if (data.dailyReflections && data.dailyReflections[dateStr]) {
+                    reflectionDays++;
+                }
+                
+                // AIコメント
+                if (data.dailyAIComments && data.dailyAIComments[dateStr] && Object.keys(data.dailyAIComments[dateStr]).length > 0) {
+                    aiCommentDays++;
+                }
+            }
+            
+            // 日次ポイント履歴（最大7日分）
+            const pointHistory = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dateStr = d.toDateString();
+                const points = data.dailyPointHistory && data.dailyPointHistory[dateStr] || 0;
+                pointHistory.push({
+                    date: d,
+                    points: points
+                });
+            }
+            
+            return {
+                period: period,
+                startDate: startDate,
+                endDate: endDate,
+                totalTasks: totalTasks,
+                completedTasks: completedTasks,
+                completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+                totalPoints: totalPoints,
+                daysWithData: daysWithData,
+                reflectionDays: reflectionDays,
+                aiCommentDays: aiCommentDays,
+                averagePointsPerDay: daysWithData > 0 ? Math.round(totalPoints / daysWithData) : 0,
+                tasksByType: tasksByType,
+                completedByType: completedByType,
+                pointHistory: pointHistory
+            };
+        }
+        
+        function getCurrentSekki() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const sekkiData = window.sekkiDates[year] || window.sekkiDates[2025];
+            
+            for (let i = 0; i < sekkiData.length; i++) {
+                const current = new Date(sekkiData[i].date);
+                const next = i < sekkiData.length - 1 ? 
+                    new Date(sekkiData[i + 1].date) : 
+                    new Date(year + 1, 0, 1);
+                
+                if (now >= current && now < next) {
+                    return {
+                        name: sekkiData[i].name,
+                        start: current,
+                        end: new Date(next.getTime() - 1)
+                    };
+                }
+            }
+            return null;
+        }
+        
+        function formatDateRange(startDate, endDate) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            if (startDate.toDateString() === endDate.toDateString()) {
+                return startDate.toLocaleDateString('ja-JP', options);
+            }
+            return `${startDate.toLocaleDateString('ja-JP', options)} 〜 ${endDate.toLocaleDateString('ja-JP', options)}`;
+        }
+        
+        function createChart(pointHistory) {
+            const maxPoints = Math.max(...pointHistory.map(h => h.points), 10);
+            return pointHistory.map(h => {
+                const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+                const label = `${h.date.getMonth() + 1}/${h.date.getDate()}(${weekdays[h.date.getDay()]})`;
+                const percentage = (h.points / maxPoints * 100).toFixed(0);
+                
+                return `
+                    <div class="chart-bar">
+                        <div class="chart-label">${label}</div>
+                        <div class="chart-bar-bg">
+                            <div class="chart-bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="chart-value">${h.points}pt</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function showStats(period) {
+            currentPeriod = period;
+            
+            // ボタンのアクティブ状態を更新
+            document.querySelectorAll('.period-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const stats = calculateStats(period);
+            const content = document.getElementById('statsContent');
+            
+            if (!stats) {
+                content.innerHTML = '<div class="stats-section"><p>データがありません</p></div>';
+                return;
+            }
+            
+            const sekkiInfo = period === 'sekki' ? getCurrentSekki() : null;
+            
+            content.innerHTML = `
+                <div class="stats-section">
+                    <h2>期間</h2>
+                    ${sekkiInfo ? `<div class="stat-item"><span class="stat-label">節気</span><span class="stat-value">${sekkiInfo.name}</span></div>` : ''}
+                    <div class="stat-item">
+                        <span class="stat-label">期間</span>
+                        <span class="stat-value">${formatDateRange(stats.startDate, stats.endDate)}</span>
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <h2>タスク統計</h2>
+                    <div class="stat-item">
+                        <span class="stat-label">総タスク数</span>
+                        <span class="stat-value">${stats.totalTasks}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">完了タスク</span>
+                        <span class="stat-value">${stats.completedTasks}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">達成率</span>
+                        <span class="stat-value">${stats.completionRate}%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">通常タスク</span>
+                        <span class="stat-value">${stats.completedByType.normal}/${stats.tasksByType.normal}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">目標タスク</span>
+                        <span class="stat-value">${stats.completedByType.urgent}/${stats.tasksByType.urgent}</span>
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <h2>ポイント統計</h2>
+                    <div class="stat-item">
+                        <span class="stat-label">獲得ポイント</span>
+                        <span class="stat-value">${stats.totalPoints}pt</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">平均ポイント/日</span>
+                        <span class="stat-value">${stats.averagePointsPerDay}pt</span>
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <h2>活動統計</h2>
+                    <div class="stat-item">
+                        <span class="stat-label">活動日数</span>
+                        <span class="stat-value">${stats.daysWithData}日</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">振り返り記入日数</span>
+                        <span class="stat-value">${stats.reflectionDays}日</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">AIコメント生成日数</span>
+                        <span class="stat-value">${stats.aiCommentDays}日</span>
+                    </div>
+                </div>
+                
+                ${period === 'daily' || period === 'weekly' ? `
+                <div class="stats-section">
+                    <h2>ポイント推移（過去7日間）</h2>
+                    <div class="chart-container">
+                        ${createChart(stats.pointHistory)}
+                    </div>
+                </div>
+                ` : ''}
+            `;
+        }
+        
+        // 初期表示
+        document.addEventListener('DOMContentLoaded', () => {
+            // アニメーションを設定
+            const now = new Date();
+            const sekki = getCurrentSekki();
+            if (sekki) {
+                document.body.className = `sekki-${sekki.name}`;
+                createSeasonalAnimation(sekki.name);
+            }
+            
+            // 統計を表示
+            showStats('daily');
+        });
+    </script>
+</body>
+</html>
