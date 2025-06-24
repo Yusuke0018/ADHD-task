@@ -238,6 +238,17 @@ const app = {
         document.querySelectorAll('.ai-period-button').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleAIPeriodClick(e.target.dataset.period));
         });
+        
+        // カスタムカレンダーのイベント
+        document.getElementById('calendarToggle').addEventListener('click', () => this.toggleCustomCalendar());
+        document.getElementById('calPrevMonth').addEventListener('click', () => this.changeCalendarMonth(-1));
+        document.getElementById('calNextMonth').addEventListener('click', () => this.changeCalendarMonth(1));
+        
+        // 日付入力をクリックしたときもカスタムカレンダーを表示
+        document.getElementById('dateInput').addEventListener('click', (e) => {
+            e.preventDefault();
+            this.toggleCustomCalendar(true);
+        });
 
         // --- NEW: スワイプによる日付移動機能 ---
         const swipeArea = document.body;
@@ -1043,6 +1054,162 @@ const app = {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    },
+    
+    calendarMonth: new Date(),
+    
+    toggleCustomCalendar(show = null) {
+        const calendar = document.getElementById('customCalendar');
+        const shouldShow = show !== null ? show : calendar.classList.contains('hidden');
+        
+        if (shouldShow) {
+            calendar.classList.remove('hidden');
+            this.renderCalendar();
+        } else {
+            calendar.classList.add('hidden');
+        }
+    },
+    
+    changeCalendarMonth(direction) {
+        this.calendarMonth.setMonth(this.calendarMonth.getMonth() + direction);
+        this.renderCalendar();
+    },
+    
+    renderCalendar() {
+        const year = this.calendarMonth.getFullYear();
+        const month = this.calendarMonth.getMonth();
+        
+        // 月の表示を更新
+        document.getElementById('calendarMonth').textContent = 
+            `${year}年${month + 1}月`;
+        
+        // カレンダーグリッドをクリア
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = '';
+        
+        // 月の最初の日と最後の日を取得
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        
+        // 月の最初の日の曜日を取得（0=日曜）
+        const firstDayOfWeek = firstDay.getDay();
+        
+        // 前月の日付を追加
+        const prevMonthLastDay = new Date(year, month, 0).getDate();
+        for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+            const day = prevMonthLastDay - i;
+            const date = new Date(year, month - 1, day);
+            grid.appendChild(this.createCalendarDay(date, true));
+        }
+        
+        // 当月の日付を追加
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(year, month, day);
+            grid.appendChild(this.createCalendarDay(date, false));
+        }
+        
+        // 次月の日付を追加（6週間表示）
+        const remainingDays = 42 - grid.children.length;
+        for (let day = 1; day <= remainingDays; day++) {
+            const date = new Date(year, month + 1, day);
+            grid.appendChild(this.createCalendarDay(date, true));
+        }
+    },
+    
+    createCalendarDay(date, isOtherMonth) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        
+        if (isOtherMonth) {
+            dayEl.classList.add('other-month');
+        }
+        
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) {
+            dayEl.classList.add('today');
+        }
+        
+        if (date.toDateString() === this.selectedDate.toDateString()) {
+            dayEl.classList.add('selected');
+        }
+        
+        // 日付番号
+        const numberEl = document.createElement('div');
+        numberEl.className = 'calendar-day-number';
+        numberEl.textContent = date.getDate();
+        dayEl.appendChild(numberEl);
+        
+        // その日のデータを取得
+        const dateStr = date.toDateString();
+        const dayTasks = this.tasks.filter(t => 
+            new Date(t.scheduledFor).toDateString() === dateStr
+        );
+        const completedTasks = dayTasks.filter(t => t.isCompleted).length;
+        const totalTasks = dayTasks.length;
+        const points = this.dailyPointHistory[dateStr] || 0;
+        const hasAIComment = this.dailyAIComments[dateStr] && 
+            Object.keys(this.dailyAIComments[dateStr]).length > 0;
+        const hasReflection = this.dailyReflections[dateStr] && 
+            this.dailyReflections[dateStr].trim() !== '';
+        
+        // 統計情報を表示
+        if (totalTasks > 0 || points > 0 || hasAIComment || hasReflection) {
+            const statsEl = document.createElement('div');
+            statsEl.className = 'calendar-day-stats';
+            
+            // タスク情報
+            if (totalTasks > 0) {
+                const taskStat = document.createElement('div');
+                taskStat.className = 'calendar-stat tasks';
+                taskStat.textContent = `${completedTasks}/${totalTasks}`;
+                statsEl.appendChild(taskStat);
+            }
+            
+            // ポイント情報
+            if (points > 0) {
+                const pointStat = document.createElement('div');
+                pointStat.className = 'calendar-stat points';
+                pointStat.textContent = `${points}pt`;
+                statsEl.appendChild(pointStat);
+            }
+            
+            // インジケーター
+            if (hasAIComment || hasReflection) {
+                const indicators = document.createElement('div');
+                indicators.className = 'calendar-indicators';
+                
+                if (hasAIComment) {
+                    const aiIndicator = document.createElement('div');
+                    aiIndicator.className = 'calendar-indicator ai';
+                    aiIndicator.title = 'AIコメントあり';
+                    indicators.appendChild(aiIndicator);
+                }
+                
+                if (hasReflection) {
+                    const reflIndicator = document.createElement('div');
+                    reflIndicator.className = 'calendar-indicator reflection';
+                    reflIndicator.title = '振り返りあり';
+                    indicators.appendChild(reflIndicator);
+                }
+                
+                statsEl.appendChild(indicators);
+            }
+            
+            dayEl.appendChild(statsEl);
+        }
+        
+        // クリックイベント
+        dayEl.addEventListener('click', () => {
+            this.selectedDate = new Date(date);
+            this.updateSekkiForSelectedDate();
+            this.render();
+            this.toggleCustomCalendar(false);
+            document.getElementById('dateInput').value = 
+                this.selectedDate.toISOString().split('T')[0];
+        });
+        
+        return dayEl;
     },
     
     updateDailyStatusIndicators() {
