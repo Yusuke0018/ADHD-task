@@ -628,6 +628,16 @@ const app = {
         contentEl.classList.add('hidden');
         noApiKeyEl.classList.add('hidden');
         
+        // 期間別の文字数設定
+        const charLimits = {
+            'daily': 400,
+            'weekly': 600,
+            'sekki': 800,
+            'monthly': 1000,
+            'quarterly': 1000
+        };
+        const charLimit = charLimits[period] || 400;
+        
         try {
             const prompt = this.buildAIPrompt(period);
             
@@ -642,7 +652,7 @@ const app = {
                     messages: [
                         {
                             role: 'system',
-                            content: 'You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Ensure your response is a complete, coherent message.'
+                            content: `You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese. Your response should be approximately ${charLimit} characters in Japanese. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Ensure your response is a complete, coherent message.`
                         },
                         {
                             role: 'user',
