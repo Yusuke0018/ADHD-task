@@ -29,6 +29,11 @@ body {
     animation: ripple 1s ease-out;
 }
 
+/* ボタン内SVGのクリックイベントを無効化 */
+button svg {
+    pointer-events: none;
+}
+
 /* 和紙風カード */
 .washi-card {
     background: repeating-linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.9) 1px, rgba(255,255,255,0.95) 1px, rgba(255,255,255,0.95) 3px), rgba(255,255,255,0.92);
