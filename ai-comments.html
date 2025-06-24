@@ -348,12 +348,12 @@
                 }
             });
             
-            // Sort by creation time (oldest first) for chronological order
+            // Sort by creation time (newest first)
             relevantComments.sort((a, b) => {
                 // Use createdAt if available, otherwise fallback to date
                 const aTime = a.createdAt ? new Date(a.createdAt) : a.date;
                 const bTime = b.createdAt ? new Date(b.createdAt) : b.date;
-                return aTime - bTime;
+                return bTime - aTime;
             });
             
             if (relevantComments.length === 0) {
