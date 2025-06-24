@@ -20,9 +20,11 @@ const app = {
         this.bindEvents();
         this.updateSekki();
         // DOMが完全に読み込まれてから実行
-        requestAnimationFrame(() => {
+        this.updateTodayDisplay();
+        // 再度実行して確実に表示
+        setTimeout(() => {
             this.updateTodayDisplay();
-        });
+        }, 500);
     },
 
     updateSekki() {
@@ -987,10 +989,15 @@ const app = {
         const todayDateFullEl = document.getElementById('todayDateFull');
         const todayDateDayEl = document.getElementById('todayDateDay');
         
+        console.log('updateTodayDisplay called', { todayDateYearEl, todayDateFullEl, todayDateDayEl });
+        
         if (todayDateYearEl && todayDateFullEl && todayDateDayEl) {
             todayDateYearEl.textContent = today.toLocaleDateString('ja-JP', { year: 'numeric' });
             todayDateFullEl.textContent = today.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' });
             todayDateDayEl.textContent = today.toLocaleDateString('ja-JP', { weekday: 'long' });
+            console.log('Today display updated successfully');
+        } else {
+            console.error('Today display elements not found');
         }
     },
 
