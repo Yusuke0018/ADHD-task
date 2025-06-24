@@ -230,7 +230,8 @@ const app = {
         document.getElementById('deadlineToggle').addEventListener('click', () => this.toggleDeadlineForm());
         document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
         document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
-        document.getElementById('inboxToggle').addEventListener('click', () => this.toggleInbox());
+        // Inboxボタン削除に伴いコメントアウト
+        // document.getElementById('inboxToggle').addEventListener('click', () => this.toggleInbox());
         
         // スワイプメニューの初期化
         this.setupSwipeMenu();
