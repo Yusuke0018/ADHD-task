@@ -340,6 +340,7 @@
                                 date: date,
                                 period: period,
                                 content: comment.content || comment.comment || comment,
+                                createdAt: comment.createdAt || null,
                                 dateStr: dateStr
                             });
                         }
@@ -347,8 +348,13 @@
                 }
             });
             
-            // Sort by date (newest first)
-            relevantComments.sort((a, b) => b.date - a.date);
+            // Sort by creation time (oldest first) for chronological order
+            relevantComments.sort((a, b) => {
+                // Use createdAt if available, otherwise fallback to date
+                const aTime = a.createdAt ? new Date(a.createdAt) : a.date;
+                const bTime = b.createdAt ? new Date(b.createdAt) : b.date;
+                return aTime - bTime;
+            });
             
             if (relevantComments.length === 0) {
                 displayEmptyState();
