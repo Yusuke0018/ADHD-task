@@ -609,8 +609,18 @@ const app = {
             this.displayAIComment(commentText, period);
             this.updateAIButtonStates(period);
         } else {
-            // Generate new comment
-            this.generateAIComment(period);
+            // Generate new comment with confirmation
+            const periodNames = {
+                'daily': 'デイリー',
+                'weekly': '週間',
+                'sekki': '節気',
+                'monthly': '月間',
+                'quarterly': '三ヶ月'
+            };
+            const selectedDateStr = this.selectedDate.toLocaleDateString('ja-JP');
+            if (confirm(`${selectedDateStr}の${periodNames[period]}コメントを作成しますか？`)) {
+                this.generateAIComment(period);
+            }
         }
     },
 
@@ -702,11 +712,16 @@ const app = {
         const contentEl = document.getElementById('aiCommentContent');
         const displayEl = document.getElementById('aiCommentDisplay');
         
+        if (!contentEl) {
+            console.error('AI comment content element not found');
+            return;
+        }
+        
         // Create comment container with delete button
         const commentContainer = document.createElement('div');
         commentContainer.className = 'ai-comment-container relative';
         commentContainer.innerHTML = `
-            <div class="pr-8">${this.escapeHtml(comment)}</div>
+            <div class="pr-8" style="white-space: pre-wrap; word-wrap: break-word;">${this.escapeHtml(comment)}</div>
             <button onclick="app.deleteAIComment('${period}')" 
                     class="ai-comment-delete absolute top-0 right-0 p-1 text-gray-400 hover:text-gray-600 transition-all" 
                     title="削除">
@@ -717,6 +732,12 @@ const app = {
         contentEl.innerHTML = '';
         contentEl.appendChild(commentContainer);
         contentEl.classList.remove('hidden');
+        
+        // Ensure loading is hidden
+        const loadingEl = document.getElementById('aiCommentLoading');
+        if (loadingEl) {
+            loadingEl.classList.add('hidden');
+        }
     },
     
     deleteAIComment(period) {
@@ -745,37 +766,37 @@ const app = {
     },
 
     buildAIPrompt(period) {
-        const today = new Date();
+        const selectedDate = this.selectedDate;
         let startDate, endDate;
         
         switch(period) {
             case 'daily':
-                startDate = endDate = this.selectedDate;
+                startDate = endDate = selectedDate;
                 break;
             case 'weekly':
-                startDate = new Date(today);
-                startDate.setDate(today.getDate() - 6);
-                endDate = today;
+                startDate = new Date(selectedDate);
+                startDate.setDate(selectedDate.getDate() - 6);
+                endDate = selectedDate;
                 break;
             case 'sekki':
-                const year = today.getFullYear();
+                const year = selectedDate.getFullYear();
                 const yearSekki = sekkiData[year] || [];
-                const currentSekki = yearSekki.find(s => today >= s.date) || yearSekki[0];
+                const currentSekki = yearSekki.find(s => selectedDate >= s.date) || yearSekki[0];
                 const nextSekki = yearSekki.find(s => s.date > currentSekki.date);
                 startDate = currentSekki.date;
-                endDate = nextSekki ? new Date(nextSekki.date.getTime() - 1) : today;
+                endDate = nextSekki ? new Date(nextSekki.date.getTime() - 1) : selectedDate;
                 break;
             case 'monthly':
-                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                endDate = today;
+                startDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                endDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
                 break;
             case 'quarterly':
-                startDate = new Date(today);
-                startDate.setMonth(today.getMonth() - 3);
-                endDate = today;
+                startDate = new Date(selectedDate);
+                startDate.setMonth(selectedDate.getMonth() - 3);
+                endDate = selectedDate;
                 break;
             default:
-                startDate = endDate = today;
+                startDate = endDate = selectedDate;
         }
         
         // 期間内のタスクと振り返りを収集
