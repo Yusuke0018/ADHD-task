@@ -99,8 +99,22 @@
 
         <!-- プロジェクト一覧 -->
         <main class="px-4 py-4 pb-20">
-            <div id="projectsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-7xl mx-auto">
-                <!-- プロジェクトカードがここに表示されます -->
+            <!-- 進行中のプロジェクト -->
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-lg font-semibold text-gray-700 mb-3">進行中のプロジェクト</h2>
+                <div id="projectsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                    <!-- プロジェクトカードがここに表示されます -->
+                </div>
+            </div>
+            
+            <!-- 殿堂入りプロジェクト -->
+            <div id="hallOfFameSection" class="max-w-7xl mx-auto hidden">
+                <h2 class="text-lg font-semibold text-gray-700 mb-3 flex items-center">
+                    <span class="mr-2">🏆</span> 殿堂入りプロジェクト
+                </h2>
+                <div id="hallOfFameList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- 殿堂入りプロジェクトがここに表示されます -->
+                </div>
             </div>
         </main>
     </div>

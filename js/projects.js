@@ -2,11 +2,13 @@
 
 // グローバル変数
 let projects = [];
+let hallOfFameProjects = [];
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', () => {
     loadProjects();
     renderProjects();
+    renderHallOfFame();
 });
 
 // プロジェクトフォームの表示/非表示を切り替え
@@ -70,11 +72,17 @@ function loadProjects() {
     if (savedProjects) {
         projects = JSON.parse(savedProjects);
     }
+    
+    const savedHallOfFame = localStorage.getItem('hakoniwa_hall_of_fame');
+    if (savedHallOfFame) {
+        hallOfFameProjects = JSON.parse(savedHallOfFame);
+    }
 }
 
 // プロジェクトをローカルストレージに保存
 function saveProjects() {
     localStorage.setItem('hakoniwa_projects', JSON.stringify(projects));
+    localStorage.setItem('hakoniwa_hall_of_fame', JSON.stringify(hallOfFameProjects));
 }
 
 // プロジェクト一覧を表示
@@ -234,7 +242,14 @@ function addPointsToProject(projectId, points) {
         // 成長段階と絵文字の更新
         updateProjectGrowth(project);
         
-        showNotification(`${project.name}がレベル${project.level}になりました！`);
+        // レベル10に達したら殿堂入り
+        if (project.level === 10) {
+            showNotification(`🎉 ${project.name}が完成しました！殿堂入りです！`);
+            moveToHallOfFame(project);
+            return; // 殿堂入り後は処理を終了
+        } else {
+            showNotification(`${project.name}がレベル${project.level}になりました！`);
+        }
     }
     
     project.updatedAt = new Date().toISOString();
@@ -244,23 +259,90 @@ function addPointsToProject(projectId, points) {
 
 // プロジェクトの成長段階と絵文字を更新
 function updateProjectGrowth(project) {
-    if (project.level >= 20) {
+    if (project.level >= 10) {
         project.stage = 'harvest';
-        project.tree = '🍎'; // 収穫
-    } else if (project.level >= 15) {
+        project.tree = '🍎'; // 収穫（殿堂入り）
+    } else if (project.level >= 8) {
         project.stage = 'bloom';
         project.tree = '🌸'; // 開花
-    } else if (project.level >= 10) {
+    } else if (project.level >= 6) {
         project.stage = 'mature';
         project.tree = '🌲'; // 大木
-    } else if (project.level >= 7) {
+    } else if (project.level >= 4) {
         project.stage = 'growth';
         project.tree = '🌳'; // 苗木
-    } else if (project.level >= 4) {
+    } else if (project.level >= 2) {
         project.stage = 'sprout';
         project.tree = '🌿'; // 芽生え
     } else {
         project.stage = 'seed';
         project.tree = '🌱'; // 種
     }
+}
+
+// プロジェクトを殿堂入りに移動
+function moveToHallOfFame(project) {
+    // 完了日時を記録
+    project.completedAt = new Date().toISOString();
+    
+    // 殿堂入りリストに追加
+    hallOfFameProjects.push(project);
+    
+    // 通常のプロジェクトリストから削除
+    projects = projects.filter(p => p.id !== project.id);
+    
+    // 保存と再描画
+    saveProjects();
+    renderProjects();
+    renderHallOfFame();
+}
+
+// 殿堂入りプロジェクトを表示
+function renderHallOfFame() {
+    const hallOfFameSection = document.getElementById('hallOfFameSection');
+    const hallOfFameList = document.getElementById('hallOfFameList');
+    
+    if (hallOfFameProjects.length === 0) {
+        hallOfFameSection.classList.add('hidden');
+        return;
+    }
+    
+    hallOfFameSection.classList.remove('hidden');
+    hallOfFameList.innerHTML = '';
+    
+    // 完了日時の新しい順にソート
+    const sortedProjects = [...hallOfFameProjects].sort((a, b) => 
+        new Date(b.completedAt) - new Date(a.completedAt)
+    );
+    
+    sortedProjects.forEach(project => {
+        const card = createHallOfFameCard(project);
+        hallOfFameList.appendChild(card);
+    });
+}
+
+// 殿堂入りプロジェクトカードを作成
+function createHallOfFameCard(project) {
+    const card = document.createElement('div');
+    card.className = 'bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg shadow-md p-4 sm:p-6 border border-yellow-200';
+    
+    card.innerHTML = `
+        <div class="flex items-start justify-between mb-2">
+            <div class="text-3xl sm:text-4xl">🍎</div>
+            <div class="text-right">
+                <div class="text-sm font-medium text-amber-600">完成</div>
+                <div class="text-base sm:text-lg font-bold text-gray-800">LV.10</div>
+            </div>
+        </div>
+        
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-1">${project.name}</h3>
+        <p class="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">${project.goal}</p>
+        
+        <div class="text-xs text-gray-500">
+            <div>開始: ${new Date(project.createdAt).toLocaleDateString('ja-JP')}</div>
+            <div>完成: ${new Date(project.completedAt).toLocaleDateString('ja-JP')}</div>
+        </div>
+    `;
+    
+    return card;
 }
