@@ -258,6 +258,8 @@ const app = {
         
         document.querySelectorAll('.project-point-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const points = parseInt(e.currentTarget.dataset.projectPoints);
                 this.selectProjectPoints(points);
             });
