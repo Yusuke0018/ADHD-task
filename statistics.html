@@ -400,6 +400,7 @@
             let currentStreak = 0;
             let maxStreak = 0;
             let previousDayCompleted = false;
+            let daysWithActivity = new Set(); // 活動があった日を記録するSet
             
             // プロジェクトデータを読み込み
             const projectsData = loadProjectsData();
@@ -436,16 +437,22 @@
                 
                 let dayCompleted = 0;
                 let dayTotal = 0;
+                let hasTaskActivity = false;
                 
                 if (dayTasks.length > 0) {
                     daysWithData++;
+                    hasTaskActivity = true;
                     dayTasks.forEach(task => {
                         totalTasks++;
                         dayTotal++;
                         if (task.type === 'normal') tasksByType.normal++;
                         else tasksByType.urgent++;
                         
-                        if (task.isCompleted) {
+                        // 新しいステータスシステムと旧データの互換性
+                        const isCompleted = task.status === 'achieved' || 
+                                          task.status === 'notAchieved' || 
+                                          task.isCompleted;
+                        if (isCompleted) {
                             completedTasks++;
                             dayCompleted++;
                             if (task.type === 'normal') completedByType.normal++;
@@ -489,6 +496,7 @@
                         date: new Date(d),
                         text: data.dailyReflections[dateStr]
                     });
+                    daysWithActivity.add(dateStr);
                 }
                 
                 // AIコメント
@@ -504,7 +512,13 @@
                                 text: comment.content || comment
                             });
                         }
+                        daysWithActivity.add(dateStr);
                     }
+                }
+                
+                // タスクがある日も活動日として記録
+                if (hasTaskActivity) {
+                    daysWithActivity.add(dateStr);
                 }
             }
             
@@ -538,6 +552,9 @@
                 }
             }
             
+            // 実際の活動日数を計算
+            const actualActivityDays = daysWithActivity.size;
+            
             return {
                 period: period,
                 startDate: startDate,
@@ -562,7 +579,8 @@
                 totalProjectPoints: totalProjectPoints,
                 activeProjects: activeProjects,
                 completedProjects: completedProjects,
-                projectsByLevel: projectsByLevel
+                projectsByLevel: projectsByLevel,
+                actualActivityDays: actualActivityDays
             };
         }
         
@@ -799,16 +817,20 @@
                 <div class="stats-section">
                     <h2>活動統計</h2>
                     <div class="stat-item">
-                        <span class="stat-label">活動日数</span>
+                        <span class="stat-label">タスク登録日数</span>
                         <span class="stat-value">${stats.daysWithData}日</span>
                     </div>
                     <div class="stat-item">
+                        <span class="stat-label">総活動日数</span>
+                        <span class="stat-value">${stats.actualActivityDays}日</span>
+                    </div>
+                    <div class="stat-item">
                         <span class="stat-label">振り返り記入率</span>
-                        <span class="stat-value">${stats.daysWithData > 0 ? Math.round((stats.reflectionDays / stats.daysWithData) * 100) : 0}%</span>
+                        <span class="stat-value">${stats.actualActivityDays > 0 ? Math.round((stats.reflectionDays / stats.actualActivityDays) * 100) : 0}%</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">AIコメント利用率</span>
-                        <span class="stat-value">${stats.daysWithData > 0 ? Math.round((stats.aiCommentDays / stats.daysWithData) * 100) : 0}%</span>
+                        <span class="stat-value">${stats.actualActivityDays > 0 ? Math.round((stats.aiCommentDays / stats.actualActivityDays) * 100) : 0}%</span>
                     </div>
                 </div>
                 
