@@ -2,158 +2,151 @@
 /* 春 - Spring */
 .bg-立春 { /* 立春 - Beginning of Spring */
     background: 
-        radial-gradient(circle at 30% 70%, rgba(255, 182, 193, 0.3) 0%, transparent 40%),
-        radial-gradient(circle at 70% 30%, rgba(255, 218, 185, 0.25) 0%, transparent 45%),
-        linear-gradient(135deg, #fff0f5 0%, #ffe4e1 100%);
+        radial-gradient(circle at 10% 90%, rgba(255, 105, 180, 0.3) 0%, transparent 40%), /* 濃いピンク */
+        radial-gradient(circle at 80% 20%, rgba(255, 240, 245, 0.4) 0%, transparent 50%), /* 淡いピンク */
+        linear-gradient(135deg, #fdf5f6 0%, #f8e0e6 100%); /* 全体のグラデーション */
 }
 .bg-雨水 { /* 雨水 - Rain Water */
     background:
-        radial-gradient(ellipse at 20% 80%, rgba(173, 216, 230, 0.3) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(135, 206, 250, 0.25) 0%, transparent 40%),
-        linear-gradient(180deg, #e6f3ff 0%, #f0f8ff 100%);
+        radial-gradient(ellipse at 20% 80%, rgba(173, 216, 230, 0.4) 0%, transparent 50%), /* 雪解け水 */
+        radial-gradient(ellipse at 80% 20%, rgba(144, 238, 144, 0.3) 0%, transparent 40%), /* 若草色 */
+        linear-gradient(180deg, #f0f8ff 0%, #e6f3ff 100%);
 }
 .bg-啓蟄 { /* 啓蟄 - Awakening of Insects */
     background:
-        radial-gradient(circle at 25% 75%, rgba(144, 238, 144, 0.3) 0%, transparent 40%),
-        radial-gradient(circle at 75% 25%, rgba(152, 251, 152, 0.25) 0%, transparent 45%),
-        linear-gradient(135deg, #f0fff0 0%, #e8f5e8 100%);
+        radial-gradient(circle at 25% 75%, rgba(139, 69, 19, 0.2) 0%, transparent 40%), /* 土の色 */
+        radial-gradient(circle at 75% 25%, rgba(152, 251, 152, 0.4) 0%, transparent 45%), /* 芽吹きの緑 */
+        linear-gradient(135deg, #f5deb3 0%, #e8f5e8 100%);
 }
 .bg-春分 { /* 春分 - Spring Equinox */
     background:
-        radial-gradient(circle at 50% 50%, rgba(255, 192, 203, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 20% 80%, rgba(255, 182, 193, 0.25) 0%, transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(255, 218, 185, 0.25) 0%, transparent 40%),
-        linear-gradient(135deg, #fff5ee 0%, #ffe4e1 100%);
+        radial-gradient(circle at 50% 50%, rgba(255, 182, 193, 0.5) 0%, transparent 50%), /* 桜色 */
+        radial-gradient(circle at 80% 20%, rgba(135, 206, 250, 0.3) 0%, transparent 40%), /* 空色 */
+        linear-gradient(135deg, #fff0f5 0%, #e6f3ff 100%);
 }
 .bg-清明 { /* 清明 - Clear and Bright */
     background:
-        radial-gradient(circle at 30% 60%, rgba(255, 228, 225, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 70% 40%, rgba(255, 192, 203, 0.3) 0%, transparent 45%),
-        linear-gradient(120deg, #fff5f5 0%, #ffe0e6 100%);
+        radial-gradient(circle at 30% 60%, rgba(0, 191, 255, 0.3) 0%, transparent 50%), /* 澄んだ青空 */
+        radial-gradient(circle at 70% 40%, rgba(50, 205, 50, 0.4) 0%, transparent 45%), /* 鮮やかな緑 */
+        linear-gradient(120deg, #f0ffff 0%, #e6ffe6 100%);
 }
 .bg-穀雨 { /* 穀雨 - Grain Rain */
     background:
-        radial-gradient(ellipse at 40% 60%, rgba(135, 206, 235, 0.3) 0%, transparent 45%),
-        radial-gradient(ellipse at 60% 40%, rgba(176, 224, 230, 0.3) 0%, transparent 50%),
-        linear-gradient(180deg, #e6f7ff 0%, #f0ffff 100%);
+        radial-gradient(ellipse at 40% 60%, rgba(70, 130, 180, 0.5) 0%, transparent 45%), /* 恵みの雨 */
+        radial-gradient(ellipse at 60% 40%, rgba(34, 139, 34, 0.4) 0%, transparent 50%), /* 豊かな緑 */
+        linear-gradient(180deg, #e6f7ff 0%, #dcf0dc 100%);
 }
 
 /* 夏 - Summer */
 .bg-立夏 { /* 立夏 - Beginning of Summer */
     background:
-        radial-gradient(circle at 30% 70%, rgba(144, 238, 144, 0.35) 0%, transparent 45%),
-        radial-gradient(circle at 70% 30%, rgba(124, 252, 0, 0.25) 0%, transparent 40%),
-        linear-gradient(135deg, #f0fff4 0%, #e6ffe6 100%);
+        radial-gradient(circle at 30% 70%, rgba(0, 255, 127, 0.4) 0%, transparent 45%), /* 鮮やかな新緑 */
+        radial-gradient(circle at 70% 30%, rgba(50, 205, 50, 0.3) 0%, transparent 40%), /* 力強い緑 */
+        linear-gradient(135deg, #f0fff0 0%, #e6ffe6 100%);
 }
 .bg-小満 { /* 小満 - Grain Buds */
     background:
-        radial-gradient(circle at 25% 75%, rgba(255, 215, 0, 0.25) 0%, transparent 40%),
-        radial-gradient(circle at 75% 25%, rgba(255, 255, 224, 0.3) 0%, transparent 45%),
-        linear-gradient(120deg, #fffef0 0%, #fff8dc 100%);
+        radial-gradient(circle at 25% 75%, rgba(255, 255, 0, 0.3) 0%, transparent 40%), /* 太陽の光 */
+        radial-gradient(circle at 75% 25%, rgba(173, 255, 47, 0.4) 0%, transparent 45%), /* 育つ植物 */
+        linear-gradient(120deg, #ffffe0 0%, #f0fff0 100%);
 }
 .bg-芒種 { /* 芒種 - Grain in Ear */
     background:
-        radial-gradient(ellipse at 50% 80%, rgba(189, 183, 107, 0.3) 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 20%, rgba(238, 232, 170, 0.25) 0%, transparent 45%),
-        linear-gradient(180deg, #f5f5dc 0%, #fafad2 100%);
+        radial-gradient(ellipse at 50% 80%, rgba(34, 139, 34, 0.4) 0%, transparent 50%), /* 田んぼの緑 */
+        radial-gradient(ellipse at 50% 20%, rgba(210, 180, 140, 0.3) 0%, transparent 45%), /* 豊かな大地 */
+        linear-gradient(180deg, #f5f5dc 0%, #e6f0e6 100%);
 }
 .bg-夏至 { /* 夏至 - Summer Solstice */
     background:
-        radial-gradient(ellipse at 50% 10%, rgba(255, 223, 0, 0.4) 0%, transparent 35%),
-        radial-gradient(circle at 30% 90%, rgba(135, 206, 250, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 70% 90%, rgba(0, 191, 255, 0.25) 0%, transparent 45%),
-        linear-gradient(to bottom, #fff8dc 0%, #e0f7fa 100%);
+        radial-gradient(ellipse at 50% 10%, rgba(255, 215, 0, 0.6) 0%, transparent 35%), /* 強い日差し */
+        radial-gradient(circle at 50% 80%, rgba(240, 248, 255, 0.5) 0%, transparent 50%), /* 入道雲 */
+        linear-gradient(to bottom, #fffacd 0%, #add8e6 100%);
 }
 .bg-小暑 { /* 小暑 - Minor Heat */
     background:
-        radial-gradient(circle at 20% 80%, rgba(255, 160, 122, 0.3) 0%, transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(255, 218, 185, 0.3) 0%, transparent 45%),
-        linear-gradient(135deg, #fff5ee 0%, #ffe4b5 100%);
+        radial-gradient(circle at 20% 80%, rgba(30, 144, 255, 0.4) 0%, transparent 40%), /* 夏の青空 */
+        radial-gradient(circle at 80% 20%, rgba(255, 165, 0, 0.4) 0%, transparent 45%), /* 強い日差し */
+        linear-gradient(135deg, #f0f8ff 0%, #fff0e6 100%);
 }
 .bg-大暑 { /* 大暑 - Major Heat */
     background:
-        radial-gradient(ellipse at 50% 0%, rgba(255, 140, 0, 0.35) 0%, transparent 40%),
-        radial-gradient(circle at 25% 100%, rgba(255, 69, 0, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 75% 100%, rgba(255, 99, 71, 0.2) 0%, transparent 50%),
-        linear-gradient(180deg, #fff4e6 0%, #ffe0cc 100%);
+        radial-gradient(ellipse at 50% 0%, rgba(255, 69, 0, 0.5) 0%, transparent 40%), /* 燃えるような太陽 */
+        radial-gradient(circle at 50% 100%, rgba(0, 0, 139, 0.3) 0%, transparent 50%), /* 深い青空 */
+        linear-gradient(180deg, #ffefd5 0%, #e6e6fa 100%);
 }
 
 /* 秋 - Autumn */
 .bg-立秋 { /* 立秋 - Beginning of Autumn */
     background:
-        radial-gradient(circle at 30% 70%, rgba(255, 222, 173, 0.35) 0%, transparent 45%),
-        radial-gradient(circle at 70% 30%, rgba(255, 228, 181, 0.3) 0%, transparent 40%),
-        linear-gradient(135deg, #fffaf0 0%, #ffefd5 100%);
+        radial-gradient(circle at 30% 70%, rgba(135, 206, 250, 0.3) 0%, transparent 45%), /* 澄んだ秋空 */
+        radial-gradient(circle at 70% 30%, rgba(255, 165, 0, 0.2) 0%, transparent 40%), /* 夕焼けの気配 */
+        linear-gradient(135deg, #f0f8ff 0%, #fff0e6 100%);
 }
 .bg-処暑 { /* 処暑 - End of Heat */
     background:
-        radial-gradient(ellipse at 40% 60%, rgba(176, 196, 222, 0.3) 0%, transparent 45%),
-        radial-gradient(ellipse at 60% 40%, rgba(176, 224, 230, 0.25) 0%, transparent 40%),
-        linear-gradient(120deg, #f0f8ff 0%, #e6e6fa 100%);
+        radial-gradient(ellipse at 40% 60%, rgba(176, 196, 222, 0.4) 0%, transparent 45%), /* 落ち着いた空の色 */
+        radial-gradient(ellipse at 60% 40%, rgba(245, 245, 220, 0.3) 0%, transparent 40%), /* 涼しい風 */
+        linear-gradient(120deg, #f0f8ff 0%, #f5f5dc 100%);
 }
 .bg-白露 { /* 白露 - White Dew */
     background:
-        radial-gradient(circle at 25% 75%, rgba(245, 245, 245, 0.5) 0%, transparent 35%),
-        radial-gradient(circle at 75% 25%, rgba(220, 220, 220, 0.3) 0%, transparent 40%),
-        linear-gradient(135deg, #f8f8ff 0%, #f0f0f0 100%);
+        radial-gradient(circle at 25% 75%, rgba(255, 255, 255, 0.6) 0%, transparent 35%), /* 朝露のきらめき */
+        radial-gradient(circle at 75% 25%, rgba(175, 238, 238, 0.3) 0%, transparent 40%), /* 澄んだ空気 */
+        linear-gradient(135deg, #f0ffff 0%, #f5fffa 100%);
 }
 .bg-秋分 { /* 秋分 - Autumn Equinox */
     background:
-        radial-gradient(circle at 20% 80%, rgba(255, 140, 0, 0.25) 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(218, 165, 32, 0.25) 0%, transparent 40%),
-        linear-gradient(135deg, #fffaf0 0%, #fff8dc 100%);
+        radial-gradient(circle at 20% 80%, rgba(255, 69, 0, 0.4) 0%, transparent 40%), /* 紅葉 */
+        radial-gradient(circle at 80% 20%, rgba(255, 140, 0, 0.3) 0%, transparent 40%), /* 夕焼け */
+        linear-gradient(135deg, #fff0e6 0%, #ffdab9 100%);
 }
 .bg-寒露 { /* 寒露 - Cold Dew */
     background:
-        radial-gradient(ellipse at 30% 70%, rgba(221, 160, 221, 0.3) 0%, transparent 45%),
-        radial-gradient(ellipse at 70% 30%, rgba(186, 85, 211, 0.2) 0%, transparent 40%),
-        linear-gradient(120deg, #f8f0ff 0%, #f0e6ff 100%);
+        radial-gradient(ellipse at 30% 70%, rgba(176, 224, 230, 0.4) 0%, transparent 45%), /* 冷たい空気 */
+        radial-gradient(ellipse at 70% 30%, rgba(221, 160, 221, 0.3) 0%, transparent 40%), /* 寂しげな紫 */
+        linear-gradient(120deg, #f0f8ff 0%, #e6e6fa 100%);
 }
 .bg-霜降 { /* 霜降 - Frost Descent */
     background:
-        radial-gradient(circle at 40% 60%, rgba(230, 230, 250, 0.4) 0%, transparent 50%),
-        radial-gradient(circle at 60% 40%, rgba(216, 191, 216, 0.3) 0%, transparent 45%),
-        linear-gradient(180deg, #f0f0ff 0%, #e6e6fa 100%);
+        radial-gradient(circle at 40% 60%, rgba(255, 250, 250, 0.6) 0%, transparent 50%), /* 霜の白さ */
+        radial-gradient(circle at 60% 40%, rgba(176, 196, 222, 0.3) 0%, transparent 45%), /* 冬の訪れ */
+        linear-gradient(180deg, #f5f5f5 0%, #e6f0ff 100%);
 }
 
 /* 冬 - Winter */
 .bg-立冬 { /* 立冬 - Beginning of Winter */
     background:
-        radial-gradient(circle at 30% 70%, rgba(176, 196, 222, 0.35) 0%, transparent 45%),
-        radial-gradient(circle at 70% 30%, rgba(173, 216, 230, 0.3) 0%, transparent 40%),
-        linear-gradient(135deg, #f0f8ff 0%, #e0efff 100%);
+        radial-gradient(circle at 30% 70%, rgba(176, 196, 222, 0.4) 0%, transparent 45%), /* 冬の空 */
+        radial-gradient(circle at 70% 30%, rgba(135, 206, 250, 0.2) 0%, transparent 40%), /* 冷たい風 */
+        linear-gradient(135deg, #f0f8ff 0%, #e6e6fa 100%);
 }
 .bg-小雪 { /* 小雪 - Minor Snow */
     background:
-        radial-gradient(circle at 25% 75%, rgba(248, 248, 255, 0.5) 0%, transparent 40%),
-        radial-gradient(circle at 75% 25%, rgba(240, 248, 255, 0.4) 0%, transparent 45%),
-        linear-gradient(120deg, #f8f8ff 0%, #f0f8ff 100%);
+        radial-gradient(circle at 25% 75%, rgba(248, 248, 255, 0.7) 0%, transparent 40%), /* うっすらと積もる雪 */
+        radial-gradient(circle at 75% 25%, rgba(211, 211, 211, 0.4) 0%, transparent 45%), /* 曇り空 */
+        linear-gradient(120deg, #f5f5f5 0%, #e6e6e6 100%);
 }
 .bg-大雪 { /* 大雪 - Major Snow */
     background:
-        radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
-        radial-gradient(circle at 20% 80%, rgba(240, 248, 255, 0.4) 0%, transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(248, 248, 255, 0.4) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.8) 0%, transparent 50%), /* 降り積もる雪 */
+        radial-gradient(circle at 80% 20%, rgba(176, 224, 230, 0.3) 0%, transparent 40%), /* 雪景色 */
         linear-gradient(180deg, #ffffff 0%, #f0f8ff 100%);
 }
 .bg-冬至 { /* 冬至 - Winter Solstice */
     background:
-        radial-gradient(ellipse at 50% 90%, rgba(70, 130, 180, 0.25) 0%, transparent 50%),
-        radial-gradient(circle at 25% 25%, rgba(100, 149, 237, 0.2) 0%, transparent 40%),
-        radial-gradient(circle at 75% 25%, rgba(65, 105, 225, 0.2) 0%, transparent 40%),
-        linear-gradient(to top, #e6f0ff 0%, #f0f4ff 100%);
+        radial-gradient(ellipse at 50% 90%, rgba(0, 0, 128, 0.4) 0%, transparent 50%), /* 静かな夜 */
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 224, 0.2) 0%, transparent 40%), /* 星空 */
+        linear-gradient(to top, #191970 0%, #000080 100%);
 }
 .bg-小寒 { /* 小寒 - Minor Cold */
     background:
-        radial-gradient(circle at 30% 70%, rgba(135, 206, 235, 0.3) 0%, transparent 45%),
-        radial-gradient(circle at 70% 30%, rgba(176, 224, 230, 0.25) 0%, transparent 40%),
-        linear-gradient(135deg, #e6f3ff 0%, #e0f0ff 100%);
+        radial-gradient(circle at 30% 70%, rgba(175, 238, 238, 0.4) 0%, transparent 45%), /* 凍てつく空気 */
+        radial-gradient(circle at 70% 30%, rgba(224, 255, 255, 0.3) 0%, transparent 40%), /* 氷 */
+        linear-gradient(135deg, #f0ffff 0%, #e0ffff 100%);
 }
 .bg-大寒 { /* 大寒 - Major Cold */
     background:
-        radial-gradient(ellipse at 50% 50%, rgba(112, 128, 144, 0.2) 0%, transparent 60%),
-        radial-gradient(circle at 10% 90%, rgba(119, 136, 153, 0.25) 0%, transparent 40%),
-        radial-gradient(circle at 90% 10%, rgba(176, 196, 222, 0.25) 0%, transparent 40%),
-        linear-gradient(135deg, #e8ecf0 0%, #e0e8f0 100%);
+        radial-gradient(ellipse at 50% 50%, rgba(112, 128, 144, 0.5) 0%, transparent 60%), /* 厳しい寒さ */
+        radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.4) 0%, transparent 40%), /* 深い雪 */
+        linear-gradient(135deg, #f0f8ff 0%, #e6e6fa 100%);
 }
