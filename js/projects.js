@@ -131,20 +131,22 @@ function createProjectCard(project) {
     const progressPercent = Math.floor((project.pt / project.ptForNextLevel) * 100);
     
     card.innerHTML = `
-        <button onclick="deleteProject('${project.id}', event)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors p-1">
+        <button onclick="deleteProject('${project.id}', event)" class="delete-btn absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-all p-1 opacity-0 hover:opacity-100">
             <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
         </button>
         
         <div class="flex items-start justify-between mb-2">
-            <div class="text-3xl sm:text-4xl">${project.tree || project.emoji}</div>
+            <div class="tree-icon text-3xl sm:text-4xl">${project.tree || project.emoji}</div>
             <div class="text-right">
-                <div class="text-base sm:text-lg font-bold text-gray-800">LV.${project.level}</div>
+                <div class="level-badge">
+                    <span>LV.${project.level}</span>
+                </div>
             </div>
         </div>
         
-        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-1 pr-8">${project.name}</h3>
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-1">${project.name}</h3>
         <p class="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">${project.goal}</p>
         
         <div class="mb-2">
@@ -152,10 +154,12 @@ function createProjectCard(project) {
                 <span>経験値</span>
                 <span class="font-medium">${project.pt} / ${project.ptForNextLevel}pt</span>
             </div>
-            <div class="progress-bar bg-gray-200">
-                <div class="progress-bar-fill bg-green-500" style="width: ${progressPercent}%"></div>
+            <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
             </div>
         </div>
+        
+        ${getGrowthMessage(project.level)}
         
         <div class="text-xs text-gray-400 mt-2">
             ${new Date(project.createdAt).toLocaleDateString('ja-JP')}
@@ -169,7 +173,34 @@ function createProjectCard(project) {
         console.log('プロジェクト詳細:', project);
     });
     
+    // ホバー時に削除ボタンを表示
+    card.addEventListener('mouseenter', () => {
+        const deleteBtn = card.querySelector('.delete-btn');
+        if (deleteBtn) deleteBtn.style.opacity = '1';
+    });
+    
+    card.addEventListener('mouseleave', () => {
+        const deleteBtn = card.querySelector('.delete-btn');
+        if (deleteBtn) deleteBtn.style.opacity = '0';
+    });
+    
     return card;
+}
+
+// 成長メッセージを取得
+function getGrowthMessage(level) {
+    const messages = {
+        1: '<div class="growth-message">🌱 種から芽が出るのを待っています...</div>',
+        2: '<div class="growth-message">🌿 小さな芽が顔を出しました！</div>',
+        3: '<div class="growth-message">🌿 すくすくと成長中です</div>',
+        4: '<div class="growth-message">🌳 立派な苗木になってきました</div>',
+        5: '<div class="growth-message">🌳 枝葉を広げて成長中！</div>',
+        6: '<div class="growth-message">🌲 大木へと成長しています</div>',
+        7: '<div class="growth-message">🌲 もうすぐ花が咲きそうです</div>',
+        8: '<div class="growth-message">🌸 美しい花が咲き始めました！</div>',
+        9: '<div class="growth-message">🌸 満開まであと少し！</div>'
+    };
+    return messages[level] || '';
 }
 
 // 成長段階のテキストを取得
@@ -324,23 +355,30 @@ function renderHallOfFame() {
 // 殿堂入りプロジェクトカードを作成
 function createHallOfFameCard(project) {
     const card = document.createElement('div');
-    card.className = 'bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg shadow-md p-4 sm:p-6 border border-yellow-200';
+    card.className = 'hall-of-fame-card bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg shadow-md p-4 sm:p-6 border border-yellow-200';
     
     card.innerHTML = `
         <div class="flex items-start justify-between mb-2">
-            <div class="text-3xl sm:text-4xl">🍎</div>
+            <div class="tree-icon text-3xl sm:text-4xl">🍎</div>
             <div class="text-right">
-                <div class="text-sm font-medium text-amber-600">完成</div>
-                <div class="text-base sm:text-lg font-bold text-gray-800">LV.10</div>
+                <div class="text-sm font-medium text-amber-600">完成 🏆</div>
+                <div class="level-badge" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);">
+                    <span>LV.10</span>
+                </div>
             </div>
         </div>
         
         <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-1">${project.name}</h3>
         <p class="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">${project.goal}</p>
         
-        <div class="text-xs text-gray-500">
+        <div class="growth-message" style="color: #dc2626;">🎉 見事な大樹に成長しました！</div>
+        
+        <div class="text-xs text-gray-500 mt-2">
             <div>開始: ${new Date(project.createdAt).toLocaleDateString('ja-JP')}</div>
             <div>完成: ${new Date(project.completedAt).toLocaleDateString('ja-JP')}</div>
+            <div class="mt-1 font-medium text-amber-600">
+                育成期間: ${Math.ceil((new Date(project.completedAt) - new Date(project.createdAt)) / (1000 * 60 * 60 * 24))}日
+            </div>
         </div>
     `;
     

@@ -1,5 +1,11 @@
 /* プロジェクト画面専用のスタイル */
 
+/* 背景グラデーション */
+body {
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    min-height: 100vh;
+}
+
 /* 絵文字ボタンの選択状態 */
 .emoji-btn.selected {
     border-color: #10b981;
@@ -10,14 +16,36 @@
 /* プロジェクトカードのアニメーション */
 .project-card {
     animation: fadeIn 0.3s ease-in-out;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition: all 0.3s ease-in-out;
     -webkit-tap-highlight-color: transparent;
+    background: linear-gradient(145deg, #ffffff 0%, #f5f5f5 100%);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.project-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #4ade80, #22c55e, #16a34a);
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: -1;
+}
+
+.project-card:hover::before {
+    opacity: 0.1;
 }
 
 @media (hover: hover) {
     .project-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
 }
 
@@ -96,16 +124,36 @@
 
 /* プログレスバー */
 .progress-bar {
-    height: 6px;
-    background-color: #e5e7eb;
-    border-radius: 3px;
+    height: 8px;
+    background-color: rgba(229, 231, 235, 0.5);
+    border-radius: 4px;
     overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar-fill {
     height: 100%;
-    background-color: #10b981;
-    transition: width 0.3s ease-in-out;
+    background: linear-gradient(90deg, #10b981 0%, #22c55e 50%, #4ade80 100%);
+    transition: width 0.5s ease-in-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
 }
 
 /* テキストの省略表示 */
@@ -116,9 +164,109 @@
     overflow: hidden;
 }
 
+/* ツリーアイコンのアニメーション */
+.tree-icon {
+    display: inline-block;
+    font-size: 3rem;
+    transition: transform 0.3s ease-in-out;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.project-card:hover .tree-icon {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+/* レベルバッジ */
+.level-badge {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 成長メッセージ */
+.growth-message {
+    font-size: 0.75rem;
+    color: #059669;
+    font-style: italic;
+    margin-top: 8px;
+    opacity: 0.8;
+}
+
+/* フローティングパーティクル */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.floating-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #22c55e;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: float 3s ease-in-out infinite;
+}
+
+/* ヘッダーのスタイル改善 */
+header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 殿堂入りカードの特別なスタイル */
+.hall-of-fame-card {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fbbf24 100%);
+    border: 2px solid #f59e0b;
+    position: relative;
+    overflow: hidden;
+}
+
+.hall-of-fame-card::before {
+    content: '✨';
+    position: absolute;
+    font-size: 4rem;
+    opacity: 0.1;
+    right: -10px;
+    bottom: -10px;
+    transform: rotate(-15deg);
+}
+
+/* 削除ボタンのスタイル */
+.project-card .delete-btn {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.project-card:hover .delete-btn {
+    opacity: 1 !important;
+}
+
 /* モバイル最適化 */
 @media (max-width: 640px) {
     .project-card {
         touch-action: manipulation;
+    }
+    
+    .tree-icon {
+        font-size: 2.5rem;
+    }
+    
+    /* モバイルでは削除ボタンを常に表示（薄く） */
+    .project-card .delete-btn {
+        opacity: 0.3 !important;
+    }
+    
+    .project-card:active .delete-btn {
+        opacity: 1 !important;
     }
 }
