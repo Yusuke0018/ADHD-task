@@ -248,7 +248,16 @@ const app = {
         document.getElementById('assignToProject').addEventListener('change', (e) => {
             const selectionArea = document.getElementById('projectSelectionArea');
             if (e.target.checked) {
+                const projects = this.loadProjectsForModal();
+                if (projects.length === 0) {
+                    e.target.checked = false;
+                    this.showError('まずプロジェクトを作成してください');
+                    return;
+                }
                 selectionArea.classList.remove('hidden');
+                if (projects.length === 1) {
+                    document.getElementById('projectSelector').value = projects[0].id;
+                }
             } else {
                 selectionArea.classList.add('hidden');
                 this.selectedProjectId = null;
@@ -595,18 +604,18 @@ const app = {
     loadProjectsForModal() {
         const projectSelector = document.getElementById('projectSelector');
         projectSelector.innerHTML = '<option value="">プロジェクトを選択</option>';
-        
-        // プロジェクトデータを読み込む
+
         const savedProjects = localStorage.getItem('hakoniwa_projects');
-        if (savedProjects) {
-            const projects = JSON.parse(savedProjects);
-            projects.forEach(project => {
-                const option = document.createElement('option');
-                option.value = project.id;
-                option.textContent = `${project.tree || project.emoji} ${project.name}`;
-                projectSelector.appendChild(option);
-            });
-        }
+        const projects = savedProjects ? JSON.parse(savedProjects) : [];
+
+        projects.forEach(project => {
+            const option = document.createElement('option');
+            option.value = project.id;
+            option.textContent = `${project.tree || project.emoji} ${project.name}`;
+            projectSelector.appendChild(option);
+        });
+
+        return projects;
     },
     
     // タスクを完了する
