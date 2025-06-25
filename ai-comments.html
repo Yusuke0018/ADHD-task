@@ -207,7 +207,7 @@
 <body>
     <button class="back-button" onclick="window.location.href='index.html'">← 戻る</button>
     
-    <div id="animationContainer"></div>
+    <div id="seasonAnimation"></div>
     
     <div class="ai-container">
         <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px;">AIコメント</h1>
@@ -474,7 +474,7 @@
                         'Authorization': `Bearer ${openaiApiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'o3',
+                        model: 'gpt-3.5-turbo',
                         messages: [
                             {
                                 role: 'system',

@@ -62,13 +62,17 @@ function createProject(event) {
         id: Date.now().toString(),
         name: projectName,
         goal: finalGoal,
-        emoji: selectedEmoji,
+        tree: selectedEmoji,  // emojiをtreeに変更
+        emoji: selectedEmoji, // 互換性のため残す
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         stage: 'seed', // seed, sprout, growth, bloom
         progress: 0,
         tasks: [],
-        completedTasks: 0
+        completedTasks: 0,
+        level: 1,
+        pt: 0,
+        ptForNextLevel: 100
     };
     
     // プロジェクトを追加
@@ -108,7 +112,7 @@ function renderProjects() {
     if (projects.length === 0) {
         projectsList.innerHTML = `
             <div class="col-span-full text-center py-12">
-                <p class="text-gray-500 text-lg mb-4">まだプロジェクトがありません</p>
+                <p class="text-gray-500 text-lg mb-4">進行中のプロジェクトはありません</p>
                 <button onclick="toggleProjectForm()" class="text-green-500 hover:text-green-600 font-medium">
                     最初のプロジェクトを作成する
                 </button>
@@ -126,34 +130,50 @@ function renderProjects() {
 // プロジェクトカードを作成
 function createProjectCard(project) {
     const card = document.createElement('div');
-    card.className = 'project-card bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow';
+    card.className = 'project-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow relative';
     
-    const stageText = getStageText(project.stage);
-    const stageClass = getStageClass(project.stage);
+    // レベルとptを初期化（既存プロジェクトの互換性のため）
+    if (!project.level) project.level = 1;
+    if (!project.pt) project.pt = 0;
+    if (!project.ptForNextLevel) project.ptForNextLevel = 100;
+    
+    const progressPercent = Math.floor((project.pt / project.ptForNextLevel) * 100);
     
     card.innerHTML = `
-        <div class="flex items-center justify-between mb-4">
-            <div class="text-4xl">${project.emoji}</div>
-            <span class="growth-stage ${stageClass}">${stageText}</span>
+        <button onclick="deleteProject('${project.id}', event)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        
+        <div class="flex items-start justify-between mb-3">
+            <div class="text-4xl">${project.tree || project.emoji}</div>
+            <div class="text-right">
+                <div class="text-lg font-bold text-gray-800">LV.${project.level}</div>
+            </div>
         </div>
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">${project.name}</h3>
+        
+        <h3 class="text-lg font-semibold text-gray-800 mb-2 pr-8">${project.name}</h3>
         <p class="text-sm text-gray-600 mb-4">${project.goal}</p>
+        
         <div class="mb-2">
-            <div class="flex justify-between text-sm text-gray-500 mb-1">
-                <span>進捗</span>
-                <span>${project.progress}%</span>
+            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <span>経験値</span>
+                <span>pt: ${project.pt} / ${project.ptForNextLevel}</span>
             </div>
-            <div class="progress-bar">
-                <div class="progress-bar-fill" style="width: ${project.progress}%"></div>
+            <div class="progress-bar bg-gray-200">
+                <div class="progress-bar-fill bg-green-500" style="width: ${progressPercent}%"></div>
             </div>
         </div>
-        <div class="text-xs text-gray-400">
+        
+        <div class="text-xs text-gray-400 mt-3">
             作成日: ${new Date(project.createdAt).toLocaleDateString('ja-JP')}
         </div>
     `;
     
-    // クリックイベント（将来的に詳細画面へ遷移）
-    card.addEventListener('click', () => {
+    // プロジェクト詳細へのクリックイベント（削除ボタン以外）
+    card.addEventListener('click', (e) => {
+        if (e.target.closest('button')) return; // 削除ボタンクリック時は何もしない
         // TODO: プロジェクト詳細画面への遷移
         console.log('プロジェクト詳細:', project);
     });
@@ -187,4 +207,57 @@ function showNotification(message) {
     setTimeout(() => {
         notification.remove();
     }, 3000);
+}
+
+// プロジェクトを削除
+function deleteProject(projectId, event) {
+    event.stopPropagation(); // カードのクリックイベントを防ぐ
+    
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    
+    if (confirm(`プロジェクト「${project.name}」を削除しますか？\nこの操作は取り消せません。`)) {
+        // プロジェクトを配列から削除
+        projects = projects.filter(p => p.id !== projectId);
+        
+        // ローカルストレージに保存
+        saveProjects();
+        
+        // 画面を更新
+        renderProjects();
+        
+        // 通知表示
+        showNotification('プロジェクトを削除しました');
+    }
+}
+
+// プロジェクトにポイントを追加してレベルアップを処理
+function addPointsToProject(projectId, points) {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    
+    project.pt += points;
+    
+    // レベルアップ処理
+    while (project.pt >= project.ptForNextLevel) {
+        project.pt -= project.ptForNextLevel;
+        project.level++;
+        // 次のレベルに必要なポイントを増加（レベル * 100）
+        project.ptForNextLevel = project.level * 100;
+        
+        // 成長段階の更新
+        if (project.level >= 10) {
+            project.stage = 'bloom';
+        } else if (project.level >= 7) {
+            project.stage = 'growth';
+        } else if (project.level >= 4) {
+            project.stage = 'sprout';
+        }
+        
+        showNotification(`${project.name}がレベル${project.level}になりました！`);
+    }
+    
+    project.updatedAt = new Date().toISOString();
+    saveProjects();
+    renderProjects();
 }

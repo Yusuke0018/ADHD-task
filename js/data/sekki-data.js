@@ -52,3 +52,6 @@ const sekkiData = {
         { name: '冬至', date: new Date('2026-12-22T05:53:00'), season: 'winter', description: '一年で最も昼が短く夜が長い日。ゆず湯に入り、かぼちゃを食べる風習があります。' }
     ]
 };
+
+// Expose to global window object for compatibility
+window.sekkiDates = sekkiData;

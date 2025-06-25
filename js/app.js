@@ -244,6 +244,25 @@ const app = {
             });
         });
         
+        // プロジェクトポイント付与のイベント
+        document.getElementById('assignToProject').addEventListener('change', (e) => {
+            const selectionArea = document.getElementById('projectSelectionArea');
+            if (e.target.checked) {
+                selectionArea.classList.remove('hidden');
+            } else {
+                selectionArea.classList.add('hidden');
+                this.selectedProjectId = null;
+                this.selectedProjectPoints = 0;
+            }
+        });
+        
+        document.querySelectorAll('.project-point-button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const points = parseInt(e.currentTarget.dataset.projectPoints);
+                this.selectProjectPoints(points);
+            });
+        });
+        
         // スワイプメニューの初期化
         this.setupSwipeMenu();
         
@@ -495,10 +514,13 @@ const app = {
         
         this.currentCompletingTaskId = taskId;
         this.selectedCompletionPoints = 0;
+        this.selectedProjectId = null;
+        this.selectedProjectPoints = 0;
         
         const modal = document.getElementById('taskCompletionModal');
         const taskText = document.getElementById('taskCompletionText');
         const pointSelector = document.getElementById('completionPointSelector');
+        const projectAssignment = document.getElementById('projectPointAssignment');
         
         taskText.textContent = `「${task.text}」を完了しますか？`;
         
@@ -512,6 +534,14 @@ const app = {
         } else {
             pointSelector.classList.add('hidden');
         }
+        
+        // プロジェクトポイント付与セクションを表示
+        projectAssignment.classList.remove('hidden');
+        this.loadProjectsForModal();
+        
+        // チェックボックスをリセット
+        document.getElementById('assignToProject').checked = false;
+        document.getElementById('projectSelectionArea').classList.add('hidden');
         
         modal.classList.remove('hidden');
         modal.classList.remove('pointer-events-none');
@@ -532,6 +562,39 @@ const app = {
         });
     },
     
+    // プロジェクトポイント選択
+    selectProjectPoints(points) {
+        this.selectedProjectPoints = points;
+        document.querySelectorAll('.project-point-button').forEach(btn => {
+            const btnPoints = parseInt(btn.dataset.projectPoints);
+            if (btnPoints === points) {
+                btn.classList.add('border-blue-500', 'bg-blue-50');
+                btn.classList.remove('border-gray-300');
+            } else {
+                btn.classList.remove('border-blue-500', 'bg-blue-50');
+                btn.classList.add('border-gray-300');
+            }
+        });
+    },
+    
+    // モーダル用にプロジェクトを読み込む
+    loadProjectsForModal() {
+        const projectSelector = document.getElementById('projectSelector');
+        projectSelector.innerHTML = '<option value="">プロジェクトを選択</option>';
+        
+        // プロジェクトデータを読み込む
+        const savedProjects = localStorage.getItem('hakoniwa_projects');
+        if (savedProjects) {
+            const projects = JSON.parse(savedProjects);
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = `${project.tree || project.emoji} ${project.name}`;
+                projectSelector.appendChild(option);
+            });
+        }
+    },
+    
     // タスクを完了する
     completeTask(isAchieved) {
         const task = this.tasks.find(t => t.id === this.currentCompletingTaskId);
@@ -541,6 +604,20 @@ const app = {
         if (isAchieved && task.type === 'urgent' && this.selectedCompletionPoints === 0) {
             this.showError('ポイントを選択してください');
             return;
+        }
+        
+        // プロジェクトにポイントを付与する場合の検証
+        const assignToProject = document.getElementById('assignToProject').checked;
+        if (assignToProject && isAchieved) {
+            const projectSelector = document.getElementById('projectSelector');
+            if (!projectSelector.value) {
+                this.showError('プロジェクトを選択してください');
+                return;
+            }
+            if (this.selectedProjectPoints === 0) {
+                this.showError('プロジェクトポイントを選択してください');
+                return;
+            }
         }
         
         task.status = isAchieved ? 'achieved' : 'notAchieved';
@@ -557,6 +634,14 @@ const app = {
                 }
                 this.dailyPointHistory[dateStr] += task.points;
             }
+            
+            // プロジェクトにポイントを付与
+            if (assignToProject) {
+                const projectId = document.getElementById('projectSelector').value;
+                if (window.addPointsToProject) {
+                    window.addPointsToProject(projectId, this.selectedProjectPoints);
+                }
+            }
         }
         
         this.closeTaskCompletionModal();
@@ -572,6 +657,14 @@ const app = {
         modal.classList.add('pointer-events-none');
         this.currentCompletingTaskId = null;
         this.selectedCompletionPoints = 0;
+        this.selectedProjectId = null;
+        this.selectedProjectPoints = 0;
+        
+        // プロジェクトポイントボタンのリセット
+        document.querySelectorAll('.project-point-button').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-50');
+            btn.classList.add('border-gray-300');
+        });
     },
 
     postponeTask(taskId) {
