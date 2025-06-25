@@ -1301,13 +1301,13 @@ const app = {
         const dateInputEl = document.getElementById('dateInput');
         dateInputEl.value = this.selectedDate.toISOString().split('T')[0];
         
-        const normalSlots = document.getElementById('normalSlots');
-        const urgentSlots = document.getElementById('urgentSlots');
-        const normalUncompletedCount = todayTasks.filter(t => t.type === 'normal' && t.status === 'pending').length;
-        const urgentUncompletedCount = todayTasks.filter(t => t.type === 'urgent' && t.status === 'pending').length;
-        // 通常タスクは無制限
-        normalSlots.textContent = '∞';
-        urgentSlots.textContent = 3 - urgentUncompletedCount;
+        // 残り枠数表示は削除したためコメントアウト
+        // const normalSlots = document.getElementById('normalSlots');
+        // const urgentSlots = document.getElementById('urgentSlots');
+        // const normalUncompletedCount = todayTasks.filter(t => t.type === 'normal' && t.status === 'pending').length;
+        // const urgentUncompletedCount = todayTasks.filter(t => t.type === 'urgent' && t.status === 'pending').length;
+        // normalSlots.textContent = '∞';
+        // urgentSlots.textContent = 3 - urgentUncompletedCount;
         
         const taskListEl = document.getElementById('taskList');
         const noTasksEl = document.getElementById('noTasks');
