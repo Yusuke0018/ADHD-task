@@ -644,6 +644,15 @@ const app = {
             }
         }
         
+        // デバッグログを追加
+        console.log('completeTask called:', {
+            taskId: task.id,
+            isAchieved,
+            assignToProject,
+            selectedProjectId: document.getElementById('projectSelector')?.value,
+            selectedProjectPoints: this.selectedProjectPoints
+        });
+        
         task.status = isAchieved ? 'achieved' : 'notAchieved';
         task.completedAt = new Date();
         
@@ -673,6 +682,15 @@ const app = {
             }
         }
         
+        // デバッグ用：タスクの最終状態を確認
+        console.log('Task final state:', {
+            id: task.id,
+            status: task.status,
+            projectId: task.projectId,
+            projectPoints: task.projectPoints,
+            points: task.points
+        });
+        
         this.closeTaskCompletionModal();
         this.saveData();
         this.render();
@@ -691,6 +709,23 @@ const app = {
         
         // プロジェクトポイントボタンのリセット
         document.querySelectorAll('.project-point-button').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-50');
+            btn.classList.add('border-gray-300');
+        });
+        
+        // プロジェクト進捗のチェックボックスをリセット
+        const assignToProject = document.getElementById('assignToProject');
+        if (assignToProject) {
+            assignToProject.checked = false;
+            // プロジェクト選択エリアを非表示にする
+            const projectSelectionArea = document.getElementById('projectSelectionArea');
+            if (projectSelectionArea) {
+                projectSelectionArea.classList.add('hidden');
+            }
+        }
+        
+        // ポイントボタンのリセット
+        document.querySelectorAll('.completion-point-button').forEach(btn => {
             btn.classList.remove('border-blue-500', 'bg-blue-50');
             btn.classList.add('border-gray-300');
         });
@@ -1292,6 +1327,17 @@ const app = {
         } else {
             noTasksEl.classList.add('hidden');
             taskListEl.innerHTML = sortedTasks.map(task => {
+                // デバッグ用：プロジェクトに関連したタスクのステータスを確認
+                if (task.projectId) {
+                    console.log('Task with project:', {
+                        id: task.id,
+                        text: task.text,
+                        status: task.status,
+                        projectId: task.projectId,
+                        projectPoints: task.projectPoints
+                    });
+                }
+                
                 let cardClass = 'task-normal-active';
                 let statusBadge = '';
                 
