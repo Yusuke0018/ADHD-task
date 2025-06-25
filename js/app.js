@@ -267,8 +267,6 @@ const app = {
         
         document.querySelectorAll('.project-point-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
                 const points = parseInt(e.currentTarget.dataset.projectPoints);
                 this.selectProjectPoints(points);
             });
@@ -672,8 +670,8 @@ const app = {
             if (assignToProject) {
                 const projectId = document.getElementById('projectSelector').value;
                 if (window.addPointsToProject) {
-                    // 通常タスクの場合はデフォルトポイント（10pt）を付与
-                    const pointsToAdd = task.type === 'urgent' ? this.selectedProjectPoints : 10;
+                    // ユーザーが選択したポイントを使用、未選択の場合はデフォルトで10pt
+                    const pointsToAdd = this.selectedProjectPoints > 0 ? this.selectedProjectPoints : 10;
                     window.addPointsToProject(projectId, pointsToAdd);
                     // タスクにプロジェクト情報を記録
                     task.projectId = projectId;
