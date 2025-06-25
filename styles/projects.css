@@ -242,13 +242,20 @@ header {
 
 /* 削除ボタンのスタイル */
 .project-card .delete-btn {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4px);
 }
 
 .project-card:hover .delete-btn {
     opacity: 1 !important;
+    background: rgba(254, 226, 226, 0.95);
+}
+
+.project-card .delete-btn:hover {
+    background: rgba(254, 202, 202, 1);
+    transform: scale(1.05);
 }
 
 /* モバイル最適化 */
