@@ -72,9 +72,19 @@
     color: #92400e;
 }
 
+.growth-stage.mature {
+    background-color: #d1fae5;
+    color: #064e3b;
+}
+
 .growth-stage.bloom {
-    background-color: #ede9fe;
-    color: #5b21b6;
+    background-color: #fce7f3;
+    color: #9f1239;
+}
+
+.growth-stage.harvest {
+    background-color: #fee2e2;
+    color: #991b1b;
 }
 
 /* プログレスバー */

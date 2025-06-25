@@ -26,8 +26,8 @@
         </header>
 
         <!-- プロジェクト作成フォーム（初期状態では非表示） -->
-        <div id="projectForm" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div id="projectForm" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-4">
+            <div class="relative mx-auto mt-10 mb-10 p-5 border max-w-md w-full shadow-lg rounded-md bg-white">
                 <h3 class="text-lg font-bold text-gray-900 mb-4">新しいプロジェクトを作成</h3>
                 
                 <form id="createProjectForm" onsubmit="createProject(event)">
@@ -58,22 +58,36 @@
                         <label class="block text-gray-700 text-sm font-bold mb-2">
                             プロジェクトアイコン
                         </label>
-                        <div class="flex gap-2 justify-center">
+                        <div class="grid grid-cols-3 gap-2">
                             <button type="button" onclick="selectEmoji(this, '🌱')" 
-                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-green-500 focus:border-green-500 focus:outline-none transition-colors">
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-green-500 focus:border-green-500 focus:outline-none transition-colors"
+                                    title="種">
                                 🌱
                             </button>
-                            <button type="button" onclick="selectEmoji(this, '💡')" 
-                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-yellow-500 focus:border-yellow-500 focus:outline-none transition-colors">
-                                💡
+                            <button type="button" onclick="selectEmoji(this, '🌿')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-green-500 focus:border-green-500 focus:outline-none transition-colors"
+                                    title="芽生え">
+                                🌿
                             </button>
-                            <button type="button" onclick="selectEmoji(this, '💪')" 
-                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-red-500 focus:border-red-500 focus:outline-none transition-colors">
-                                💪
+                            <button type="button" onclick="selectEmoji(this, '🌳')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-green-600 focus:border-green-600 focus:outline-none transition-colors"
+                                    title="苗木">
+                                🌳
                             </button>
-                            <button type="button" onclick="selectEmoji(this, '📚')" 
-                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-blue-500 focus:border-blue-500 focus:outline-none transition-colors">
-                                📚
+                            <button type="button" onclick="selectEmoji(this, '🌲')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-green-700 focus:border-green-700 focus:outline-none transition-colors"
+                                    title="大木">
+                                🌲
+                            </button>
+                            <button type="button" onclick="selectEmoji(this, '🌸')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-pink-500 focus:border-pink-500 focus:outline-none transition-colors"
+                                    title="開花">
+                                🌸
+                            </button>
+                            <button type="button" onclick="selectEmoji(this, '🍎')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-red-500 focus:border-red-500 focus:outline-none transition-colors"
+                                    title="収穫">
+                                🍎
                             </button>
                         </div>
                         <input type="hidden" id="selectedEmoji" name="selectedEmoji" value="🌱">

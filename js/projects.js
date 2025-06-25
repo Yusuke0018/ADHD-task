@@ -185,9 +185,11 @@ function createProjectCard(project) {
 function getStageText(stage) {
     const stages = {
         seed: '種',
-        sprout: '芽',
+        sprout: '芽生え',
         growth: '成長',
-        bloom: '開花'
+        mature: '成熟',
+        bloom: '開花',
+        harvest: '収穫'
     };
     return stages[stage] || '種';
 }
@@ -245,14 +247,8 @@ function addPointsToProject(projectId, points) {
         // 次のレベルに必要なポイントを増加（レベル * 100）
         project.ptForNextLevel = project.level * 100;
         
-        // 成長段階の更新
-        if (project.level >= 10) {
-            project.stage = 'bloom';
-        } else if (project.level >= 7) {
-            project.stage = 'growth';
-        } else if (project.level >= 4) {
-            project.stage = 'sprout';
-        }
+        // 成長段階と絵文字の更新
+        updateProjectGrowth(project);
         
         showNotification(`${project.name}がレベル${project.level}になりました！`);
     }
@@ -260,4 +256,27 @@ function addPointsToProject(projectId, points) {
     project.updatedAt = new Date().toISOString();
     saveProjects();
     renderProjects();
+}
+
+// プロジェクトの成長段階と絵文字を更新
+function updateProjectGrowth(project) {
+    if (project.level >= 20) {
+        project.stage = 'harvest';
+        project.tree = '🍎'; // 収穫
+    } else if (project.level >= 15) {
+        project.stage = 'bloom';
+        project.tree = '🌸'; // 開花
+    } else if (project.level >= 10) {
+        project.stage = 'mature';
+        project.tree = '🌲'; // 大木
+    } else if (project.level >= 7) {
+        project.stage = 'growth';
+        project.tree = '🌳'; // 苗木
+    } else if (project.level >= 4) {
+        project.stage = 'sprout';
+        project.tree = '🌿'; // 芽生え
+    } else {
+        project.stage = 'seed';
+        project.tree = '🌱'; // 種
+    }
 }

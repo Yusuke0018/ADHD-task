@@ -329,21 +329,41 @@
             const container = document.getElementById('commentsContainer');
             container.innerHTML = '';
             
+            // デバッグ用
+            console.log('AIコメントデータ:', data.dailyAIComments);
+            console.log('現在の期間:', currentPeriod);
+            
             // Filter comments by period type (not by date)
             const relevantComments = [];
             Object.entries(data.dailyAIComments).forEach(([dateStr, comments]) => {
-                const date = new Date(dateStr);
-                Object.entries(comments).forEach(([period, comment]) => {
-                    if (period === currentPeriod) {
-                        relevantComments.push({
-                            date: date,
-                            period: period,
-                            content: comment.content || comment.comment || comment,
-                            createdAt: comment.createdAt || null,
-                            dateStr: dateStr
-                        });
-                    }
-                });
+                // dateStrが有効な日付か確認
+                let date;
+                // ISO形式（YYYY-MM-DD）またはtoDateString形式の両方に対応
+                if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    date = new Date(dateStr + 'T00:00:00');
+                } else {
+                    date = new Date(dateStr);
+                }
+                
+                if (isNaN(date.getTime())) {
+                    console.warn('無効な日付形式:', dateStr);
+                    return;
+                }
+                
+                // commentsがオブジェクトかどうか確認
+                if (typeof comments === 'object' && comments !== null) {
+                    Object.entries(comments).forEach(([period, comment]) => {
+                        if (period === currentPeriod) {
+                            relevantComments.push({
+                                date: date,
+                                period: period,
+                                content: comment.content || comment.comment || comment,
+                                createdAt: comment.createdAt || null,
+                                dateStr: dateStr
+                            });
+                        }
+                    });
+                }
             });
             
             // Sort by creation time (newest first)
@@ -353,6 +373,8 @@
                 const bTime = b.createdAt ? new Date(b.createdAt) : b.date;
                 return bTime - aTime;
             });
+            
+            console.log('フィルター後のコメント数:', relevantComments.length);
             
             if (relevantComments.length === 0) {
                 displayEmptyState();
@@ -497,7 +519,8 @@
                 
                 // Save comment
                 const data = loadData() || { dailyAIComments: {} };
-                const dateStr = selectedDate.toDateString();
+                // ISO形式の日付文字列を使用（YYYY-MM-DD）
+                const dateStr = selectedDate.toISOString().split('T')[0];
                 if (!data.dailyAIComments) data.dailyAIComments = {};
                 if (!data.dailyAIComments[dateStr]) data.dailyAIComments[dateStr] = {};
                 
@@ -583,11 +606,30 @@
             if (!confirm('このコメントを削除しますか？')) return;
             
             const data = loadData();
-            if (data && data.dailyAIComments && data.dailyAIComments[dateStr]) {
-                delete data.dailyAIComments[dateStr][period];
-                if (Object.keys(data.dailyAIComments[dateStr]).length === 0) {
-                    delete data.dailyAIComments[dateStr];
+            if (data && data.dailyAIComments) {
+                // 古い形式と新しい形式の両方を試す
+                let deleted = false;
+                
+                if (data.dailyAIComments[dateStr]) {
+                    delete data.dailyAIComments[dateStr][period];
+                    if (Object.keys(data.dailyAIComments[dateStr]).length === 0) {
+                        delete data.dailyAIComments[dateStr];
+                    }
+                    deleted = true;
                 }
+                
+                // ISO形式に変換して再試行
+                if (!deleted) {
+                    const date = new Date(dateStr);
+                    const isoDateStr = date.toISOString().split('T')[0];
+                    if (data.dailyAIComments[isoDateStr]) {
+                        delete data.dailyAIComments[isoDateStr][period];
+                        if (Object.keys(data.dailyAIComments[isoDateStr]).length === 0) {
+                            delete data.dailyAIComments[isoDateStr];
+                        }
+                    }
+                }
+                
                 saveData(data);
                 loadComments();
             }
