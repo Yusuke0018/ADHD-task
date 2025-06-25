@@ -491,9 +491,15 @@ const app = {
                     this.dailyPointHistory[dateStr] -= task.points;
                 }
             }
+            // プロジェクトポイントを戻す
+            if (task.projectId && task.projectPoints && window.addPointsToProject) {
+                window.addPointsToProject(task.projectId, -task.projectPoints);
+            }
             task.status = 'pending';
             task.completedAt = null;
             task.points = 0;
+            task.projectId = null;
+            task.projectPoints = 0;
             this.saveData();
             this.render();
             this.updateDailyStatusIndicators();
@@ -649,6 +655,9 @@ const app = {
                     // 通常タスクの場合はデフォルトポイント（10pt）を付与
                     const pointsToAdd = task.type === 'urgent' ? this.selectedProjectPoints : 10;
                     window.addPointsToProject(projectId, pointsToAdd);
+                    // タスクにプロジェクト情報を記録
+                    task.projectId = projectId;
+                    task.projectPoints = pointsToAdd;
                 }
             }
         }
