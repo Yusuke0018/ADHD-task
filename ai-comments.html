@@ -369,8 +369,8 @@
             // Sort by creation time (newest first)
             relevantComments.sort((a, b) => {
                 // Use createdAt if available, otherwise fallback to date
-                const aTime = a.createdAt ? new Date(a.createdAt) : a.date;
-                const bTime = b.createdAt ? new Date(b.createdAt) : b.date;
+                const aTime = a.createdAt ? new Date(a.createdAt).getTime() : a.date.getTime();
+                const bTime = b.createdAt ? new Date(b.createdAt).getTime() : b.date.getTime();
                 return bTime - aTime;
             });
             
@@ -390,6 +390,7 @@
                         <div>
                             <div class="comment-date">${comment.date.toLocaleDateString('ja-JP')}</div>
                             <span class="comment-period">${getPeriodName(comment.period)}</span>
+                            ${comment.createdAt ? `<span style="font-size: 11px; color: #999; margin-left: 8px;">${new Date(comment.createdAt).toLocaleString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</span>` : ''}
                         </div>
                         <button class="delete-button" onclick="deleteComment('${comment.dateStr}', '${comment.period}')">
                             削除
