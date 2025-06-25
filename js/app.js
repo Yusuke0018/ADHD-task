@@ -466,7 +466,8 @@ const app = {
         const todayTasks = this.getTodayTasks();
         const normalCount = todayTasks.filter(t => t.type === 'normal' && t.status === 'pending').length; 
         const urgentCount = todayTasks.filter(t => t.type === 'urgent' && t.status === 'pending').length; 
-        if (this.taskType === 'normal' && normalCount >= 3) { this.showError('通常タスクは3件までです（未完了）'); return; }
+        // 通常タスクの制限を解除（コメントアウト）
+        // if (this.taskType === 'normal' && normalCount >= 3) { this.showError('通常タスクは3件までです（未完了）'); return; }
         if (this.taskType === 'urgent' && urgentCount >= 3) { this.showError('目標タスクは3件までです（未完了）'); return; }
         
         const newTask = { 
@@ -737,7 +738,8 @@ const app = {
         const tomorrowTasks = this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === tomorrow.toDateString() && t.status === 'pending' );
         const normalCount = tomorrowTasks.filter(t => t.type === 'normal').length;
         const urgentCount = tomorrowTasks.filter(t => t.type === 'urgent').length;
-        if (task.type === 'normal' && normalCount >= 3) { this.showError('翌日の通常タスクは既に3件です（未完了）'); return; }
+        // 通常タスクの制限を解除（コメントアウト）
+        // if (task.type === 'normal' && normalCount >= 3) { this.showError('翌日の通常タスクは既に3件です（未完了）'); return; }
         if (task.type === 'urgent' && urgentCount >= 3) { this.showError('翌日の目標タスクは既に3件です（未完了）'); return; }
         task.scheduledFor = tomorrow;
         this.showPostponeEffect();
@@ -1303,7 +1305,8 @@ const app = {
         const urgentSlots = document.getElementById('urgentSlots');
         const normalUncompletedCount = todayTasks.filter(t => t.type === 'normal' && t.status === 'pending').length;
         const urgentUncompletedCount = todayTasks.filter(t => t.type === 'urgent' && t.status === 'pending').length;
-        normalSlots.textContent = 3 - normalUncompletedCount;
+        // 通常タスクは無制限
+        normalSlots.textContent = '∞';
         urgentSlots.textContent = 3 - urgentUncompletedCount;
         
         const taskListEl = document.getElementById('taskList');

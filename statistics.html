@@ -325,6 +325,15 @@
             return JSON.parse(saved);
         }
         
+        function loadProjectsData() {
+            const savedProjects = localStorage.getItem('hakoniwa_projects');
+            const savedHallOfFame = localStorage.getItem('hakoniwa_hall_of_fame');
+            return {
+                projects: savedProjects ? JSON.parse(savedProjects) : [],
+                hallOfFame: savedHallOfFame ? JSON.parse(savedHallOfFame) : []
+            };
+        }
+        
         function calculateStats(period) {
             const data = loadData();
             if (!data) {
@@ -391,6 +400,28 @@
             let currentStreak = 0;
             let maxStreak = 0;
             let previousDayCompleted = false;
+            
+            // プロジェクトデータを読み込み
+            const projectsData = loadProjectsData();
+            let totalProjectPoints = 0;
+            let activeProjects = projectsData.projects.length;
+            let completedProjects = projectsData.hallOfFame.length;
+            let projectsByLevel = {};
+            
+            // アクティブプロジェクトの統計
+            projectsData.projects.forEach(project => {
+                totalProjectPoints += project.pt || 0;
+                const level = project.level || 1;
+                projectsByLevel[level] = (projectsByLevel[level] || 0) + 1;
+            });
+            
+            // 殿堂入りプロジェクトのポイントも含める
+            projectsData.hallOfFame.forEach(project => {
+                // 殿堂入りプロジェクトは基本的にレベル10で完成
+                const basePoints = project.basePoints || 100;
+                const totalEarnedPoints = basePoints * 45; // 1+2+3+...+9 = 45
+                totalProjectPoints += totalEarnedPoints;
+            });
             
             // 日付範囲内のデータを集計
             for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
@@ -527,7 +558,11 @@
                 maxStreak: maxStreak,
                 reflections: reflections.slice(-5), // 最新5件
                 aiComments: aiComments.slice(-5), // 最新5件
-                trend: trend
+                trend: trend,
+                totalProjectPoints: totalProjectPoints,
+                activeProjects: activeProjects,
+                completedProjects: completedProjects,
+                projectsByLevel: projectsByLevel
             };
         }
         
@@ -732,6 +767,33 @@
                         <span class="stat-label">平均ポイント/日</span>
                         <span class="stat-value">${stats.averagePointsPerDay}pt</span>
                     </div>
+                </div>
+                
+                <div class="stats-section">
+                    <h2>プロジェクト統計</h2>
+                    <div class="stat-item">
+                        <span class="stat-label">アクティブプロジェクト</span>
+                        <span class="stat-value">${stats.activeProjects}件</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">完成プロジェクト</span>
+                        <span class="stat-value">${stats.completedProjects}件</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">プロジェクト総ポイント</span>
+                        <span class="stat-value">${stats.totalProjectPoints}pt</span>
+                    </div>
+                    ${Object.keys(stats.projectsByLevel).length > 0 ? `
+                    <div class="stat-item">
+                        <span class="stat-label">レベル分布</span>
+                        <span class="stat-value">
+                            ${Object.entries(stats.projectsByLevel)
+                                .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                                .map(([level, count]) => `Lv${level}: ${count}件`)
+                                .join(', ')}
+                        </span>
+                    </div>
+                    ` : ''}
                 </div>
                 
                 <div class="stats-section">
