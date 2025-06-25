@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロジェクト - ADHD Task Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/projects.css">
+</head>
+<body>
+    <div class="min-h-screen bg-gray-100">
+        <!-- ヘッダー -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-gray-800">箱庭プロジェクト</h1>
+                    <button onclick="toggleProjectForm()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                        <svg class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        新規プロジェクト
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- プロジェクト作成フォーム（初期状態では非表示） -->
+        <div id="projectForm" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">新しいプロジェクトを作成</h3>
+                
+                <form id="createProjectForm" onsubmit="createProject(event)">
+                    <!-- プロジェクト名入力欄 -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="projectName">
+                            プロジェクト名
+                        </label>
+                        <input type="text" id="projectName" name="projectName" 
+                               placeholder="プロジェクト名（例: 学会発表）"
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               required>
+                    </div>
+
+                    <!-- 最終ゴール入力欄 -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="finalGoal">
+                            最終ゴール
+                        </label>
+                        <input type="text" id="finalGoal" name="finalGoal" 
+                               placeholder="最終ゴール（例: 最高のプレゼンをする）"
+                               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               required>
+                    </div>
+
+                    <!-- 絵文字セレクター -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">
+                            プロジェクトアイコン
+                        </label>
+                        <div class="flex gap-2 justify-center">
+                            <button type="button" onclick="selectEmoji(this, '🌱')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-green-500 focus:border-green-500 focus:outline-none transition-colors">
+                                🌱
+                            </button>
+                            <button type="button" onclick="selectEmoji(this, '💡')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-yellow-500 focus:border-yellow-500 focus:outline-none transition-colors">
+                                💡
+                            </button>
+                            <button type="button" onclick="selectEmoji(this, '💪')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-red-500 focus:border-red-500 focus:outline-none transition-colors">
+                                💪
+                            </button>
+                            <button type="button" onclick="selectEmoji(this, '📚')" 
+                                    class="emoji-btn w-12 h-12 text-2xl rounded-lg border-2 border-gray-300 hover:border-blue-500 focus:border-blue-500 focus:outline-none transition-colors">
+                                📚
+                            </button>
+                        </div>
+                        <input type="hidden" id="selectedEmoji" name="selectedEmoji" value="🌱">
+                    </div>
+
+                    <!-- ボタン -->
+                    <div class="flex gap-3">
+                        <button type="submit" 
+                                class="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
+                            プロジェクト開始
+                        </button>
+                        <button type="button" onclick="toggleProjectForm()" 
+                                class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors">
+                            キャンセル
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- プロジェクト一覧 -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div id="projectsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- プロジェクトカードがここに表示されます -->
+            </div>
+        </main>
+    </div>
+
+    <script src="js/projects.js"></script>
+</body>
+</html>
