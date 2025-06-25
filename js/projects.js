@@ -88,6 +88,10 @@ function saveProjects() {
 // プロジェクト一覧を表示
 function renderProjects() {
     const projectsList = document.getElementById('projectsList');
+    // 要素が存在しない場合は何もしない（index.htmlなど他のページから呼ばれた場合）
+    if (!projectsList) {
+        return;
+    }
     projectsList.innerHTML = '';
     
     if (projects.length === 0) {
@@ -331,6 +335,10 @@ function moveToHallOfFame(project) {
 // 殿堂入りプロジェクトを表示
 function renderHallOfFame() {
     const hallOfFameSection = document.getElementById('hallOfFameSection');
+    // 要素が存在しない場合は何もしない（index.htmlなど他のページから呼ばれた場合）
+    if (!hallOfFameSection) {
+        return;
+    }
     const hallOfFameList = document.getElementById('hallOfFameList');
     
     if (hallOfFameProjects.length === 0) {
@@ -384,3 +392,5 @@ function createHallOfFameCard(project) {
     
     return card;
 }
+// グローバルスコープに関数を公開（他のページから呼び出せるようにする）
+window.addPointsToProject = addPointsToProject;
