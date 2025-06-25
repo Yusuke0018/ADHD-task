@@ -300,7 +300,7 @@
         <h1 style="text-align: center; margin-bottom: 30px;">統計情報</h1>
         
         <div class="date-range-selector">
-            <button class="period-button active" onclick="showStats('daily')">今日</button>
+            <button class="period-button active" onclick="showStats('recent')">直近3日間</button>
             <button class="period-button" onclick="showStats('weekly')">今週</button>
             <button class="period-button" onclick="showStats('sekki')">今節気</button>
             <button class="period-button" onclick="showStats('monthly')">今月</button>
@@ -317,7 +317,7 @@
     <script src="js/data/sekki-data.js?v=3"></script>
     <script src="js/animations/seasonal-animations.js?v=3"></script>
     <script>
-        let currentPeriod = 'daily';
+        let currentPeriod = 'recent';
         
         function loadData() {
             const saved = localStorage.getItem('focusTaskData');
@@ -350,8 +350,9 @@
             let startDate, endDate;
             
             switch(period) {
-                case 'daily':
-                    startDate = new Date(today);
+                case 'recent':
+                    startDate = new Date(now);
+                    startDate.setDate(now.getDate() - 2); // 2日前から
                     endDate = new Date(today);
                     break;
                 case 'weekly':
@@ -592,10 +593,11 @@
             const prevDate = new Date(currentStartDate);
             
             switch(period) {
-                case 'daily':
-                    prevDate.setDate(prevDate.getDate() - 1);
+                case 'recent':
+                    prevDate.setDate(prevDate.getDate() - 3);
                     startDate = new Date(prevDate);
                     endDate = new Date(prevDate);
+                    endDate.setDate(endDate.getDate() + 2);
                     break;
                 case 'weekly':
                     prevDate.setDate(prevDate.getDate() - 7);
@@ -864,7 +866,7 @@
                 </div>
                 ` : ''}
                 
-                ${period === 'daily' || period === 'weekly' ? `
+                ${period === 'recent' || period === 'weekly' ? `
                 <div class="stats-section">
                     <h2>ポイント推移（過去7日間）</h2>
                     <div class="chart-container">
@@ -886,7 +888,7 @@
             }
             
             // 統計を表示
-            showStats('daily');
+            showStats('recent');
         });
     </script>
 </body>
