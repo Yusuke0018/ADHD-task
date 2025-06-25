@@ -207,7 +207,7 @@
 <body>
     <button class="back-button" onclick="window.location.href='index.html'">← 戻る</button>
     
-    <div id="seasonAnimation"></div>
+    <!-- アニメーションコンテナを削除 -->
     
     <div class="ai-container">
         <h1 style="text-align: center; margin-bottom: 20px; font-size: 24px;">AIコメント</h1>
@@ -250,12 +250,12 @@
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            // Set animation
-            const sekki = getCurrentSekki();
-            if (sekki) {
-                document.body.className = `sekki-${sekki.name}`;
-                createSeasonalAnimation(sekki.name);
-            }
+            // アニメーションを無効化
+            // const sekki = getCurrentSekki();
+            // if (sekki) {
+            //     document.body.className = `sekki-${sekki.name}`;
+            //     createSeasonalAnimation(sekki.name);
+            // }
             
             // Set today's date
             document.getElementById('dateInput').value = selectedDate.toISOString().split('T')[0];

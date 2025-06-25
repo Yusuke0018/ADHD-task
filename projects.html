@@ -53,6 +53,27 @@
                                required>
                     </div>
 
+                    <!-- レベルアップ必要ポイント -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="basePoints">
+                            レベルアップに必要なポイント（100〜1000pt）
+                        </label>
+                        <div class="flex items-center gap-2">
+                            <input type="range" id="basePointsSlider" name="basePointsSlider"
+                                   min="100" max="1000" step="50" value="100"
+                                   oninput="updatePointsDisplay(this.value)"
+                                   class="flex-1">
+                            <input type="number" id="basePoints" name="basePoints"
+                                   min="100" max="1000" step="50" value="100"
+                                   oninput="updatePointsSlider(this.value)"
+                                   class="w-20 px-2 py-1 border rounded text-center">
+                            <span class="text-sm text-gray-600">pt</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            少ない値：速い成長、多い値：じっくり成長
+                        </p>
+                    </div>
+
                     <!-- 絵文字セレクター -->
                     <div class="mb-6">
                         <label class="block text-gray-700 text-sm font-bold mb-2">
@@ -117,5 +138,20 @@
     </div>
 
     <script src="js/projects.js"></script>
+    <script>
+        // スライダーと数値入力の同期
+        function updatePointsDisplay(value) {
+            document.getElementById('basePoints').value = value;
+        }
+        
+        function updatePointsSlider(value) {
+            // 100-1000の範囲内に制限
+            value = Math.max(100, Math.min(1000, value));
+            // 50刻みに丸める
+            value = Math.round(value / 50) * 50;
+            document.getElementById('basePointsSlider').value = value;
+            document.getElementById('basePoints').value = value;
+        }
+    </script>
 </body>
 </html>

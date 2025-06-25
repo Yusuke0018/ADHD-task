@@ -56,6 +56,7 @@ function createProject(event) {
     
     const projectName = document.getElementById('projectName').value;
     const finalGoal = document.getElementById('finalGoal').value;
+    const basePoints = parseInt(document.getElementById('basePoints').value);
     
     // 新しいプロジェクトオブジェクトを作成
     const newProject = {
@@ -72,7 +73,8 @@ function createProject(event) {
         completedTasks: 0,
         level: 1,
         pt: 0,
-        ptForNextLevel: 100
+        basePoints: basePoints, // レベルアップの基準ポイント
+        ptForNextLevel: basePoints // 最初は基準ポイントと同じ
     };
     
     // プロジェクトを追加
@@ -135,7 +137,8 @@ function createProjectCard(project) {
     // レベルとptを初期化（既存プロジェクトの互換性のため）
     if (!project.level) project.level = 1;
     if (!project.pt) project.pt = 0;
-    if (!project.ptForNextLevel) project.ptForNextLevel = 100;
+    if (!project.basePoints) project.basePoints = 100;
+    if (!project.ptForNextLevel) project.ptForNextLevel = project.basePoints;
     
     const progressPercent = Math.floor((project.pt / project.ptForNextLevel) * 100);
     
@@ -244,8 +247,9 @@ function addPointsToProject(projectId, points) {
     while (project.pt >= project.ptForNextLevel) {
         project.pt -= project.ptForNextLevel;
         project.level++;
-        // 次のレベルに必要なポイントを増加（レベル * 100）
-        project.ptForNextLevel = project.level * 100;
+        // 次のレベルに必要なポイントを計算（基準ポイント × レベル）
+        const basePoints = project.basePoints || 100;
+        project.ptForNextLevel = basePoints * project.level;
         
         // 成長段階と絵文字の更新
         updateProjectGrowth(project);

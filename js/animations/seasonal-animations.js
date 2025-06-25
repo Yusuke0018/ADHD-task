@@ -515,15 +515,16 @@ function setupInteractiveElements(container) {
         });
         
         el.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+            // タッチイベントの伝播を妨げないように修正
+            // e.preventDefault(); // これがスワイプを妨げていた
+            // e.stopPropagation(); // これも削除
             this.style.opacity = '0';
             setTimeout(() => {
                 if (this.parentNode) {
                     this.parentNode.removeChild(this);
                 }
             }, 500);
-        }, { passive: false });
+        });
     });
 }
 
