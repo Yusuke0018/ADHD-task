@@ -1,7 +1,6 @@
 // プロジェクト管理用JavaScript
 
 // グローバル変数
-let selectedEmoji = '🌱';
 let projects = [];
 
 // ページ読み込み時の初期化
@@ -18,37 +17,9 @@ function toggleProjectForm() {
     // フォームが表示される時はリセット
     if (!form.classList.contains('hidden')) {
         document.getElementById('createProjectForm').reset();
-        selectedEmoji = '🌱';
-        resetEmojiButtons();
-        // デフォルトの絵文字を選択状態にする
-        const defaultEmojiBtn = document.querySelector('.emoji-btn');
-        if (defaultEmojiBtn) {
-            defaultEmojiBtn.classList.add('selected');
-        }
     }
 }
 
-// 絵文字を選択
-function selectEmoji(button, emoji) {
-    // 全ての絵文字ボタンから選択状態を解除
-    document.querySelectorAll('.emoji-btn').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-    
-    // 選択したボタンに選択状態を追加
-    button.classList.add('selected');
-    
-    // 選択した絵文字を保存
-    selectedEmoji = emoji;
-    document.getElementById('selectedEmoji').value = emoji;
-}
-
-// 絵文字ボタンをリセット
-function resetEmojiButtons() {
-    document.querySelectorAll('.emoji-btn').forEach(btn => {
-        btn.classList.remove('selected');
-    });
-}
 
 // プロジェクトを作成
 function createProject(event) {
@@ -63,8 +34,8 @@ function createProject(event) {
         id: Date.now().toString(),
         name: projectName,
         goal: finalGoal,
-        tree: selectedEmoji,  // emojiをtreeに変更
-        emoji: selectedEmoji, // 互換性のため残す
+        tree: '🌱',  // 初期は種
+        emoji: '🌱', // 互換性のため残す
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         stage: 'seed', // seed, sprout, growth, bloom
@@ -113,11 +84,17 @@ function renderProjects() {
     
     if (projects.length === 0) {
         projectsList.innerHTML = `
-            <div class="col-span-full text-center py-12">
-                <p class="text-gray-500 text-lg mb-4">進行中のプロジェクトはありません</p>
-                <button onclick="toggleProjectForm()" class="text-green-500 hover:text-green-600 font-medium">
-                    最初のプロジェクトを作成する
-                </button>
+            <div class="col-span-full text-center py-8">
+                <div class="max-w-sm mx-auto">
+                    <svg class="w-24 h-24 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h18v18H3V3z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v8m-4-4h8"></path>
+                    </svg>
+                    <p class="text-gray-500 text-base mb-4">進行中のプロジェクトはありません</p>
+                    <button onclick="toggleProjectForm()" class="text-green-500 hover:text-green-600 font-medium text-base">
+                        最初のプロジェクトを作成する
+                    </button>
+                </div>
             </div>
         `;
         return;
@@ -132,7 +109,7 @@ function renderProjects() {
 // プロジェクトカードを作成
 function createProjectCard(project) {
     const card = document.createElement('div');
-    card.className = 'project-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow relative';
+    card.className = 'project-card bg-white rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow relative';
     
     // レベルとptを初期化（既存プロジェクトの互換性のため）
     if (!project.level) project.level = 1;
@@ -140,37 +117,40 @@ function createProjectCard(project) {
     if (!project.basePoints) project.basePoints = 100;
     if (!project.ptForNextLevel) project.ptForNextLevel = project.basePoints;
     
+    // レベルに応じて絵文字を更新
+    updateProjectGrowth(project);
+    
     const progressPercent = Math.floor((project.pt / project.ptForNextLevel) * 100);
     
     card.innerHTML = `
-        <button onclick="deleteProject('${project.id}', event)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button onclick="deleteProject('${project.id}', event)" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors p-1">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>
         </button>
         
-        <div class="flex items-start justify-between mb-3">
-            <div class="text-4xl">${project.tree || project.emoji}</div>
+        <div class="flex items-start justify-between mb-2">
+            <div class="text-3xl sm:text-4xl">${project.tree || project.emoji}</div>
             <div class="text-right">
-                <div class="text-lg font-bold text-gray-800">LV.${project.level}</div>
+                <div class="text-base sm:text-lg font-bold text-gray-800">LV.${project.level}</div>
             </div>
         </div>
         
-        <h3 class="text-lg font-semibold text-gray-800 mb-2 pr-8">${project.name}</h3>
-        <p class="text-sm text-gray-600 mb-4">${project.goal}</p>
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-1 pr-8">${project.name}</h3>
+        <p class="text-xs sm:text-sm text-gray-600 mb-3 line-clamp-2">${project.goal}</p>
         
         <div class="mb-2">
-            <div class="flex justify-between text-sm text-gray-600 mb-1">
+            <div class="flex justify-between text-xs sm:text-sm text-gray-600 mb-1">
                 <span>経験値</span>
-                <span>pt: ${project.pt} / ${project.ptForNextLevel}</span>
+                <span class="font-medium">${project.pt} / ${project.ptForNextLevel}pt</span>
             </div>
             <div class="progress-bar bg-gray-200">
                 <div class="progress-bar-fill bg-green-500" style="width: ${progressPercent}%"></div>
             </div>
         </div>
         
-        <div class="text-xs text-gray-400 mt-3">
-            作成日: ${new Date(project.createdAt).toLocaleDateString('ja-JP')}
+        <div class="text-xs text-gray-400 mt-2">
+            ${new Date(project.createdAt).toLocaleDateString('ja-JP')}
         </div>
     `;
     

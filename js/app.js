@@ -543,6 +543,12 @@ const app = {
         document.getElementById('assignToProject').checked = false;
         document.getElementById('projectSelectionArea').classList.add('hidden');
         
+        // プロジェクトポイントボタンをリセット
+        document.querySelectorAll('.project-point-button').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-50');
+            btn.classList.add('border-gray-300');
+        });
+        
         modal.classList.remove('hidden');
         modal.classList.remove('pointer-events-none');
     },
@@ -614,7 +620,8 @@ const app = {
                 this.showError('プロジェクトを選択してください');
                 return;
             }
-            if (this.selectedProjectPoints === 0) {
+            // 通常タスクの場合はプロジェクトポイントのチェックをスキップ
+            if (task.type === 'urgent' && this.selectedProjectPoints === 0) {
                 this.showError('プロジェクトポイントを選択してください');
                 return;
             }
@@ -639,7 +646,9 @@ const app = {
             if (assignToProject) {
                 const projectId = document.getElementById('projectSelector').value;
                 if (window.addPointsToProject) {
-                    window.addPointsToProject(projectId, this.selectedProjectPoints);
+                    // 通常タスクの場合はデフォルトポイント（10pt）を付与
+                    const pointsToAdd = task.type === 'urgent' ? this.selectedProjectPoints : 10;
+                    window.addPointsToProject(projectId, pointsToAdd);
                 }
             }
         }
