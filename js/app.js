@@ -1408,8 +1408,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                     cardClass = 'task-completed';
                     statusBadge = '<span class="task-completed-badge">達成</span>';
                 } else if (task.status === 'notAchieved') {
-                    cardClass = 'bg-gray-200 border-gray-400';
-                    statusBadge = '<span class="inline-flex items-center gap-1 bg-gray-600 text-white px-2 py-1 rounded text-xs font-bold">未達成</span>';
+                    cardClass = 'task-notachieved';
+                    statusBadge = '<span class="inline-flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold">未達成</span>';
                 } else if (task.type === 'urgent') {
                     cardClass = 'task-urgent-active';
                 }

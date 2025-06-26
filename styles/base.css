@@ -243,6 +243,43 @@ button svg {
     font-weight: bold;
 }
 
+/* 未達成タスク */
+.task-notachieved {
+    background-color: rgba(243, 244, 246, 0.95);
+    border: 2px solid #6b7280;
+    box-shadow: 0 2px 8px rgba(107, 114, 128, 0.15);
+    position: relative;
+    overflow: visible;
+}
+
+/* 未達成ハンコエフェクト */
+.task-notachieved::after {
+    content: '未';
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%) rotate(-15deg);
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: rgba(59, 130, 246, 0.8);
+    border: 3px solid rgba(59, 130, 246, 0.8);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: serif;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    animation: stampAnimation 0.3s ease-out;
+}
+
+.task-notachieved .task-text-lg {
+    color: #6b7280;
+}
+
 /* Daily Status Badges */
 .daily-status-badge {
     display: inline-flex;
@@ -307,6 +344,14 @@ button svg {
     
     /* モバイル用完了ハンコエフェクト */
     .task-completed::after {
+        font-size: 1.8rem;
+        width: 45px;
+        height: 45px;
+        right: 10px;
+    }
+    
+    /* モバイル用未達成ハンコエフェクト */
+    .task-notachieved::after {
         font-size: 1.8rem;
         width: 45px;
         height: 45px;
