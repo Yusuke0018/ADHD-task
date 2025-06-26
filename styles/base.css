@@ -175,21 +175,57 @@ button svg {
     border: 2px solid #10b981;
     box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
-.task-completed::before {
-    content: '✓';
+
+/* 完了ハンコエフェクト */
+.task-completed::after {
+    content: '完';
     position: absolute;
-    top: -5px;
-    right: 10px;
-    font-size: 3rem;
-    color: rgba(16, 185, 129, 0.2);
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%) rotate(-15deg);
+    font-size: 2.5rem;
     font-weight: bold;
+    color: rgba(220, 38, 38, 0.8);
+    border: 3px solid rgba(220, 38, 38, 0.8);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: serif;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    animation: stampAnimation 0.3s ease-out;
 }
+
+@keyframes stampAnimation {
+    0% {
+        transform: translateY(-50%) rotate(-15deg) scale(1.5);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(-50%) rotate(-15deg) scale(1.1);
+    }
+    100% {
+        transform: translateY(-50%) rotate(-15deg) scale(1);
+        opacity: 1;
+    }
+}
+
 .task-completed .task-text-lg {
     color: #059669;
     font-weight: 500;
 }
+
+/* 線消しを削除 */
+.task-completed .line-through {
+    text-decoration: none !important;
+}
+
 .task-completed .task-type-label {
      background-color: #10b981;
      color: white;
@@ -267,6 +303,14 @@ button svg {
     
     #dailyStatusIndicators {
         gap: 2px;
+    }
+    
+    /* モバイル用完了ハンコエフェクト */
+    .task-completed::after {
+        font-size: 1.8rem;
+        width: 45px;
+        height: 45px;
+        right: 10px;
     }
 }
 
