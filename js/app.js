@@ -179,6 +179,36 @@ const app = {
             infoEl.classList.add('hidden');
         }
     },
+    
+    cleanText(text) {
+        // Fix common UTF-8 encoding issues
+        // Replace mojibake patterns with their correct characters
+        text = text
+            // Common mojibake patterns
+            .replace(/â€™/g, "'")  // Right single quotation mark
+            .replace(/â€œ/g, '"')  // Left double quotation mark
+            .replace(/â€/g, '"')   // Right double quotation mark
+            .replace(/â€"/g, '—')  // Em dash
+            .replace(/â€"/g, '–')  // En dash
+            .replace(/Ã¢â‚¬â„¢/g, "'")  // Another variant of apostrophe
+            .replace(/Ã¢â‚¬Å"/g, '"')  // Another variant of left quote
+            .replace(/Ã¢â‚¬ï¿½/g, '"')  // Another variant of right quote
+            .replace(/Ã¢â‚¬â€œ/g, '–') // Another variant of en dash
+            .replace(/Ã¢â‚¬â€�/g, '—') // Another variant of em dash
+            // Smart quotes to regular quotes
+            .replace(/['']/g, "'")  // Smart single quotes to regular
+            .replace(/[""]/g, '"')  // Smart double quotes to regular
+            // Other common replacements
+            .replace(/…/g, '...')   // Ellipsis
+            .replace(/•/g, '・')    // Bullet to Japanese middle dot
+            // Remove any remaining non-printable characters
+            .replace(/[\u0000-\u001F\u007F-\u009F]/g, '')
+            // Normalize whitespace
+            .replace(/\s+/g, ' ')
+            .trim();
+        
+        return text;
+    },
 
     loadData() {
         const saved = localStorage.getItem('focusTaskData');
@@ -186,13 +216,20 @@ const app = {
             const data = JSON.parse(saved);
             this.tasks = (data.tasks || []).map(t => ({ 
                 ...t, 
+                text: this.cleanText(t.text || ''), // Clean text when loading
                 createdAt: new Date(t.createdAt), 
                 completedAt: t.completedAt ? new Date(t.completedAt) : null, 
                 scheduledFor: new Date(t.scheduledFor), 
                 points: t.points || 0,
                 status: t.status || (t.isCompleted ? 'achieved' : 'pending') // 旧データの互換性
             }));
-            this.deadlineTasks = (data.deadlineTasks || []).map(t => ({ ...t, deadline: new Date(t.deadline), createdAt: new Date(t.createdAt), completedAt: t.completedAt ? new Date(t.completedAt) : null }));
+            this.deadlineTasks = (data.deadlineTasks || []).map(t => ({ 
+                ...t, 
+                text: this.cleanText(t.text || ''), // Clean text when loading
+                deadline: new Date(t.deadline), 
+                createdAt: new Date(t.createdAt), 
+                completedAt: t.completedAt ? new Date(t.completedAt) : null 
+            }));
             this.totalPoints = data.totalPoints || 0;
             this.dailyPointHistory = data.dailyPointHistory || {};
             this.dailyReflections = data.dailyReflections || {};
@@ -460,8 +497,11 @@ const app = {
     
     addTask() {
         const input = document.getElementById('taskInput');
-        const text = input.value.trim();
+        let text = input.value.trim();
         if (!text) { this.showError('予定を入力してください'); return; }
+        
+        // Clean up common encoding issues and smart quotes
+        text = this.cleanText(text);
         
         const todayTasks = this.getTodayTasks();
         const normalCount = todayTasks.filter(t => t.type === 'normal' && t.status === 'pending').length; 
@@ -767,9 +807,12 @@ const app = {
     addDeadlineTask() {
         const textEl = document.getElementById('deadlineText');
         const dateEl = document.getElementById('deadlineDate');
-        const text = textEl.value.trim();
+        let text = textEl.value.trim();
         const date = dateEl.value;
         if (!text || !date) { this.showError('内容と期限を入力してください'); return; }
+        
+        // Clean up text encoding issues
+        text = this.cleanText(text);
         const activeCount = this.deadlineTasks.filter(t => !t.isCompleted).length;
         if (activeCount >= 3) { this.showError('期限付きタスクは3件までです'); return; }
         const newTask = { id: Date.now().toString(), text: text, deadline: new Date(date + "T23:59:59"), createdAt: new Date(), isCompleted: false, completedAt: null };
