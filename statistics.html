@@ -453,6 +453,7 @@
     
     <script src="js/data/sekki-data.js?v=3"></script>
     <script src="js/animations/seasonal-animations.js?v=3"></script>
+    <script src="js/swipe-menu.js"></script>
     <script>
         let currentPeriod = 'recent';
         
@@ -1052,48 +1053,7 @@
             
             // 統計を表示
             showStats('recent');
-            
-            // スワイプメニューの初期化
-            initSwipeMenu();
         });
-        
-        // スワイプメニューの初期化
-        function initSwipeMenu() {
-            const menuHandle = document.getElementById('menuHandle');
-            const menuItems = document.getElementById('menuItems');
-            
-            if (!menuHandle || !menuItems) return;
-            
-            let isMenuOpen = false;
-            
-            menuHandle.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-            });
-            
-            menuHandle.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                if (!isMenuOpen && e.touches[0].clientX > 10) {
-                    menuItems.classList.add('open');
-                    isMenuOpen = true;
-                }
-            });
-            
-            menuHandle.addEventListener('click', () => {
-                if (isMenuOpen) {
-                    menuItems.classList.remove('open');
-                } else {
-                    menuItems.classList.add('open');
-                }
-                isMenuOpen = !isMenuOpen;
-            });
-            
-            document.addEventListener('click', (e) => {
-                if (!menuHandle.contains(e.target) && !menuItems.contains(e.target) && isMenuOpen) {
-                    menuItems.classList.remove('open');
-                    isMenuOpen = false;
-                }
-            });
-        }
     </script>
 </body>
 </html>

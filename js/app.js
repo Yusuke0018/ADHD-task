@@ -309,9 +309,6 @@ const app = {
             });
         });
         
-        // スワイプメニューの初期化
-        this.setupSwipeMenu();
-        
         // Add event listeners with null checks
         const reflectionToggle = document.getElementById('reflectionToggle');
         const saveReflection = document.getElementById('saveReflection');
@@ -931,46 +928,6 @@ const app = {
         });
     },
 
-    setupSwipeMenu() {
-        const menuHandle = document.getElementById('menuHandle');
-        const menuItems = document.getElementById('menuItems');
-        let isMenuOpen = false;
-        let touchStartX = 0;
-        
-        // タッチイベント
-        menuHandle.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-        });
-        
-        menuHandle.addEventListener('touchmove', (e) => {
-            const touchX = e.touches[0].clientX;
-            const diff = touchX - touchStartX;
-            
-            if (diff > 30 && !isMenuOpen) {
-                menuItems.classList.add('open');
-                isMenuOpen = true;
-            }
-        });
-        
-        // クリックイベント
-        menuHandle.addEventListener('click', () => {
-            if (isMenuOpen) {
-                menuItems.classList.remove('open');
-                isMenuOpen = false;
-            } else {
-                menuItems.classList.add('open');
-                isMenuOpen = true;
-            }
-        });
-        
-        // メニュー外をタップしたら閉じる
-        document.addEventListener('click', (e) => {
-            if (!menuHandle.contains(e.target) && !menuItems.contains(e.target) && isMenuOpen) {
-                menuItems.classList.remove('open');
-                isMenuOpen = false;
-            }
-        });
-    },
     
     
 

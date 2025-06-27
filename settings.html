@@ -348,9 +348,6 @@
             document.getElementById('saveApiKey').addEventListener('click', saveApiKey);
             document.getElementById('exportData').addEventListener('click', exportData);
             document.getElementById('clearData').addEventListener('click', clearData);
-            
-            // スワイプメニューの初期化
-            initSwipeMenu();
         });
         
         function showMessage(type, message) {
@@ -417,44 +414,7 @@
                 window.location.href = 'index.html';
             }, 2000);
         }
-        
-        // スワイプメニューの初期化
-        function initSwipeMenu() {
-            const menuHandle = document.getElementById('menuHandle');
-            const menuItems = document.getElementById('menuItems');
-            
-            if (!menuHandle || !menuItems) return;
-            
-            let isMenuOpen = false;
-            
-            menuHandle.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-            });
-            
-            menuHandle.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                if (!isMenuOpen && e.touches[0].clientX > 10) {
-                    menuItems.classList.add('open');
-                    isMenuOpen = true;
-                }
-            });
-            
-            menuHandle.addEventListener('click', () => {
-                if (isMenuOpen) {
-                    menuItems.classList.remove('open');
-                } else {
-                    menuItems.classList.add('open');
-                }
-                isMenuOpen = !isMenuOpen;
-            });
-            
-            document.addEventListener('click', (e) => {
-                if (!menuHandle.contains(e.target) && !menuItems.contains(e.target) && isMenuOpen) {
-                    menuItems.classList.remove('open');
-                    isMenuOpen = false;
-                }
-            });
-        }
     </script>
+    <script src="js/swipe-menu.js"></script>
 </body>
 </html>
