@@ -437,13 +437,13 @@
         <h1 style="text-align: center; margin-bottom: 30px;">統計情報</h1>
         
         <div class="date-range-selector">
-            <button class="period-button active" onclick="showStats('recent')">直近3日間</button>
-            <button class="period-button" onclick="showStats('weekly')">今週</button>
-            <button class="period-button" onclick="showStats('sekki')">今節気</button>
-            <button class="period-button" onclick="showStats('monthly')">今月</button>
-            <button class="period-button" onclick="showStats('quarterly')">四半期</button>
-            <button class="period-button" onclick="showStats('yearly')">年間</button>
-            <button class="period-button" onclick="showStats('all')">全期間</button>
+            <button class="period-button" data-period="recent" onclick="showStats('recent', this)">直近3日間</button>
+            <button class="period-button" data-period="weekly" onclick="showStats('weekly', this)">今週</button>
+            <button class="period-button" data-period="sekki" onclick="showStats('sekki', this)">今節気</button>
+            <button class="period-button" data-period="monthly" onclick="showStats('monthly', this)">今月</button>
+            <button class="period-button" data-period="quarterly" onclick="showStats('quarterly', this)">四半期</button>
+            <button class="period-button" data-period="yearly" onclick="showStats('yearly', this)">年間</button>
+            <button class="period-button" data-period="all" onclick="showStats('all', this)">全期間</button>
         </div>
         
         <div id="statsContent">
@@ -826,14 +826,21 @@
             }).join('');
         }
         
-        function showStats(period) {
+        function showStats(period, targetButton = null) {
             currentPeriod = period;
             
             // ボタンのアクティブ状態を更新
             document.querySelectorAll('.period-button').forEach(btn => {
                 btn.classList.remove('active');
+                if (btn.getAttribute('data-period') === period) {
+                    btn.classList.add('active');
+                }
             });
-            event.target.classList.add('active');
+            
+            // もしターゲットボタンが指定されていれば、それをアクティブにする
+            if (targetButton) {
+                targetButton.classList.add('active');
+            }
             
             const stats = calculateStats(period);
             const content = document.getElementById('statsContent');
