@@ -238,6 +238,46 @@
             white-space: pre-wrap;
         }
         
+        .daily-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .daily-stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f8f8;
+            border-radius: 8px;
+        }
+        
+        .daily-stat-date {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .daily-stat-info {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .daily-stat-achieved {
+            color: #4CAF50;
+            font-weight: 500;
+        }
+        
+        .daily-stat-total {
+            color: #666;
+        }
+        
+        .daily-stat-rate {
+            color: #999;
+            font-size: 14px;
+        }
+        
         .achievement-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -547,10 +587,10 @@
                         else tasksByType.urgent++;
                         
                         // 新しいステータスシステムと旧データの互換性
-                        const isCompleted = task.status === 'achieved' || 
-                                          task.status === 'notAchieved' || 
-                                          task.isCompleted;
-                        if (isCompleted) {
+                        // 達成は achieved のみ、notAchieved は未達成として扱う
+                        const isAchieved = task.status === 'achieved' || 
+                                          (task.isCompleted && task.status !== 'notAchieved');
+                        if (isAchieved) {
                             completedTasks++;
                             dayCompleted++;
                             if (task.type === 'normal') completedByType.normal++;
@@ -723,7 +763,10 @@
                 
                 dayTasks.forEach(task => {
                     totalTasks++;
-                    if (task.isCompleted) completedTasks++;
+                    // 達成は achieved のみ、notAchieved は未達成として扱う
+                    const isAchieved = task.status === 'achieved' || 
+                                      (task.isCompleted && task.status !== 'notAchieved');
+                    if (isAchieved) completedTasks++;
                 });
             }
             
@@ -851,7 +894,7 @@
                         <span class="stat-value">${stats.totalTasks}</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">完了タスク</span>
+                        <span class="stat-label">達成タスク</span>
                         <span class="stat-value">${stats.completedTasks}</span>
                     </div>
                     <div class="stat-item">
@@ -968,6 +1011,22 @@
                     <h2>ポイント推移（過去7日間）</h2>
                     <div class="chart-container">
                         ${createChart(stats.pointHistory)}
+                    </div>
+                </div>
+                
+                <div class="stats-section">
+                    <h2>日別達成状況</h2>
+                    <div class="daily-stats">
+                        ${stats.dailyCompletionRates.slice(-7).map(day => `
+                            <div class="daily-stat-item">
+                                <div class="daily-stat-date">${day.date.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}</div>
+                                <div class="daily-stat-info">
+                                    <span class="daily-stat-achieved">達成: ${day.completed}</span>
+                                    <span class="daily-stat-total">/ 全${day.total}</span>
+                                    <span class="daily-stat-rate">(${day.rate}%)</span>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
                 ` : ''}
