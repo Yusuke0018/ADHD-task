@@ -790,6 +790,55 @@ const app = {
         this.saveData();
         this.render();},
 
+    editTask(taskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        const taskTextElement = document.getElementById(`task-text-${taskId}`);
+        if (!taskTextElement) return;
+        
+        // 現在のテキストを保存
+        const currentText = task.text;
+        
+        // 編集用の入力フィールドを作成
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.className = 'w-full px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 text-base';
+        
+        // テキスト要素を入力フィールドに置き換え
+        taskTextElement.replaceWith(input);
+        input.focus();
+        input.select();
+        
+        // 編集を確定する関数
+        const confirmEdit = () => {
+            const newText = input.value.trim();
+            if (newText && newText !== currentText) {
+                task.text = newText;
+                this.saveData();
+            }
+            this.render();
+        };
+        
+        // 編集をキャンセルする関数
+        const cancelEdit = () => {
+            this.render();
+        };
+        
+        // イベントリスナーを追加
+        input.addEventListener('blur', confirmEdit);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmEdit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelEdit();
+            }
+        });
+    },
+
     toggleDeadlineForm(forceHide = null) {
         const form = document.getElementById('deadlineForm');
         const activeCount = this.deadlineTasks.filter(t => !t.isCompleted).length;
@@ -832,6 +881,55 @@ const app = {
     deleteDeadlineTask(taskId) {
         this.deadlineTasks = this.deadlineTasks.filter(t => t.id !== taskId);
         this.saveData(); this.render();},
+
+    editDeadlineTask(taskId) {
+        const task = this.deadlineTasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        const taskTextElement = document.getElementById(`deadline-text-${taskId}`);
+        if (!taskTextElement) return;
+        
+        // 現在のテキストを保存
+        const currentText = task.text;
+        
+        // 編集用の入力フィールドを作成
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = currentText;
+        input.className = 'w-full px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 text-base';
+        
+        // テキスト要素を入力フィールドに置き換え
+        taskTextElement.replaceWith(input);
+        input.focus();
+        input.select();
+        
+        // 編集を確定する関数
+        const confirmEdit = () => {
+            const newText = input.value.trim();
+            if (newText && newText !== currentText) {
+                task.text = newText;
+                this.saveData();
+            }
+            this.render();
+        };
+        
+        // 編集をキャンセルする関数
+        const cancelEdit = () => {
+            this.render();
+        };
+        
+        // イベントリスナーを追加
+        input.addEventListener('blur', confirmEdit);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmEdit();
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                cancelEdit();
+            }
+        });
+    },
 
     setupSwipeMenu() {
         const menuHandle = document.getElementById('menuHandle');
@@ -1267,7 +1365,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                         <div class="flex items-start gap-3 flex-1">
                             <button onclick="app.toggleDeadlineTask('${task.id}')" class="wa-checkbox rounded-lg ${task.isCompleted ? 'checked' : ''} mt-0.5"></button>
                             <div class="flex-1">
-                                <div class="text-base ${task.isCompleted ? 'text-gray-600' : 'text-gray-800'}">${this.escapeHtml(task.text)}</div>
+                                <div class="text-base ${task.isCompleted ? 'text-gray-600' : 'text-gray-800'}" id="deadline-text-${task.id}">${this.escapeHtml(task.text)}</div>
                                 <div class="text-sm ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-600'} mt-1">
                                     期限: ${deadline.toLocaleDateString('ja-JP')} 
                                     ${!task.isCompleted ? `(${isOverdue ? '期限切れ' : `あと${daysLeft}日`})` : ''}
@@ -1275,11 +1373,18 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                             </div>
                         </div>
                         ${!task.isCompleted ? `
-                        <button onclick="app.deleteDeadlineTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
-                        </button>` : ''}
+                        <div class="flex flex-col gap-1">
+                            <button onclick="app.editDeadlineTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="編集">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="app.deleteDeadlineTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>` : ''}
                     </div>
                 </div>`;
         }).join('');},
@@ -1429,10 +1534,16 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                                     }
                                     ${statusBadge}
                                 </div>
-                                <div class="task-text-lg">${this.escapeHtml(task.text)}</div>
+                                <div class="task-text-lg" id="task-text-${task.id}">${this.escapeHtml(task.text)}</div>
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
+                            ${task.status === 'pending' ? `
+                                <button onclick="app.editTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="編集">
+                                    <svg class="w-4 h-4 mobile-text-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </button>` : ''}
                             ${task.status === 'pending' && !isToday ? `
                                 <button onclick="app.postponeTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="翌日へ先送り">
                                     <svg class="w-4 h-4 mobile-text-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
