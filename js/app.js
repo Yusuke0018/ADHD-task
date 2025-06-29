@@ -1094,14 +1094,30 @@ const app = {
     },
 
     toggleDeadlineForm(forceHide = null) {
+        console.log('toggleDeadlineForm called with forceHide:', forceHide);
         const form = document.getElementById('deadlineForm');
-        if (forceHide === false) { form.classList.add('hidden'); return; }
-        if (forceHide === true) { form.classList.remove('hidden'); return; }
+        if (!form) {
+            console.error('deadlineForm element not found');
+            return;
+        }
+        
+        if (forceHide === false) { 
+            form.classList.add('hidden'); 
+            return; 
+        }
+        
+        if (forceHide === true) { 
+            form.classList.remove('hidden'); 
+            return; 
+        }
+        
         if (form.classList.contains('hidden')) { 
+            console.log('Showing deadline form');
             form.classList.remove('hidden');
             document.getElementById('deadlineDate').min = new Date().toISOString().split('T')[0];
             document.getElementById('deadlineText').focus();
         } else { 
+            console.log('Hiding deadline form');
             form.classList.add('hidden');
         }},
 
