@@ -173,8 +173,7 @@ function createProjectCard(project) {
     // プロジェクト詳細へのクリックイベント（削除ボタン以外）
     card.addEventListener('click', (e) => {
         if (e.target.closest('button')) return; // 削除ボタンクリック時は何もしない
-        // TODO: プロジェクト詳細画面への遷移
-        console.log('プロジェクト詳細:', project);
+        showProjectDetail(project);
     });
     
     // ホバー時に削除ボタンを表示
@@ -273,6 +272,16 @@ function addPointsToProject(projectId, points) {
         // 次のレベルに必要なポイントを計算（基準ポイント × レベル）
         const basePoints = project.basePoints || 100;
         project.ptForNextLevel = basePoints * project.level;
+        
+        // レベルアップ履歴を記録
+        if (!project.levelUpHistory) {
+            project.levelUpHistory = [];
+        }
+        project.levelUpHistory.push({
+            level: project.level,
+            date: new Date().toISOString(),
+            totalPoints: project.pt + project.ptForNextLevel
+        });
         
         // 成長段階と絵文字の更新
         updateProjectGrowth(project);
@@ -392,5 +401,201 @@ function createHallOfFameCard(project) {
     
     return card;
 }
+// プロジェクト詳細モーダル関連の関数
+let currentDetailProject = null;
+
+function showProjectDetail(project) {
+    currentDetailProject = project;
+    
+    // プロジェクト情報を表示
+    document.getElementById('detailProjectName').textContent = project.name;
+    document.getElementById('detailProjectIcon').textContent = getProjectEmoji(project.level);
+    document.getElementById('detailProjectLevel').textContent = `Lv.${project.level}`;
+    document.getElementById('detailFinalGoal').textContent = project.finalGoal || 'ゴールが設定されていません';
+    
+    // プログレスバーを更新
+    const progress = ((project.pt % project.basePoints) / project.basePoints) * 100;
+    document.getElementById('detailProgressBar').style.width = `${progress}%`;
+    document.getElementById('detailProgressText').textContent = 
+        `${project.pt} / ${project.basePoints * project.level} pt (次のレベルまであと${(project.basePoints * project.level) - project.pt}pt)`;
+    
+    // メモを表示
+    const memoArea = document.getElementById('projectMemo');
+    memoArea.value = project.memo || '';
+    
+    // 成長履歴を表示
+    displayGrowthHistory(project);
+    
+    // 関連タスクを表示
+    displayRelatedTasks(project);
+    
+    // 初期タブを表示
+    switchDetailTab('growth');
+    
+    // モーダルを表示
+    document.getElementById('projectDetailModal').classList.remove('hidden');
+}
+
+function closeProjectDetail() {
+    document.getElementById('projectDetailModal').classList.add('hidden');
+    currentDetailProject = null;
+}
+
+function switchDetailTab(tabName) {
+    // すべてのタブボタンとコンテンツを非アクティブに
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('border-blue-500', 'text-blue-600');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // 選択されたタブをアクティブに
+    const tabButton = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+    tabButton.classList.remove('border-transparent', 'text-gray-500');
+    tabButton.classList.add('border-blue-500', 'text-blue-600');
+    
+    document.getElementById(`${tabName}Content`).classList.remove('hidden');
+}
+
+function displayGrowthHistory(project) {
+    const historyContainer = document.getElementById('growthHistory');
+    historyContainer.innerHTML = '';
+    
+    // 成長履歴を生成
+    const history = [];
+    const createdDate = new Date(project.createdAt);
+    
+    // 実際のレベルアップ履歴があれば使用
+    if (project.levelUpHistory && project.levelUpHistory.length > 0) {
+        project.levelUpHistory.forEach(record => {
+            history.push({
+                level: record.level,
+                emoji: getProjectEmoji(record.level),
+                date: new Date(record.date),
+                message: getGrowthMessage(record.level).replace(/<[^>]*>/g, '')
+            });
+        });
+    } else {
+        // 履歴がない場合は現在のレベルまでの仮の履歴を生成
+        for (let i = 1; i <= project.level; i++) {
+            if (i < project.level) {
+                history.push({
+                    level: i,
+                    emoji: getProjectEmoji(i),
+                    date: new Date(createdDate.getTime() + (i - 1) * 7 * 24 * 60 * 60 * 1000), // 仮の日付（1週間ごと）
+                    message: getGrowthMessage(i).replace(/<[^>]*>/g, '')
+                });
+            }
+        }
+    }
+    
+    // 履歴を逆順で表示（新しいものが上）
+    history.reverse().forEach(item => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'flex items-start gap-3 p-3 bg-gray-50 rounded-lg';
+        historyItem.innerHTML = `
+            <div class="text-2xl">${item.emoji}</div>
+            <div class="flex-1">
+                <div class="font-medium">レベル ${item.level} 達成！</div>
+                <div class="text-sm text-gray-600">${item.message}</div>
+                <div class="text-xs text-gray-500 mt-1">${item.date.toLocaleDateString('ja-JP')}</div>
+            </div>
+        `;
+        historyContainer.appendChild(historyItem);
+    });
+    
+    // 作成時の記録も追加
+    const startItem = document.createElement('div');
+    startItem.className = 'flex items-start gap-3 p-3 bg-gray-50 rounded-lg';
+    startItem.innerHTML = `
+        <div class="text-2xl">🌱</div>
+        <div class="flex-1">
+            <div class="font-medium">プロジェクト開始</div>
+            <div class="text-sm text-gray-600">新しい箱庭プロジェクトが始まりました</div>
+            <div class="text-xs text-gray-500 mt-1">${createdDate.toLocaleDateString('ja-JP')}</div>
+        </div>
+    `;
+    historyContainer.appendChild(startItem);
+}
+
+function displayRelatedTasks(project) {
+    const tasksContainer = document.getElementById('relatedTasks');
+    
+    // 実際のタスクデータを取得（app.jsから）
+    const taskData = localStorage.getItem('focusTaskData');
+    if (!taskData) {
+        tasksContainer.innerHTML = '<p class="text-gray-500 text-sm">関連するタスクはまだありません</p>';
+        return;
+    }
+    
+    const data = JSON.parse(taskData);
+    const tasks = data.tasks || [];
+    
+    // このプロジェクトに関連するタスクをフィルタ（プロジェクトIDまたは名前で検索）
+    const relatedTasks = tasks.filter(task => {
+        if (!task.text) return false;
+        // プロジェクトIDで検索（より正確）
+        if (task.projectId && task.projectId === project.id) return true;
+        // プロジェクト名で検索（後方互換性のため、特殊文字をエスケープ）
+        const escapedName = project.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return task.text.includes(escapedName);
+    }).slice(-10); // 最新10件まで
+    
+    if (relatedTasks.length === 0) {
+        tasksContainer.innerHTML = '<p class="text-gray-500 text-sm">関連するタスクはまだありません</p>';
+        return;
+    }
+    
+    tasksContainer.innerHTML = '';
+    relatedTasks.reverse().forEach(task => {
+        const taskItem = document.createElement('div');
+        taskItem.className = 'flex items-center gap-3 p-2 bg-gray-50 rounded';
+        
+        const statusIcon = task.status === 'achieved' ? '✅' : 
+                          task.status === 'notAchieved' ? '❌' : '⏳';
+        const statusText = task.status === 'achieved' ? '達成' : 
+                          task.status === 'notAchieved' ? '未達成' : '進行中';
+        
+        taskItem.innerHTML = `
+            <div class="text-lg">${statusIcon}</div>
+            <div class="flex-1">
+                <div class="text-sm">${task.text}</div>
+                <div class="text-xs text-gray-500">
+                    ${new Date(task.scheduledFor).toLocaleDateString('ja-JP')} - ${statusText}
+                    ${task.points ? ` (+${task.points}pt)` : ''}
+                </div>
+            </div>
+        `;
+        tasksContainer.appendChild(taskItem);
+    });
+}
+
+function saveProjectMemo() {
+    if (!currentDetailProject) return;
+    
+    const memo = document.getElementById('projectMemo').value;
+    const projects = loadProjects();
+    
+    const projectIndex = projects.findIndex(p => p.id === currentDetailProject.id);
+    if (projectIndex !== -1) {
+        projects[projectIndex].memo = memo;
+        currentDetailProject.memo = memo;
+        saveProjects(projects);
+    }
+}
+
+// モーダル外クリックで閉じる
+document.getElementById('projectDetailModal').addEventListener('click', (e) => {
+    if (e.target.id === 'projectDetailModal') {
+        closeProjectDetail();
+    }
+});
+
 // グローバルスコープに関数を公開（他のページから呼び出せるようにする）
 window.addPointsToProject = addPointsToProject;
+window.showProjectDetail = showProjectDetail;
+window.closeProjectDetail = closeProjectDetail;
+window.switchDetailTab = switchDetailTab;
+window.saveProjectMemo = saveProjectMemo;

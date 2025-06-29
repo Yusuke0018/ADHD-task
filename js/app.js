@@ -20,6 +20,7 @@ const app = {
     dailyReflections: {},
     dailyAIComments: {},
     openaiApiKey: null,
+    expandedHabitId: null,
 
     init() {
         console.log('App initializing...');
@@ -1113,12 +1114,19 @@ Background:
 - 衝動性を味方につけながら、家族との時間も大切にしたいと考えている
 - スマホ依存・刺激追求行動の改善、業務外作業の効率化が現在の課題
 
+You are also an expert in habit formation for people with ADHD. When habit data analysis is provided:
+- If low achievement rates are mentioned, suggest adjusting difficulty levels
+- If broken streaks are mentioned, provide encouragement and focus on restarting
+- If weekday patterns are shown, offer specific strategies for challenging days
+- If level selection bias is detected, encourage balanced growth
+
 Provide personalized, encouraging advice that:
 1. Acknowledges his role as a busy clinic director and father
 2. Supports his "ご機嫌" philosophy
 3. Offers practical strategies considering his ADHD tendencies
 4. Balances professional ambitions with family priorities
 5. Encourages AI/automation solutions where appropriate
+6. When habit data is provided, give specific, actionable feedback
 
 Write in warm, supportive Japanese. Your response should be approximately ${charLimit} characters. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence.`
                         },
@@ -1275,10 +1283,19 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             }
         }
         
+        // 習慣データの分析を追加
+        const habitAnalysis = this.analyzeHabitData(startDate, endDate);
+        
         let prompt = `期間: ${startDate.toLocaleDateString('ja-JP')} - ${endDate.toLocaleDateString('ja-JP')}\n`;
         prompt += `完了タスク: ${completedTasks.length}件\n`;
         prompt += `未完了タスク: ${incompleteTasks.length}件\n`;
         prompt += `獲得ポイント: ${totalPointsInPeriod}pt\n`;
+        
+        // 習慣分析データを追加
+        if (habitAnalysis) {
+            prompt += `\n習慣データ分析:\n`;
+            prompt += habitAnalysis;
+        }
         
         if (reflections.length > 0) {
             prompt += `\n振り返り:\n${reflections.join('\n')}`;
@@ -1625,8 +1642,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                         <div class="flex items-start gap-3 flex-1">
                             <button 
                                 data-habit-id="${habit.id}"
-                                class="wa-checkbox rounded-lg ${isCompletedToday ? 'checked' : ''} mt-0.5 ${isCompletedToday ? 'habit-toggle-btn' : ''}"
-                                ${!isCompletedToday ? 'disabled' : ''}></button>
+                                class="wa-checkbox rounded-lg ${isCompletedToday ? 'checked' : ''} mt-0.5 habit-checkbox"
+                                ${isCompletedToday ? 'disabled' : ''}></button>
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     <span class="task-type-label bg-purple-100 text-purple-700">
@@ -1636,7 +1653,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                                     ${completedLevel ? `<span class="text-sm text-gray-600">Lv.${completedLevel} ${habit.levels[completedLevel - 1]}</span>` : ''}
                                 </div>
                                 <div class="task-text-lg">${habit.name}</div>
-                                ${!isCompletedToday ? `
+                                <div id="habit-levels-${habit.id}" class="habit-levels-container ${!isCompletedToday && this.expandedHabitId === habit.id ? '' : 'hidden'}">
                                     <div class="flex gap-2 mt-2 flex-wrap">
                                         ${habit.levels.map((level, index) => `
                                             <button 
@@ -1647,7 +1664,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                                             </button>
                                         `).join('')}
                                     </div>
-                                ` : ''}
+                                </div>
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
@@ -1703,8 +1720,13 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             console.log('Final target element:', targetElement);
             console.log('Habit ID found:', habitId);
             
+            // チェックボックスのクリック
+            if (targetElement.classList.contains('habit-checkbox') && !targetElement.disabled) {
+                e.preventDefault();
+                this.toggleHabitLevels(habitId);
+            }
             // レベルボタンのクリック
-            if (targetElement.classList.contains('habit-level-btn') && !targetElement.disabled) {
+            else if (targetElement.classList.contains('habit-level-btn') && !targetElement.disabled) {
                 const level = parseInt(targetElement.dataset.level);
                 console.log('Level button clicked:', { habitId, level });
                 this.completeHabit(habitId, level);
@@ -1730,6 +1752,29 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         // イベントリスナーを追加
         habitList.addEventListener('click', this.habitClickHandler);
+    },
+    
+    // 習慣タスクのレベル選択を表示/非表示
+    toggleHabitLevels(habitId) {
+        // 他の展開されている習慣を閉じる
+        if (this.expandedHabitId && this.expandedHabitId !== habitId) {
+            const prevContainer = document.getElementById(`habit-levels-${this.expandedHabitId}`);
+            if (prevContainer) {
+                prevContainer.classList.add('hidden');
+            }
+        }
+        
+        // 現在の習慣のレベル表示を切り替え
+        const levelsContainer = document.getElementById(`habit-levels-${habitId}`);
+        if (levelsContainer) {
+            if (levelsContainer.classList.contains('hidden')) {
+                levelsContainer.classList.remove('hidden');
+                this.expandedHabitId = habitId;
+            } else {
+                levelsContainer.classList.add('hidden');
+                this.expandedHabitId = null;
+            }
+        }
     },
     
     // 習慣の完了を取り消す
@@ -1919,6 +1964,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         localStorage.setItem('habit_tasks', JSON.stringify(data));
         this.saveData(); // 通常のデータも保存（ポイント等）
         this.closeTaskCompletionModal();
+        this.expandedHabitId = null; // 展開状態をリセット
         this.renderHabits();
     },
 
@@ -2062,12 +2108,19 @@ Background:
 - 衝動性を味方につけながら、家族との時間も大切にしたいと考えている
 - スマホ依存・刺激追求行動の改善、業務外作業の効率化が現在の課題
 
+You are also an expert in habit formation for people with ADHD. When habit data analysis is provided:
+- If low achievement rates are mentioned, suggest adjusting difficulty levels
+- If broken streaks are mentioned, provide encouragement and focus on restarting
+- If weekday patterns are shown, offer specific strategies for challenging days
+- If level selection bias is detected, encourage balanced growth
+
 Provide personalized, encouraging advice that:
 1. Acknowledges his role as a busy clinic director and father
 2. Supports his "ご機嫌" philosophy
 3. Offers practical strategies considering his ADHD tendencies
 4. Balances professional ambitions with family priorities
 5. Encourages AI/automation solutions where appropriate
+6. When habit data is provided, give specific, actionable feedback
 
 Write in warm, supportive Japanese. Your response should be approximately ${charLimit} characters. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence.`
                         },
@@ -2128,6 +2181,148 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         errorEl.textContent = message;
         errorEl.classList.remove('hidden');
         setTimeout(() => errorEl.classList.add('hidden'), 3000);},
+    
+    // 習慣データの分析関数
+    analyzeHabitData(startDate, endDate) {
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) return null;
+        
+        let habits = [];
+        try {
+            const data = JSON.parse(habitData);
+            habits = data.habits || [];
+        } catch (e) {
+            return null;
+        }
+        
+        if (habits.length === 0) return null;
+        
+        const analysis = [];
+        const weekdayStats = Array(7).fill(0).map(() => ({ total: 0, achieved: 0 }));
+        const levelDistribution = { 1: 0, 2: 0, 3: 0 };
+        let lowAchievementHabits = [];
+        let streakBrokenHabits = [];
+        
+        habits.forEach(habit => {
+            if (!habit.history) return;
+            
+            // 期間内の履歴をフィルタ
+            const periodHistory = habit.history.filter(h => {
+                // ISO形式の日付文字列をローカル日付として扱う
+                const dateStr = h.date.split('T')[0]; // YYYY-MM-DD部分を取得
+                const date = new Date(dateStr + 'T00:00:00');
+                return date >= startDate && date <= endDate;
+            });
+            
+            if (periodHistory.length === 0) return;
+            
+            // 達成率を計算
+            const achievedCount = periodHistory.filter(h => h.achieved).length;
+            const achievementRate = Math.round((achievedCount / periodHistory.length) * 100);
+            
+            // 低達成率の習慣を記録
+            if (achievementRate < 50 && periodHistory.length >= 3) {
+                lowAchievementHabits.push({
+                    name: habit.name,
+                    rate: achievementRate,
+                    currentLevel: habit.levels.findIndex(l => periodHistory[periodHistory.length - 1]?.level === periodHistory.length) + 1
+                });
+            }
+            
+            // 連続記録が途切れた習慣をチェック
+            const today = new Date().toDateString();
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+            
+            if (habit.lastCompletedDate) {
+                const lastCompleted = new Date(habit.lastCompletedDate).toDateString();
+                if (lastCompleted === yesterdayStr && habit.continuousDays > 7) {
+                    // 昨日まで続いていたが今日完了していない
+                    const todayHistory = habit.history.find(h => new Date(h.date).toDateString() === today);
+                    if (!todayHistory) {
+                        streakBrokenHabits.push({
+                            name: habit.name,
+                            streakDays: habit.continuousDays
+                        });
+                    }
+                }
+            }
+            
+            // 曜日別統計
+            periodHistory.forEach(h => {
+                const weekday = new Date(h.date).getDay();
+                weekdayStats[weekday].total++;
+                if (h.achieved) weekdayStats[weekday].achieved++;
+                
+                // レベル分布
+                if (h.achieved && h.level) {
+                    levelDistribution[h.level]++;
+                }
+            });
+        });
+        
+        // 分析結果を文字列として構築
+        let result = '';
+        
+        // 低達成率の習慣
+        if (lowAchievementHabits.length > 0) {
+            result += '達成率が低い習慣:\n';
+            lowAchievementHabits.forEach(h => {
+                result += `- ${h.name}: 達成率${h.rate}%\n`;
+            });
+        }
+        
+        // 連続記録が途切れた習慣
+        if (streakBrokenHabits.length > 0) {
+            result += '\n継続が途切れた習慣:\n';
+            streakBrokenHabits.forEach(h => {
+                result += `- ${h.name}: ${h.streakDays}日間継続していました\n`;
+            });
+        }
+        
+        // 曜日別の達成率
+        const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+        let lowestWeekday = null;
+        let lowestRate = 100;
+        let highestWeekday = null;
+        let highestRate = 0;
+        
+        weekdays.forEach((day, index) => {
+            if (weekdayStats[index].total > 0) {
+                const rate = Math.round((weekdayStats[index].achieved / weekdayStats[index].total) * 100);
+                if (rate < lowestRate) {
+                    lowestRate = rate;
+                    lowestWeekday = day;
+                }
+                if (rate > highestRate) {
+                    highestRate = rate;
+                    highestWeekday = day;
+                }
+            }
+        });
+        
+        if (lowestWeekday && highestWeekday) {
+            result += `\n曜日別傾向:\n`;
+            result += `- 最も達成率が高い曜日: ${highestWeekday}曜日 (${highestRate}%)\n`;
+            result += `- 最も達成率が低い曜日: ${lowestWeekday}曜日 (${lowestRate}%)\n`;
+        }
+        
+        // レベル選択の偏り
+        const totalLevelSelections = Object.values(levelDistribution).reduce((sum, count) => sum + count, 0);
+        if (totalLevelSelections > 0) {
+            const levelPercentages = {};
+            Object.entries(levelDistribution).forEach(([level, count]) => {
+                levelPercentages[level] = Math.round((count / totalLevelSelections) * 100);
+            });
+            
+            if (levelPercentages[1] + levelPercentages[2] > 80) {
+                result += `\nレベル選択の傾向: 簡単なレベル（Lv.1-2）が${levelPercentages[1] + levelPercentages[2]}%を占めています\n`;
+            }
+        }
+        
+        return result || null;
+    },
 
     escapeHtml(text) {
         const div = document.createElement('div');

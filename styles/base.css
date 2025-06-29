@@ -95,6 +95,32 @@ button svg {
     padding-bottom: 0.5rem;
 }
 
+/* 習慣レベルコンテナのアニメーション */
+.habit-levels-container {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.habit-levels-container.hidden {
+    max-height: 0;
+    opacity: 0;
+}
+
+.habit-levels-container:not(.hidden) {
+    max-height: 200px;
+    opacity: 1;
+}
+
+/* 習慣チェックボックスのホバー効果 */
+.habit-checkbox:not(:disabled) {
+    cursor: pointer;
+}
+
+.habit-checkbox:not(:disabled):hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }

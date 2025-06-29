@@ -220,6 +220,83 @@
                 </div>
             </div>
         </main>
+        
+        <!-- プロジェクト詳細モーダル -->
+        <div id="projectDetailModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 p-4">
+            <div class="relative mx-auto mt-10 mb-10 p-5 border max-w-2xl w-full shadow-lg rounded-md bg-white">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="detailProjectName" class="text-xl font-bold text-gray-900"></h3>
+                    <button onclick="closeProjectDetail()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- プロジェクト情報 -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="text-3xl" id="detailProjectIcon"></div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-600">現在のレベル</div>
+                            <div class="text-2xl font-bold text-gray-800" id="detailProjectLevel"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-200 rounded-full h-4 mb-2">
+                        <div id="detailProgressBar" class="bg-gradient-to-r from-green-400 to-green-600 h-4 rounded-full transition-all duration-500"></div>
+                    </div>
+                    <div class="text-sm text-gray-600 text-center" id="detailProgressText"></div>
+                </div>
+                
+                <!-- タブメニュー -->
+                <div class="border-b border-gray-200 mb-4">
+                    <nav class="-mb-px flex space-x-4">
+                        <button onclick="switchDetailTab('growth')" id="tabGrowth" class="tab-button py-2 px-4 border-b-2 font-medium text-sm border-blue-500 text-blue-600">
+                            成長の記録
+                        </button>
+                        <button onclick="switchDetailTab('tasks')" id="tabTasks" class="tab-button py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                            関連タスク
+                        </button>
+                        <button onclick="switchDetailTab('memo')" id="tabMemo" class="tab-button py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                            メモ・目標
+                        </button>
+                    </nav>
+                </div>
+                
+                <!-- タブコンテンツ -->
+                <div id="tabContent">
+                    <!-- 成長の記録タブ -->
+                    <div id="growthContent" class="tab-content">
+                        <div id="growthHistory" class="space-y-3">
+                            <!-- 成長履歴がここに表示されます -->
+                        </div>
+                    </div>
+                    
+                    <!-- 関連タスクタブ -->
+                    <div id="tasksContent" class="tab-content hidden">
+                        <div id="relatedTasks" class="space-y-2">
+                            <!-- 関連タスクがここに表示されます -->
+                        </div>
+                    </div>
+                    
+                    <!-- メモ・目標タブ -->
+                    <div id="memoContent" class="tab-content hidden">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">最終ゴール</label>
+                            <div id="detailFinalGoal" class="p-3 bg-yellow-50 rounded-lg text-gray-800"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">プロジェクトメモ</label>
+                            <textarea id="projectMemo" rows="6" 
+                                    class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="このプロジェクトに関するメモ、中間目標、気づきなどを自由に記入してください..."
+                                    onblur="saveProjectMemo()"></textarea>
+                            <p class="text-xs text-gray-500 mt-1">メモは自動的に保存されます</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="js/projects.js"></script>

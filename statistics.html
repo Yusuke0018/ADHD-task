@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="styles/sekki-backgrounds.css?v=3">
     <link rel="stylesheet" href="styles/animations.css?v=3">
     <link rel="stylesheet" href="styles/components.css?v=3">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Swipe menu styles */
         #menuItems {
@@ -365,6 +366,147 @@
             background: #f3f4f6;
         }
         
+        /* 習慣化パフォーマンス用スタイル */
+        .habit-stats-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .heatmap-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 16px);
+            grid-template-rows: repeat(7, 16px);
+            grid-auto-flow: column;
+            gap: 3px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        
+        .heatmap-cell {
+            width: 16px;
+            height: 16px;
+            background-color: #ebedf0;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .heatmap-cell:hover {
+            transform: scale(1.2);
+        }
+        
+        .heatmap-cell[data-level="1"] { background-color: #c6e48b; }
+        .heatmap-cell[data-level="2"] { background-color: #7bc96f; }
+        .heatmap-cell[data-level="3"] { background-color: #239a3b; }
+        .heatmap-cell[data-level="4"] { background-color: #196127; }
+        
+        .heatmap-legend {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .heatmap-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .heatmap-legend-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        
+        .habit-detail-card {
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .habit-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .habit-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        
+        .habit-metric {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8b5cf6;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        
+        .weekday-analysis {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .weekday-card {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .weekday-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .weekday-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .weekday-rate {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .rate-high { color: #10b981; }
+        .rate-medium { color: #f59e0b; }
+        .rate-low { color: #ef4444; }
+        
+        #levelDistributionChart {
+            max-height: 300px;
+        }
+        
         @media (max-width: 640px) {
             .statistics-container {
                 padding: 10px;
@@ -381,6 +523,14 @@
             .period-button {
                 padding: 6px 12px;
                 font-size: 12px;
+            }
+            
+            .weekday-analysis {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            .habit-metrics {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -803,19 +953,17 @@
             const year = now.getFullYear();
             
             // sekki-data.jsからのデータ
-            const sekkiData = window.sekkiDates && window.sekkiDates[year] ? window.sekkiDates[year] : [];
+            const currentYearSekki = window.sekkiData && window.sekkiData[year] ? window.sekkiData[year] : [];
+            const nextYearSekki = window.sekkiData && window.sekkiData[year + 1] ? window.sekkiData[year + 1] : [];
+            const allSekki = [...currentYearSekki, ...nextYearSekki];
             
-            for (let i = 0; i < sekkiData.length; i++) {
-                const current = new Date(sekkiData[i].date);
-                const next = i < sekkiData.length - 1 ? 
-                    new Date(sekkiData[i + 1].date) : 
-                    new Date(year + 1, 0, 1);
-                
-                if (now >= current && now < next) {
+            for (let i = 0; i < allSekki.length; i++) {
+                if (now >= allSekki[i].date) {
+                    const next = i < allSekki.length - 1 ? allSekki[i + 1] : null;
                     return {
-                        name: sekkiData[i].name,
-                        start: current,
-                        end: new Date(next.getTime() - 1)
+                        name: allSekki[i].name,
+                        start: allSekki[i].date,
+                        end: next ? new Date(next.date.getTime() - 1) : new Date(year + 1, 0, 1)
                     };
                 }
             }
@@ -1060,9 +1208,256 @@
                     </div>
                 </div>
                 ` : ''}
+                
+                ${renderHabitStats(stats)}
             `;
+            
+            // チャートの描画が必要な場合
+            if (window.needsHabitChartRender && window.habitLevelData) {
+                setTimeout(() => {
+                    const ctx = document.getElementById('levelDistributionChart');
+                    if (ctx) {
+                        // 既存のチャートがあれば破棄
+                        if (window.levelChart && typeof window.levelChart.destroy === 'function') {
+                            window.levelChart.destroy();
+                        }
+                        window.levelChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Lv.1', 'Lv.2', 'Lv.3'],
+                                datasets: [{
+                                    label: '達成回数',
+                                    data: [
+                                        window.habitLevelData['Lv.1'],
+                                        window.habitLevelData['Lv.2'],
+                                        window.habitLevelData['Lv.3']
+                                    ],
+                                    backgroundColor: [
+                                        'rgba(139, 92, 246, 0.6)',
+                                        'rgba(139, 92, 246, 0.8)',
+                                        'rgba(139, 92, 246, 1)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(139, 92, 246, 1)',
+                                        'rgba(139, 92, 246, 1)',
+                                        'rgba(139, 92, 246, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 1
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    title: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    window.needsHabitChartRender = false;
+                }, 100);
+            }
         }
         
+        function renderHabitStats(stats) {
+            // 習慣データを取得
+            const habitData = localStorage.getItem('habit_tasks');
+            if (!habitData) return '';
+            
+            let habits = [];
+            try {
+                const data = JSON.parse(habitData);
+                habits = data.habits || [];
+            } catch (e) {
+                console.error('Error parsing habit data:', e);
+                return '';
+            }
+            
+            if (habits.length === 0) return '';
+            
+            // 習慣の履歴データを集計
+            const habitStats = habits.map(habit => {
+                const history = habit.history || [];
+                const totalDays = history.length;
+                const achievedDays = history.filter(h => h.achieved).length;
+                const achievementRate = totalDays > 0 ? Math.round((achievedDays / totalDays) * 100) : 0;
+                
+                // 曜日別の達成率を計算
+                const weekdayStats = Array(7).fill(0).map(() => ({ total: 0, achieved: 0 }));
+                history.forEach(h => {
+                    const date = new Date(h.date);
+                    const weekday = date.getDay();
+                    weekdayStats[weekday].total++;
+                    if (h.achieved) weekdayStats[weekday].achieved++;
+                });
+                
+                // レベル別の達成回数
+                const levelCounts = { 1: 0, 2: 0, 3: 0 };
+                history.forEach(h => {
+                    if (h.achieved && h.level) {
+                        levelCounts[h.level] = (levelCounts[h.level] || 0) + 1;
+                    }
+                });
+                
+                return {
+                    name: habit.name,
+                    continuousDays: habit.continuousDays || 0,
+                    totalDays,
+                    achievedDays,
+                    achievementRate,
+                    weekdayStats,
+                    levelCounts,
+                    history
+                };
+            });
+            
+            // ヒートマップ用のデータを作成（過去90日間）
+            const heatmapData = {};
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            for (let i = 89; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                heatmapData[dateStr] = 0;
+            }
+            
+            // 各習慣の履歴からデータを集計
+            habits.forEach(habit => {
+                if (habit.history) {
+                    habit.history.forEach(h => {
+                        const date = new Date(h.date).toISOString().split('T')[0];
+                        if (heatmapData.hasOwnProperty(date) && h.achieved) {
+                            heatmapData[date]++;
+                        }
+                    });
+                }
+            });
+            
+            // ヒートマップHTMLを生成
+            const heatmapCells = Object.entries(heatmapData).map(([date, count]) => {
+                const level = count === 0 ? 0 : Math.min(Math.ceil(count / 2), 4);
+                const dateObj = new Date(date);
+                const tooltip = `${dateObj.toLocaleDateString('ja-JP')}: ${count}個の習慣を達成`;
+                return `<div class="heatmap-cell" data-level="${level}" title="${tooltip}"></div>`;
+            }).join('');
+            
+            // 全体のレベル分布データ
+            const totalLevelCounts = { 'Lv.1': 0, 'Lv.2': 0, 'Lv.3': 0 };
+            habitStats.forEach(stat => {
+                totalLevelCounts['Lv.1'] += stat.levelCounts[1] || 0;
+                totalLevelCounts['Lv.2'] += stat.levelCounts[2] || 0;
+                totalLevelCounts['Lv.3'] += stat.levelCounts[3] || 0;
+            });
+            
+            return `
+                <div class="habit-stats-section">
+                    <h2>習慣化パフォーマンス</h2>
+                    
+                    <h3 style="margin-top: 20px; margin-bottom: 10px;">習慣達成ヒートマップ（過去90日間）</h3>
+                    <div class="heatmap-container">
+                        ${heatmapCells}
+                    </div>
+                    <div class="heatmap-legend">
+                        <span>少</span>
+                        <div class="heatmap-legend-item">
+                            <div class="heatmap-legend-box" style="background-color: #ebedf0;"></div>
+                        </div>
+                        <div class="heatmap-legend-item">
+                            <div class="heatmap-legend-box" style="background-color: #c6e48b;"></div>
+                        </div>
+                        <div class="heatmap-legend-item">
+                            <div class="heatmap-legend-box" style="background-color: #7bc96f;"></div>
+                        </div>
+                        <div class="heatmap-legend-item">
+                            <div class="heatmap-legend-box" style="background-color: #239a3b;"></div>
+                        </div>
+                        <div class="heatmap-legend-item">
+                            <div class="heatmap-legend-box" style="background-color: #196127;"></div>
+                        </div>
+                        <span>多</span>
+                    </div>
+                    
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">習慣ごとの詳細分析</h3>
+                    ${habitStats.map(stat => `
+                        <div class="habit-detail-card">
+                            <div class="habit-name">${stat.name}</div>
+                            <div class="habit-metrics">
+                                <div class="habit-metric">
+                                    <div class="metric-value">${stat.achievementRate}%</div>
+                                    <div class="metric-label">達成率</div>
+                                </div>
+                                <div class="habit-metric">
+                                    <div class="metric-value">${stat.continuousDays}日</div>
+                                    <div class="metric-label">連続日数</div>
+                                </div>
+                                <div class="habit-metric">
+                                    <div class="metric-value">${stat.achievedDays}/${stat.totalDays}</div>
+                                    <div class="metric-label">達成日数</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">曜日別傾向分析</h3>
+                    <div class="weekday-analysis">
+                        ${['日', '月', '火', '水', '木', '金', '土'].map((day, index) => {
+                            let totalCount = 0;
+                            let achievedCount = 0;
+                            habitStats.forEach(stat => {
+                                totalCount += stat.weekdayStats[index].total;
+                                achievedCount += stat.weekdayStats[index].achieved;
+                            });
+                            const rate = totalCount > 0 ? Math.round((achievedCount / totalCount) * 100) : 0;
+                            const rateClass = rate >= 80 ? 'rate-high' : rate >= 50 ? 'rate-medium' : 'rate-low';
+                            return `
+                                <div class="weekday-card">
+                                    <div class="weekday-name">${day}曜日</div>
+                                    <div class="weekday-rate ${rateClass}">${rate}%</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">レベル達成分布</h3>
+                    <div style="background: #f9f9f9; padding: 20px; border-radius: 10px;">
+                        <canvas id="levelDistributionChart"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            // チャートデータを保存
+            window.habitLevelData = {
+                'Lv.1': totalLevelCounts['Lv.1'],
+                'Lv.2': totalLevelCounts['Lv.2'],
+                'Lv.3': totalLevelCounts['Lv.3']
+            };
+            
+            // チャートを後で描画するフラグを立てる
+            window.needsHabitChartRender = true;
+            
+            return html;
+        }
+    </script>
+    
+    <script src="js/data/sekki-data.js?v=3"></script>
+    <script src="js/animations/seasonal-animations.js?v=3"></script>
+    <script src="js/swipe-menu.js"></script>
+    <script>
         // 初期表示
         document.addEventListener('DOMContentLoaded', () => {
             // アニメーションを設定
