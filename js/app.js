@@ -1881,11 +1881,10 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         habitList.innerHTML = habits.map(habit => {
             const lastCompletedDate = habit.lastCompletedDate;
             let isCompletedToday = false;
+            let lastCompletedYmd = null;
             
             // lastCompletedDateがある場合は、YYYY-MM-DD形式で比較
             if (lastCompletedDate) {
-                let lastCompletedYmd;
-                
                 // lastCompletedDateがISO形式かどうかを判定
                 if (lastCompletedDate.includes('T') || lastCompletedDate.includes('Z')) {
                     // ISO形式の場合
