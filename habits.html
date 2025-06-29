@@ -295,6 +295,29 @@
             }
         });
         
+        // getCurrentSekki関数の代替実装
+        function getCurrentSekki(date) {
+            const month = date.getMonth() + 1; // 0-11 to 1-12
+            
+            // 簡単な季節判定
+            if (month >= 3 && month <= 5) {
+                return { season: 'spring', name: '春' };
+            } else if (month >= 6 && month <= 8) {
+                return { season: 'summer', name: '夏' };
+            } else if (month >= 9 && month <= 11) {
+                return { season: 'autumn', name: '秋' };
+            } else {
+                return { season: 'winter', name: '冬' };
+            }
+        }
+        
+        // updateSeasonAnimation関数の代替実装
+        function updateSeasonAnimation(season, container) {
+            if (!container) return;
+            // 季節アニメーションの簡単な実装
+            container.className = `season-animation season-${season}`;
+        }
+        
         // 季節背景の初期化
         function initializeSeasonBackground() {
             const today = new Date();
