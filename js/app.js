@@ -264,6 +264,17 @@ const app = {
 
     bindEvents() { 
         console.log('bindEvents called');
+        // 既存のイベントリスナーを削除してから追加
+        const prevDayBtn = document.getElementById('prevDay');
+        const nextDayBtn = document.getElementById('nextDay');
+        
+        // クローンを作成して既存のイベントリスナーを削除
+        const newPrevBtn = prevDayBtn.cloneNode(true);
+        const newNextBtn = nextDayBtn.cloneNode(true);
+        prevDayBtn.parentNode.replaceChild(newPrevBtn, prevDayBtn);
+        nextDayBtn.parentNode.replaceChild(newNextBtn, nextDayBtn);
+        
+        // 新しいイベントリスナーを追加
         document.getElementById('prevDay').addEventListener('click', () => this.navigateDate(-1));
         document.getElementById('nextDay').addEventListener('click', () => this.navigateDate(1));
         document.getElementById('todayButton').addEventListener('click', () => this.goToToday());
@@ -1576,7 +1587,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                 <div class="washi-card rounded-lg p-3 ${task.isCompleted ? 'task-completed' : 'task-normal-active'}">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3 flex-1">
-                            <button data-action="toggle" data-task-id="${task.id}" class="wa-checkbox rounded-lg ${task.isCompleted ? 'checked' : ''} mt-0.5"></button>
+                            <input type="checkbox" data-action="toggle" data-task-id="${task.id}" class="wa-checkbox rounded-lg mt-0.5" ${task.isCompleted ? 'checked' : ''}>
                             <div class="flex-1">
                                 <div class="text-base ${task.isCompleted ? 'text-gray-600' : 'text-gray-800'}" id="deadline-text-${task.id}">${this.escapeHtml(task.text)}</div>
                                 <div class="text-sm ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-600'} mt-1">

@@ -557,14 +557,18 @@ const seasonalChallengeManager = {
         let hasChanges = false;
         
         this.challenges.forEach(challenge => {
-            if (challenge.status === 'active') {
-                const endDate = new Date(challenge.endDate);
-                
-                // 期間が終了したチャレンジをレビュー待ちに変更
-                if (now > endDate) {
-                    challenge.status = 'pending_review';
-                    hasChanges = true;
-                }
+            const startDate = new Date(challenge.startDate);
+            const endDate = new Date(challenge.endDate);
+            
+            // 開始日が来ていて、まだアクティブでないチャレンジをアクティブに
+            if (now >= startDate && now <= endDate && challenge.status !== 'active' && challenge.status !== 'pending_review') {
+                challenge.status = 'active';
+                hasChanges = true;
+            }
+            // アクティブなチャレンジで期間が終了したものをレビュー待ちに変更
+            else if (challenge.status === 'active' && now > endDate) {
+                challenge.status = 'pending_review';
+                hasChanges = true;
             }
         });
         
