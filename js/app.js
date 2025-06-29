@@ -292,9 +292,19 @@ const app = {
         });
         const deadlineToggleBtn = document.getElementById('deadlineToggle');
         if (deadlineToggleBtn) {
-            deadlineToggleBtn.addEventListener('click', () => {
+            deadlineToggleBtn.addEventListener('click', (e) => {
                 console.log('Deadline toggle clicked');
+                e.stopPropagation();
+                e.preventDefault();
                 this.toggleDeadlineForm();
+            });
+            
+            // スワイプイベントを無効化
+            deadlineToggleBtn.addEventListener('pointerdown', (e) => {
+                e.stopPropagation();
+            });
+            deadlineToggleBtn.addEventListener('pointerup', (e) => {
+                e.stopPropagation();
             });
         } else {
             console.error('deadlineToggle button not found');
@@ -545,7 +555,7 @@ const app = {
             const point = e.changedTouches ? e.changedTouches[0] : e;
             swipeStartX = point.clientX;
             swipeStartY = point.clientY;
-            console.log('Swipe started at:', swipeStartX, swipeStartY);
+            // console.log('Swipe started at:', swipeStartX, swipeStartY);
         };
 
         const swipeEnd = (e) => {
@@ -559,7 +569,7 @@ const app = {
             const point = e.changedTouches ? e.changedTouches[0] : e;
             const endX = point.clientX;
             const endY = point.clientY;
-            console.log('Swipe ended at:', endX, endY);
+            // console.log('Swipe ended at:', endX, endY);
             
             // スワイプ処理のみでイベントの伝播を停止
             const deltaX = Math.abs(endX - swipeStartX);
@@ -590,12 +600,12 @@ const app = {
     
     // --- NEW: スワイプ操作を処理するメソッド ---
     handleSwipe(startX, startY, endX, endY) {
-        console.log('handleSwipe called');
+        // console.log('handleSwipe called');
         
         // デバウンス：300ms以内の連続呼び出しを防ぐ
         const now = Date.now();
         if (now - this.lastSwipeTime < 300) {
-            console.log('Swipe debounced - too soon after last swipe');
+            // console.log('Swipe debounced - too soon after last swipe');
             return;
         }
         this.lastSwipeTime = now;
@@ -605,7 +615,7 @@ const app = {
 
         const diffX = endX - startX;
         const diffY = endY - startY;
-        console.log('Swipe diff:', { diffX, diffY });
+        // console.log('Swipe diff:', { diffX, diffY });
 
         // 横方向の移動がしきい値を超え、縦方向の移動が抑制範囲内かをチェック
         if (Math.abs(diffX) > thresholdX && Math.abs(diffY) < restraintY) {
@@ -618,7 +628,7 @@ const app = {
                 this.navigateDate(1);  // 左スワイプで次の日へ
             }
         } else {
-            console.log('Swipe not detected - threshold not met');
+            // console.log('Swipe not detected - threshold not met');
         }
     },
 
