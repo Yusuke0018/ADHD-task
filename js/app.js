@@ -1915,8 +1915,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         if (isAchieved) {
             // 継続日数の更新
             if (lastCompleted !== today) {
-                const today = new Date();
-                const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+                const todayDate = new Date();
+                const yesterday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - 1);
                 const yesterdayStr = yesterday.toDateString();
                 
                 if (lastCompleted === yesterdayStr) {
@@ -2900,16 +2900,16 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             }
             
             // 連続記録が途切れた習慣をチェック
-            const today = new Date().toDateString();
-            const today = new Date();
-            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+            const todayStr = new Date().toDateString();
+            const todayDate = new Date();
+            const yesterday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - 1);
             const yesterdayStr = yesterday.toDateString();
             
             if (habit.lastCompletedDate) {
                 const lastCompleted = new Date(habit.lastCompletedDate).toDateString();
                 if (lastCompleted === yesterdayStr && habit.continuousDays > 7) {
                     // 昨日まで続いていたが今日完了していない
-                    const todayHistory = habit.history.find(h => new Date(h.date).toDateString() === today);
+                    const todayHistory = habit.history.find(h => new Date(h.date).toDateString() === todayStr);
                     if (!todayHistory) {
                         streakBrokenHabits.push({
                             name: habit.name,
