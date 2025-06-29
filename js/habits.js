@@ -289,13 +289,47 @@ const seasonalChallengeManager = {
             try {
                 this.challenges = JSON.parse(storedData);
                 console.log('Loaded challenges:', this.challenges.length);
+                console.log('Challenge data:', this.challenges);
             } catch (e) {
                 console.error("Error parsing seasonal challenges:", e);
                 this.challenges = [];
             }
         } else {
+            console.log('No seasonal_challenges data in localStorage');
             this.challenges = [];
+            // デバッグ用：テストデータを作成
+            console.log('Creating test challenge data for debugging...');
+            this.createTestChallenge();
         }
+    },
+    
+    // テスト用チャレンジを作成（デバッグ用）
+    createTestChallenge() {
+        const now = new Date();
+        const startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 1); // 昨日から開始
+        const endDate = new Date(now);
+        endDate.setDate(endDate.getDate() + 14); // 2週間後まで
+        
+        const testChallenge = {
+            id: `test_challenge_${Date.now()}`,
+            name: 'テスト季節チャレンジ',
+            text: 'テスト季節チャレンジ',
+            description: 'デバッグ用のテストチャレンジです',
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            status: 'active',
+            completionHistory: [],
+            levelDefinitions: [
+                { level: 1, criteria: 'テストレベル1' },
+                { level: 2, criteria: 'テストレベル2' },
+                { level: 3, criteria: 'テストレベル3' }
+            ]
+        };
+        
+        this.challenges = [testChallenge];
+        this.saveData();
+        console.log('Test challenge created:', testChallenge);
     },
     
     // データ保存
@@ -595,9 +629,11 @@ const seasonalChallengeManager = {
         this.checkActiveChallenges();
         
         // アクティブまたはレビュー待ちのチャレンジのみ表示
-        const visibleChallenges = this.challenges.filter(c => 
-            c.status === 'active' || c.status === 'pending_review'
-        );
+        const visibleChallenges = this.challenges.filter(c => {
+            const isVisible = c.status === 'active' || c.status === 'pending_review';
+            console.log(`Challenge "${c.name || c.text}" - Status: ${c.status}, Visible: ${isVisible}`);
+            return isVisible;
+        });
         
         console.log('Visible challenges:', visibleChallenges.length, visibleChallenges);
         
