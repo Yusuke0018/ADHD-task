@@ -1,6 +1,6 @@
 // タッチイベントのデバッグヘルパー
 (function() {
-    let debugMode = true; // デバッグモードの有効/無効
+    let debugMode = false; // デバッグモードの有効/無効
     let touchLog = [];
     
     // デバッグ情報を画面に表示

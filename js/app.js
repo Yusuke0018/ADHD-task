@@ -28,12 +28,12 @@ const app = {
     lastSwipeTime: 0,
 
     init() {
-        console.log('App initializing...');
+        // console.log('App initializing...');
         
         // タッチデバイスのデバッグ情報
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        console.log('Touch device:', isTouchDevice);
-        console.log('User Agent:', navigator.userAgent);
+        // console.log('Touch device:', isTouchDevice);
+        // console.log('User Agent:', navigator.userAgent);
         
         this.loadData();
         this.bindEvents();
@@ -263,7 +263,7 @@ const app = {
         }));},
 
     bindEvents() { 
-        console.log('bindEvents called');
+        // console.log('bindEvents called');
         // 既存のイベントリスナーを削除してから追加
         const prevDayBtn = document.getElementById('prevDay');
         const nextDayBtn = document.getElementById('nextDay');
@@ -615,7 +615,7 @@ const app = {
     },
 
     navigateDate(days) {
-        console.log('navigateDate called with days:', days);
+        // console.log('navigateDate called with days:', days);
         
         // 現在の日付を年月日で取得（ローカルタイム）
         const year = this.selectedDate.getFullYear();
@@ -625,8 +625,8 @@ const app = {
         // 新しい日付を作成（時間は0時0分0秒）
         const newDate = new Date(year, month, day + days);
         
-        console.log('Current date:', year, month + 1, day);
-        console.log('New date:', newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate());
+        // console.log('Current date:', year, month + 1, day);
+        // console.log('New date:', newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate());
         
         this.selectedDate = newDate;
         this.updateSekkiForSelectedDate();
