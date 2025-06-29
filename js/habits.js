@@ -266,3 +266,312 @@ const habitManager = {
         }
     }
 };
+
+// 季節のチャレンジ管理機能
+const seasonalChallengeManager = {
+    challenges: [],
+    editingChallengeId: null,
+    
+    // 初期化
+    init() {
+        console.log('seasonalChallengeManager.init() called');
+        this.loadChallenges();
+        this.render();
+    },
+    
+    // データ読み込み
+    loadChallenges() {
+        console.log('Loading seasonal challenges...');
+        const storedData = localStorage.getItem('seasonal_challenges');
+        
+        if (storedData) {
+            try {
+                this.challenges = JSON.parse(storedData);
+                console.log('Loaded challenges:', this.challenges.length);
+            } catch (e) {
+                console.error("Error parsing seasonal challenges:", e);
+                this.challenges = [];
+            }
+        } else {
+            this.challenges = [];
+        }
+    },
+    
+    // データ保存
+    saveData() {
+        console.log('Saving seasonal challenges:', this.challenges.length);
+        localStorage.setItem('seasonal_challenges', JSON.stringify(this.challenges));
+    },
+    
+    // 次の節気を取得
+    getNextSekki() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const nextYear = year + 1;
+        
+        // sekkiDataがグローバルで利用可能と仮定
+        if (typeof sekkiData === 'undefined') {
+            console.log('sekkiData not available, using default');
+            return {
+                name: '立春',
+                date: new Date(year, 1, 4) // 仮の日付
+            };
+        }
+        
+        const currentYearSekki = sekkiData[year] || [];
+        const nextYearSekki = sekkiData[nextYear] || [];
+        const allSekki = [...currentYearSekki, ...nextYearSekki];
+        
+        // 今日以降の最初の節気を探す
+        for (let sekki of allSekki) {
+            if (sekki.date > now) {
+                return sekki;
+            }
+        }
+        
+        // 見つからない場合は翌年の最初の節気
+        return nextYearSekki[0] || currentYearSekki[0];
+    },
+    
+    // 節気の選択肢を取得
+    getAvailableSekkiOptions() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const nextYear = year + 1;
+        
+        if (typeof sekkiData === 'undefined') {
+            return [];
+        }
+        
+        const currentYearSekki = sekkiData[year] || [];
+        const nextYearSekki = sekkiData[nextYear] || [];
+        const allSekki = [...currentYearSekki, ...nextYearSekki.slice(0, 12)];
+        
+        // 今日以降の節気のみを返す
+        return allSekki.filter(sekki => sekki.date > now);
+    },
+    
+    // 節気の終了日を計算
+    getSekkiEndDate(sekkiDate, sekkiName) {
+        const year = sekkiDate.getFullYear();
+        const nextYear = year + 1;
+        
+        if (typeof sekkiData === 'undefined') {
+            // デフォルトで15日後
+            const endDate = new Date(sekkiDate);
+            endDate.setDate(endDate.getDate() + 15);
+            return endDate;
+        }
+        
+        const currentYearSekki = sekkiData[year] || [];
+        const nextYearSekki = sekkiData[nextYear] || [];
+        const allSekki = [...currentYearSekki, ...nextYearSekki];
+        
+        // 現在の節気のインデックスを探す
+        const currentIndex = allSekki.findIndex(s => s.name === sekkiName && s.date.getTime() === sekkiDate.getTime());
+        
+        if (currentIndex !== -1 && currentIndex < allSekki.length - 1) {
+            // 次の節気の前日を返す
+            const nextSekki = allSekki[currentIndex + 1];
+            const endDate = new Date(nextSekki.date);
+            endDate.setDate(endDate.getDate() - 1);
+            return endDate;
+        }
+        
+        // デフォルトで15日後
+        const endDate = new Date(sekkiDate);
+        endDate.setDate(endDate.getDate() + 15);
+        return endDate;
+    },
+    
+    // チャレンジ追加モーダル表示
+    showAddChallengeModal() {
+        this.editingChallengeId = null;
+        document.getElementById('challengeModalTitle').textContent = '季節のチャレンジを設定';
+        document.getElementById('challengeForm').reset();
+        
+        // 節気選択肢を設定
+        this.updateSekkiOptions();
+        
+        document.getElementById('challengeModal').classList.remove('hidden');
+    },
+    
+    // 節気選択肢を更新
+    updateSekkiOptions() {
+        const selectElement = document.getElementById('targetSekki');
+        if (!selectElement) return;
+        
+        selectElement.innerHTML = '';
+        
+        const options = this.getAvailableSekkiOptions();
+        const nextSekki = this.getNextSekki();
+        
+        options.forEach((sekki, index) => {
+            const option = document.createElement('option');
+            const startDate = sekki.date.toLocaleDateString('ja-JP');
+            const endDate = this.getSekkiEndDate(sekki.date, sekki.name).toLocaleDateString('ja-JP');
+            
+            option.value = JSON.stringify({
+                name: sekki.name,
+                startDate: sekki.date.toISOString(),
+                endDate: this.getSekkiEndDate(sekki.date, sekki.name).toISOString()
+            });
+            
+            option.textContent = `${sekki.name} (${startDate}〜${endDate})`;
+            
+            // 次の節気をデフォルト選択
+            if (sekki.name === nextSekki.name) {
+                option.selected = true;
+            }
+            
+            selectElement.appendChild(option);
+        });
+    },
+    
+    // モーダルを閉じる
+    closeChallengeModal() {
+        document.getElementById('challengeModal').classList.add('hidden');
+        document.getElementById('challengeForm').reset();
+        this.editingChallengeId = null;
+    },
+    
+    // チャレンジ保存
+    saveChallenge(event) {
+        event.preventDefault();
+        
+        const sekkiData = JSON.parse(document.getElementById('targetSekki').value);
+        
+        const challengeData = {
+            id: `seasonal_${new Date(sekkiData.startDate).toISOString().split('T')[0]}_${Date.now()}`,
+            text: document.getElementById('challengeName').value,
+            targetSekki: sekkiData.name,
+            startDate: sekkiData.startDate,
+            endDate: sekkiData.endDate,
+            levelDefinitions: [
+                {
+                    level: 1,
+                    criteria: document.getElementById('challengeLevel1').value,
+                    points: 1
+                },
+                {
+                    level: 2,
+                    criteria: document.getElementById('challengeLevel2').value,
+                    points: 2
+                },
+                {
+                    level: 3,
+                    criteria: document.getElementById('challengeLevel3').value,
+                    points: 3
+                }
+            ],
+            completionHistory: [],
+            status: 'active',
+            review: {
+                decision: null,
+                promotedHabitId: null
+            }
+        };
+        
+        this.challenges.push(challengeData);
+        this.saveData();
+        this.render();
+        this.closeChallengeModal();
+    },
+    
+    // チャレンジカード作成
+    createChallengeCard(challenge) {
+        const card = document.createElement('div');
+        card.className = 'washi-card rounded-xl p-4 hover:shadow-lg transition-shadow duration-300 border-2 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50';
+        
+        const startDate = new Date(challenge.startDate).toLocaleDateString('ja-JP');
+        const endDate = new Date(challenge.endDate).toLocaleDateString('ja-JP');
+        const daysRemaining = Math.ceil((new Date(challenge.endDate) - new Date()) / (1000 * 60 * 60 * 24));
+        const totalDays = Math.ceil((new Date(challenge.endDate) - new Date(challenge.startDate)) / (1000 * 60 * 60 * 24));
+        const daysElapsed = totalDays - daysRemaining;
+        
+        card.innerHTML = `
+            <div class="flex items-start justify-between">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-sm font-bold text-green-700 bg-green-200 px-2 py-1 rounded">
+                            🌿 ${challenge.targetSekki}チャレンジ
+                        </span>
+                        ${challenge.status === 'pending_review' ? 
+                            '<span class="text-sm font-bold text-amber-700 bg-amber-200 px-2 py-1 rounded">レビュー待ち</span>' : 
+                            ''}
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">${challenge.text}</h3>
+                    <div class="space-y-1 text-sm text-gray-600">
+                        <div>Lv.1: ${challenge.levelDefinitions[0].criteria}</div>
+                        <div>Lv.2: ${challenge.levelDefinitions[1].criteria}</div>
+                        <div>Lv.3: ${challenge.levelDefinitions[2].criteria}</div>
+                    </div>
+                    <div class="mt-3 text-sm">
+                        <div class="text-gray-600">期間: ${startDate} 〜 ${endDate}</div>
+                        ${challenge.status === 'active' ? 
+                            `<div class="text-green-600 font-medium mt-1">
+                                進捗: ${daysElapsed}/${totalDays}日 (残り${daysRemaining}日)
+                            </div>` : 
+                            ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return card;
+    },
+    
+    // アクティブなチャレンジをチェック
+    checkActiveChallenges() {
+        const now = new Date();
+        let hasChanges = false;
+        
+        this.challenges.forEach(challenge => {
+            if (challenge.status === 'active') {
+                const endDate = new Date(challenge.endDate);
+                
+                // 期間が終了したチャレンジをレビュー待ちに変更
+                if (now > endDate) {
+                    challenge.status = 'pending_review';
+                    hasChanges = true;
+                }
+            }
+        });
+        
+        if (hasChanges) {
+            this.saveData();
+            this.render();
+        }
+    },
+    
+    // 描画
+    render() {
+        const container = document.getElementById('seasonalChallenges');
+        if (!container) return;
+        
+        // アクティブなチャレンジをチェック
+        this.checkActiveChallenges();
+        
+        // アクティブまたはレビュー待ちのチャレンジのみ表示
+        const visibleChallenges = this.challenges.filter(c => 
+            c.status === 'active' || c.status === 'pending_review'
+        );
+        
+        container.innerHTML = '';
+        
+        if (visibleChallenges.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p>季節のチャレンジが設定されていません</p>
+                </div>
+            `;
+        } else {
+            visibleChallenges.forEach(challenge => {
+                container.appendChild(this.createChallengeCard(challenge));
+            });
+        }
+    }
+};

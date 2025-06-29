@@ -21,6 +21,7 @@ const app = {
     dailyAIComments: {},
     openaiApiKey: null,
     expandedHabitId: null,
+    expandedSeasonalChallengeId: null,
 
     init() {
         console.log('App initializing...');
@@ -1576,6 +1577,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         }
         
         this.renderDeadlineTasks();
+        this.renderSeasonalChallenges();
         this.renderHabits();
         this.renderReflection();
         this.renderAISection();
@@ -2181,6 +2183,249 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         errorEl.textContent = message;
         errorEl.classList.remove('hidden');
         setTimeout(() => errorEl.classList.add('hidden'), 3000);},
+    
+    // 季節のチャレンジを表示
+    renderSeasonalChallenges() {
+        const challengeList = document.getElementById('seasonalChallengeList');
+        const noChallengesEl = document.getElementById('noSeasonalChallenges');
+        
+        if (!challengeList || !noChallengesEl) return;
+        
+        // 季節のチャレンジデータを取得
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        let challenges = [];
+        
+        if (challengeData) {
+            try {
+                challenges = JSON.parse(challengeData);
+            } catch (e) {
+                console.error("Error parsing seasonal challenges:", e);
+                challenges = [];
+            }
+        }
+        
+        // 今日の日付に関連するアクティブなチャレンジのみフィルタ
+        const today = this.selectedDate;
+        const activeChallenges = challenges.filter(challenge => {
+            if (challenge.status !== 'active') return false;
+            
+            const startDate = new Date(challenge.startDate);
+            const endDate = new Date(challenge.endDate);
+            
+            // 選択された日付がチャレンジ期間内かチェック
+            return today >= startDate && today <= endDate;
+        });
+        
+        if (activeChallenges.length === 0) {
+            challengeList.innerHTML = '';
+            noChallengesEl.classList.remove('hidden');
+            return;
+        }
+        
+        noChallengesEl.classList.add('hidden');
+        
+        // チャレンジカードをレンダリング
+        challengeList.innerHTML = activeChallenges.map(challenge => {
+            const todayStr = today.toISOString().split('T')[0];
+            const todayCompletion = challenge.completionHistory.find(h => h.date.startsWith(todayStr));
+            const isCompleted = !!todayCompletion;
+            const completedLevel = todayCompletion ? todayCompletion.level : 0;
+            
+            return `
+                <div class="bg-white rounded-lg p-3 border-2 ${isCompleted ? 'border-green-400 bg-green-50' : 'border-green-300'} transition-all hover:shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <button 
+                            class="seasonal-challenge-checkbox wa-checkbox rounded-lg ${isCompleted ? 'checked' : ''} flex-shrink-0"
+                            data-challenge-id="${challenge.id}"
+                            ${isCompleted ? 'disabled' : ''}
+                        ></button>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-medium text-gray-800 mb-1">${challenge.text}</h4>
+                                ${isCompleted ? `
+                                    <button 
+                                        class="seasonal-challenge-cancel-btn text-gray-400 hover:text-gray-600 p-1"
+                                        data-challenge-id="${challenge.id}"
+                                        title="取消"
+                                    >
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                ` : ''}
+                            </div>
+                            
+                            <!-- レベル選択 -->
+                            <div id="seasonal-challenge-levels-${challenge.id}" class="${isCompleted || this.expandedSeasonalChallengeId !== challenge.id ? 'hidden' : ''}">
+                                <div class="mt-2 space-y-1">
+                                    ${challenge.levelDefinitions.map((levelDef, index) => `
+                                        <button 
+                                            class="seasonal-challenge-level-btn w-full text-left px-3 py-2 rounded-lg hover:bg-green-100 transition-all ${completedLevel === levelDef.level ? 'bg-green-200' : 'bg-gray-50'}"
+                                            data-challenge-id="${challenge.id}"
+                                            data-level="${levelDef.level}"
+                                            ${isCompleted ? 'disabled' : ''}
+                                        >
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-medium">Lv.${levelDef.level}</span>
+                                                <span class="text-sm text-gray-600">${levelDef.criteria}</span>
+                                            </div>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            
+                            ${isCompleted ? `
+                                <div class="mt-1 text-sm text-green-600 font-medium">
+                                    今日のLv.${completedLevel} 達成済み
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // イベントリスナーを追加
+        this.attachSeasonalChallengeEventListeners();
+    },
+    
+    // 季節のチャレンジのイベントリスナー
+    attachSeasonalChallengeEventListeners() {
+        const challengeList = document.getElementById('seasonalChallengeList');
+        if (!challengeList) return;
+        
+        // 既存のリスナーを削除
+        if (this.seasonalChallengeClickHandler) {
+            challengeList.removeEventListener('click', this.seasonalChallengeClickHandler);
+        }
+        
+        this.seasonalChallengeClickHandler = (e) => {
+            let targetElement = e.target;
+            let challengeId = targetElement.dataset?.challengeId;
+            
+            // 親要素を確認
+            if (!challengeId && targetElement.parentElement) {
+                targetElement = targetElement.parentElement;
+                challengeId = targetElement.dataset?.challengeId;
+            }
+            
+            // チェックボックスのクリック
+            if (targetElement.classList.contains('seasonal-challenge-checkbox') && !targetElement.disabled) {
+                e.preventDefault();
+                this.toggleSeasonalChallengeLevels(challengeId);
+            }
+            // レベルボタンのクリック
+            else if (targetElement.classList.contains('seasonal-challenge-level-btn') && !targetElement.disabled) {
+                const level = parseInt(targetElement.dataset.level);
+                this.completeSeasonalChallenge(challengeId, level);
+            }
+            // 取消ボタンのクリック
+            else if (targetElement.classList.contains('seasonal-challenge-cancel-btn')) {
+                this.cancelSeasonalChallengeCompletion(challengeId);
+            }
+        };
+        
+        challengeList.addEventListener('click', this.seasonalChallengeClickHandler);
+    },
+    
+    // 季節のチャレンジのレベル選択を表示/非表示
+    toggleSeasonalChallengeLevels(challengeId) {
+        // 他の展開されているチャレンジを閉じる
+        if (this.expandedSeasonalChallengeId && this.expandedSeasonalChallengeId !== challengeId) {
+            const prevContainer = document.getElementById(`seasonal-challenge-levels-${this.expandedSeasonalChallengeId}`);
+            if (prevContainer) {
+                prevContainer.classList.add('hidden');
+            }
+        }
+        
+        // 現在のチャレンジのレベル表示を切り替え
+        const levelsContainer = document.getElementById(`seasonal-challenge-levels-${challengeId}`);
+        if (levelsContainer) {
+            if (levelsContainer.classList.contains('hidden')) {
+                levelsContainer.classList.remove('hidden');
+                this.expandedSeasonalChallengeId = challengeId;
+            } else {
+                levelsContainer.classList.add('hidden');
+                this.expandedSeasonalChallengeId = null;
+            }
+        }
+    },
+    
+    // 季節のチャレンジを完了
+    completeSeasonalChallenge(challengeId, level) {
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        let challenges = JSON.parse(challengeData);
+        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
+        if (challengeIndex === -1) return;
+        
+        const challenge = challenges[challengeIndex];
+        const todayStr = this.selectedDate.toISOString().split('T')[0];
+        
+        // 今日の記録を追加
+        challenge.completionHistory.push({
+            date: todayStr,
+            level: level
+        });
+        
+        // ポイントを加算
+        const points = challenge.levelDefinitions.find(def => def.level === level)?.points || 0;
+        const dateStr = this.selectedDate.toDateString();
+        if (!this.dailyPointHistory[dateStr]) {
+            this.dailyPointHistory[dateStr] = 0;
+        }
+        this.dailyPointHistory[dateStr] += points;
+        
+        // 保存
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+        this.saveData();
+        
+        // セレブレーション表示
+        this.showCelebration();
+        
+        // 再描画
+        this.expandedSeasonalChallengeId = null;
+        this.renderSeasonalChallenges();
+        this.render();
+    },
+    
+    // 季節のチャレンジの完了を取り消す
+    cancelSeasonalChallengeCompletion(challengeId) {
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        let challenges = JSON.parse(challengeData);
+        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
+        if (challengeIndex === -1) return;
+        
+        const challenge = challenges[challengeIndex];
+        const todayStr = this.selectedDate.toISOString().split('T')[0];
+        
+        // 今日の記録を削除
+        const todayIndex = challenge.completionHistory.findIndex(h => h.date.startsWith(todayStr));
+        if (todayIndex !== -1) {
+            const completion = challenge.completionHistory[todayIndex];
+            const points = challenge.levelDefinitions.find(def => def.level === completion.level)?.points || 0;
+            
+            // ポイントを減算
+            const dateStr = this.selectedDate.toDateString();
+            if (this.dailyPointHistory[dateStr]) {
+                this.dailyPointHistory[dateStr] -= points;
+            }
+            
+            // 記録を削除
+            challenge.completionHistory.splice(todayIndex, 1);
+        }
+        
+        // 保存
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+        this.saveData();
+        
+        // 再描画
+        this.renderSeasonalChallenges();
+        this.render();
+    },
     
     // 習慣データの分析関数
     analyzeHabitData(startDate, endDate) {
