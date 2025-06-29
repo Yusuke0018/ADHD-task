@@ -1,6 +1,28 @@
 /* UI Components - This file is intentionally kept for future component styles */
 /* Currently empty but referenced in HTML files */
 
+/* タッチデバイス対応 */
+button[data-action] {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* タップ時のフィードバック */
+button[data-action]:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+}
+
+/* iOSのタップ遅延を解消 */
+button, 
+.wa-checkbox,
+a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
 /* Task edit styles */
 .task-edit-input {
     animation: fadeIn 0.2s ease-in-out;

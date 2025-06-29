@@ -6,6 +6,30 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
+/* z-indexの問題を防ぐために明示的に設定 */
+#taskList button[data-action],
+#deadlineList button[data-action],
+#habitList button,
+#seasonalChallengeList button {
+    position: relative;
+    z-index: 10;
+}
+
+/* タスクカード内のボタンが確実にクリック可能になるように */
+.washi-card {
+    position: relative;
+}
+
+/* スワイプメニューが他の要素を妨げないように */
+#swipeMenu {
+    pointer-events: none;
+}
+#swipeMenu.open,
+#menuHandle,
+#menuItems {
+    pointer-events: auto;
+}
+
 .sekki-title {
     font-family: 'Zen Old Mincho', serif;
 }

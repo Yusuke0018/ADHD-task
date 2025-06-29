@@ -29,6 +29,12 @@ const app = {
 
     init() {
         console.log('App initializing...');
+        
+        // タッチデバイスのデバッグ情報
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        console.log('Touch device:', isTouchDevice);
+        console.log('User Agent:', navigator.userAgent);
+        
         this.loadData();
         this.bindEvents();
         this.updateSekki();
@@ -315,14 +321,27 @@ const app = {
         
         // タスクリストのイベント処理
         const handleTaskClick = (e) => {
+            console.log('Task click event:', e.type, e.target);
+            
             const button = e.target.closest('button[data-action]');
             if (!button) return;
             
-            e.preventDefault();
+            // タッチイベントの場合、クリックイベントを防ぐ
+            if (e.type === 'touchstart') {
+                e.preventDefault();
+                button._touched = true;
+                setTimeout(() => { delete button._touched; }, 500);
+            } else if (e.type === 'click' && button._touched) {
+                // タッチ後のクリックイベントを無視
+                return;
+            }
+            
             e.stopPropagation();
             
             const action = button.dataset.action;
             const taskId = button.dataset.taskId;
+            
+            console.log('Task action:', action, 'ID:', taskId);
             
             switch(action) {
                 case 'toggle':
@@ -342,14 +361,27 @@ const app = {
         
         // 期限付きタスクのイベント処理
         const handleDeadlineClick = (e) => {
+            console.log('Deadline click event:', e.type, e.target);
+            
             const button = e.target.closest('button[data-action]');
             if (!button) return;
             
-            e.preventDefault();
+            // タッチイベントの場合、クリックイベントを防ぐ
+            if (e.type === 'touchstart') {
+                e.preventDefault();
+                button._touched = true;
+                setTimeout(() => { delete button._touched; }, 500);
+            } else if (e.type === 'click' && button._touched) {
+                // タッチ後のクリックイベントを無視
+                return;
+            }
+            
             e.stopPropagation();
             
             const action = button.dataset.action;
             const taskId = button.dataset.taskId;
+            
+            console.log('Deadline action:', action, 'ID:', taskId);
             
             switch(action) {
                 case 'toggle':
@@ -365,12 +397,31 @@ const app = {
         };
         
         // タッチとクリックの両方に対応
-        if ('ontouchstart' in window) {
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        if (isTouchDevice) {
+            // タッチデバイスの場合
             taskList.addEventListener('touchstart', handleTaskClick, { passive: false });
             deadlineList.addEventListener('touchstart', handleDeadlineClick, { passive: false });
+        } else {
+            // 非タッチデバイスの場合（マウスのみ）
+            taskList.addEventListener('click', handleTaskClick);
+            deadlineList.addEventListener('click', handleDeadlineClick);
         }
-        taskList.addEventListener('click', handleTaskClick);
-        deadlineList.addEventListener('click', handleDeadlineClick);
+        
+        // ポインターイベントもサポート（Edge, Chrome等）
+        if (window.PointerEvent) {
+            taskList.addEventListener('pointerdown', (e) => {
+                if (e.pointerType === 'touch' && !isTouchDevice) {
+                    handleTaskClick(e);
+                }
+            });
+            deadlineList.addEventListener('pointerdown', (e) => {
+                if (e.pointerType === 'touch' && !isTouchDevice) {
+                    handleDeadlineClick(e);
+                }
+            });
+        }
         
         // グローバルなイベントデリゲーション（AIコメント、チャレンジレビューなど）
         document.addEventListener('click', (e) => {
@@ -394,6 +445,12 @@ const app = {
                     break;
                 case 'close-challenge-review':
                     this.closeChallengeReviewModal();
+                    break;
+                case 'toggle-calendar':
+                    this.toggleCustomCalendar(true);
+                    break;
+                case 'close-calendar':
+                    this.toggleCustomCalendar(false);
                     break;
             }
         });
