@@ -702,6 +702,12 @@ const app = {
             return;
         }
         
+        // 季節のチャレンジの場合の特別処理
+        if (this.currentCompletingTaskId && this.currentCompletingTaskId.startsWith('seasonal_')) {
+            this.completeSeasonalChallengeTask(isAchieved);
+            return;
+        }
+        
         const task = this.tasks.find(t => t.id === this.currentCompletingTaskId);
         if (!task) return;
         
@@ -1657,17 +1663,20 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                                         習慣 ${habit.continuousDays}日
                                     </span>
                                     ${statusBadge}
-                                    ${completedLevel ? `<span class="text-sm text-gray-600">Lv.${completedLevel} ${habit.levels[completedLevel - 1]}</span>` : ''}
+                                    ${completedLevel ? `<span class="text-sm text-purple-600 font-medium">今日のLv.${completedLevel} 達成済み</span>` : ''}
                                 </div>
                                 <div class="task-text-lg">${habit.name}</div>
                                 <div id="habit-levels-${habit.id}" class="habit-levels-container ${!isCompletedToday && this.expandedHabitId === habit.id ? '' : 'hidden'}">
-                                    <div class="flex gap-2 mt-2 flex-wrap">
+                                    <div class="mt-2 space-y-1">
                                         ${habit.levels.map((level, index) => `
                                             <button 
                                                 data-habit-id="${habit.id}"
                                                 data-level="${index + 1}"
-                                                class="habit-level-btn px-3 py-1.5 text-sm rounded-lg transition-all bg-purple-600 text-white hover:bg-purple-700">
-                                                Lv.${index + 1}: ${level}
+                                                class="habit-level-btn w-full text-left px-3 py-2 rounded-lg hover:bg-purple-100 transition-all bg-gray-50">
+                                                <div class="flex items-center justify-between">
+                                                    <span class="font-medium">Lv.${index + 1}</span>
+                                                    <span class="text-sm text-gray-600">${level}</span>
+                                                </div>
                                             </button>
                                         `).join('')}
                                     </div>
@@ -2022,6 +2031,63 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             type: 'habit'
         });
     },
+    
+    // 季節のチャレンジタスクの完了処理
+    completeSeasonalChallengeTask(isAchieved) {
+        if (!this.currentCompletingTaskData) return;
+        
+        const { challengeId, level, challenge } = this.currentCompletingTaskData;
+        
+        // 季節のチャレンジデータを取得
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        let challenges = JSON.parse(challengeData);
+        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
+        if (challengeIndex === -1) return;
+        
+        if (isAchieved) {
+            const todayStr = this.selectedDate.toISOString().split('T')[0];
+            
+            // 今日の記録を追加
+            challenges[challengeIndex].completionHistory.push({
+                date: todayStr,
+                level: level,
+                points: this.selectedCompletionPoints || 0
+            });
+            
+            // セレブレーション表示
+            this.showCelebration();
+            
+            // ポイントを加算
+            if (this.selectedCompletionPoints > 0) {
+                this.totalPoints += this.selectedCompletionPoints;
+                const dateStr = this.selectedDate.toDateString();
+                if (!this.dailyPointHistory[dateStr]) {
+                    this.dailyPointHistory[dateStr] = 0;
+                }
+                this.dailyPointHistory[dateStr] += this.selectedCompletionPoints;
+            }
+            
+            // プロジェクトにポイントを付与
+            const assignToProject = document.getElementById('assignToProject').checked;
+            if (assignToProject) {
+                const projectId = document.getElementById('projectSelector').value;
+                if (projectId && window.addPointsToProject) {
+                    const pointsToAdd = this.selectedProjectPoints > 0 ? this.selectedProjectPoints : 10;
+                    window.addPointsToProject(projectId, pointsToAdd);
+                }
+            }
+        }
+        
+        // 保存
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+        this.saveData();
+        this.closeTaskCompletionModal();
+        this.expandedSeasonalChallengeId = null;
+        this.renderSeasonalChallenges();
+        this.render();
+    },
 
     renderReflection() {
         const dateStr = this.selectedDate.toDateString();
@@ -2359,43 +2425,55 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         }
     },
     
-    // 季節のチャレンジを完了
+    // 季節のチャレンジを完了（モーダル表示）
     completeSeasonalChallenge(challengeId, level) {
         const challengeData = localStorage.getItem('seasonal_challenges');
         if (!challengeData) return;
         
-        let challenges = JSON.parse(challengeData);
-        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
-        if (challengeIndex === -1) return;
+        const challenges = JSON.parse(challengeData);
+        const challenge = challenges.find(c => c.id === challengeId);
+        if (!challenge) return;
         
-        const challenge = challenges[challengeIndex];
-        const todayStr = this.selectedDate.toISOString().split('T')[0];
+        // 完了モーダルを表示
+        this.currentCompletingTaskId = `seasonal_${challengeId}`;
+        this.currentCompletingTaskData = {
+            challengeId: challengeId,
+            level: level,
+            challenge: challenge
+        };
         
-        // 今日の記録を追加
-        challenge.completionHistory.push({
-            date: todayStr,
-            level: level
+        const modal = document.getElementById('taskCompletionModal');
+        const taskText = document.getElementById('taskCompletionText');
+        const pointSelector = document.getElementById('completionPointSelector');
+        const projectAssignment = document.getElementById('projectPointAssignment');
+        
+        // タスクテキストを設定
+        const levelDef = challenge.levelDefinitions.find(def => def.level === level);
+        taskText.textContent = `「${challenge.text}」のLv.${level}（${levelDef.criteria}）を達成しますか？`;
+        
+        // ポイント選択とプロジェクト割り当てを表示
+        pointSelector.classList.remove('hidden');
+        projectAssignment.classList.remove('hidden');
+        this.loadProjectsForModal();
+        
+        // ポイントボタンをリセット
+        document.querySelectorAll('.completion-point-button').forEach(btn => {
+            btn.classList.remove('border-gray-800', 'bg-gray-100');
+            btn.classList.add('border-gray-300');
         });
         
-        // ポイントを加算
-        const points = challenge.levelDefinitions.find(def => def.level === level)?.points || 0;
-        const dateStr = this.selectedDate.toDateString();
-        if (!this.dailyPointHistory[dateStr]) {
-            this.dailyPointHistory[dateStr] = 0;
-        }
-        this.dailyPointHistory[dateStr] += points;
+        // チェックボックスをリセット
+        document.getElementById('assignToProject').checked = false;
+        document.getElementById('projectSelectionArea').classList.add('hidden');
         
-        // 保存
-        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
-        this.saveData();
+        // プロジェクトポイントボタンをリセット
+        document.querySelectorAll('.project-point-button').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-50');
+            btn.classList.add('border-gray-300');
+        });
         
-        // セレブレーション表示
-        this.showCelebration();
-        
-        // 再描画
-        this.expandedSeasonalChallengeId = null;
-        this.renderSeasonalChallenges();
-        this.render();
+        modal.classList.remove('hidden');
+        modal.classList.remove('pointer-events-none');
     },
     
     // 季節のチャレンジの完了を取り消す
