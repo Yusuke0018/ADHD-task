@@ -290,7 +290,15 @@ const app = {
                 this.addTask();
             }
         });
-        document.getElementById('deadlineToggle').addEventListener('click', () => this.toggleDeadlineForm());
+        const deadlineToggleBtn = document.getElementById('deadlineToggle');
+        if (deadlineToggleBtn) {
+            deadlineToggleBtn.addEventListener('click', () => {
+                console.log('Deadline toggle clicked');
+                this.toggleDeadlineForm();
+            });
+        } else {
+            console.error('deadlineToggle button not found');
+        }
         document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
         document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
         

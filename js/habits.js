@@ -276,6 +276,7 @@ const seasonalChallengeManager = {
     init() {
         console.log('seasonalChallengeManager.init() called');
         this.loadChallenges();
+        this.checkActiveChallenges(); // アクティブなチャレンジを確認
         this.render();
     },
     

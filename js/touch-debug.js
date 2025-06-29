@@ -3,6 +3,12 @@
     let debugMode = false; // デバッグモードの有効/無効
     let touchLog = [];
     
+    // 既存のデバッグパネルを削除
+    const existingPanel = document.getElementById('touch-debug-panel');
+    if (existingPanel) {
+        existingPanel.remove();
+    }
+    
     // デバッグ情報を画面に表示
     function createDebugPanel() {
         const panel = document.createElement('div');
@@ -27,7 +33,14 @@
     }
     
     function log(message) {
-        if (!debugMode) return;
+        if (!debugMode) {
+            // デバッグモードが無効の場合、既存のパネルも削除
+            const panel = document.getElementById('touch-debug-panel');
+            if (panel) {
+                panel.remove();
+            }
+            return;
+        }
         
         const time = new Date().toLocaleTimeString();
         touchLog.push(`[${time}] ${message}`);
@@ -71,7 +84,14 @@
     // window.touchDebugでデバッグモードの切り替え
     window.touchDebug = {
         enable: () => { debugMode = true; log('Debug enabled'); },
-        disable: () => { debugMode = false; },
+        disable: () => {
+            debugMode = false;
+            const panel = document.getElementById('touch-debug-panel');
+            if (panel) {
+                panel.remove();
+            }
+            touchLog = [];
+        },
         clear: () => { touchLog = []; }
     };
 })();
