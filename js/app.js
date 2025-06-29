@@ -428,11 +428,13 @@ const app = {
         console.log('navigateDate called with days:', days);
         console.log('Current selectedDate:', this.selectedDate);
         
-        // 新しい日付を確実に計算する
-        const currentTime = this.selectedDate.getTime();
-        const oneDayInMs = 24 * 60 * 60 * 1000; // 1日のミリ秒数
-        const newTime = currentTime + (days * oneDayInMs);
-        const newDate = new Date(newTime);
+        // 現在の日付の年月日を取得
+        const year = this.selectedDate.getFullYear();
+        const month = this.selectedDate.getMonth();
+        const day = this.selectedDate.getDate();
+        
+        // 新しい日付を作成（時間は00:00:00）
+        const newDate = new Date(year, month, day + days);
         
         console.log('New date:', newDate);
         this.selectedDate = newDate;
@@ -822,8 +824,10 @@ const app = {
     postponeTask(taskId) {
         const task = this.tasks.find(t => t.id === taskId);
         if (!task) return;
-        const tomorrow = new Date(this.selectedDate);
-        tomorrow.setTime(tomorrow.getTime() + (24 * 60 * 60 * 1000));
+        const year = this.selectedDate.getFullYear();
+        const month = this.selectedDate.getMonth();
+        const day = this.selectedDate.getDate();
+        const tomorrow = new Date(year, month, day + 1);
         const tomorrowTasks = this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === tomorrow.toDateString() && t.status === 'pending' );
         const normalCount = tomorrowTasks.filter(t => t.type === 'normal').length;
         const urgentCount = tomorrowTasks.filter(t => t.type === 'urgent').length;
@@ -1252,8 +1256,10 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                 startDate = endDate = selectedDate;
                 break;
             case 'weekly':
-                startDate = new Date(selectedDate);
-                startDate.setTime(selectedDate.getTime() - (6 * 24 * 60 * 60 * 1000));
+                const endYear = selectedDate.getFullYear();
+                const endMonth = selectedDate.getMonth();
+                const endDay = selectedDate.getDate();
+                startDate = new Date(endYear, endMonth, endDay - 6);
                 endDate = selectedDate;
                 break;
             case 'sekki':
@@ -1288,7 +1294,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         const totalPointsInPeriod = completedTasks.filter(t => t.type === 'urgent').reduce((sum, t) => sum + (t.points || 0), 0);
         
         const reflections = [];
-        for (let d = new Date(startDate); d <= endDate; d.setTime(d.getTime() + (24 * 60 * 60 * 1000))) {
+        for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
             const dateStr = d.toDateString();
             if (this.dailyReflections[dateStr]) {
                 reflections.push(`${d.toLocaleDateString('ja-JP')}: ${this.dailyReflections[dateStr]}`);
@@ -1835,8 +1841,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             }
             
             // 最後の完了日を更新（前日の記録があればそれに戻す）
-            const yesterday = new Date();
-            yesterday.setTime(yesterday.getTime() - (24 * 60 * 60 * 1000));
+            const today = new Date();
+            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
             const yesterdayStr = yesterday.toDateString();
             
             const yesterdayHistory = data.habits[habitIndex].history ? 
@@ -1909,8 +1915,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         if (isAchieved) {
             // 継続日数の更新
             if (lastCompleted !== today) {
-                const yesterday = new Date();
-                yesterday.setTime(yesterday.getTime() - (24 * 60 * 60 * 1000));
+                const today = new Date();
+                const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
                 const yesterdayStr = yesterday.toDateString();
                 
                 if (lastCompleted === yesterdayStr) {
@@ -2895,8 +2901,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             
             // 連続記録が途切れた習慣をチェック
             const today = new Date().toDateString();
-            const yesterday = new Date();
-            yesterday.setTime(yesterday.getTime() - (24 * 60 * 60 * 1000));
+            const today = new Date();
+            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
             const yesterdayStr = yesterday.toDateString();
             
             if (habit.lastCompletedDate) {
