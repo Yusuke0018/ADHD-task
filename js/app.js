@@ -429,22 +429,23 @@ const app = {
     },
 
     navigateDate(days) {
+        console.log('=== navigateDate START ===');
         console.log('navigateDate called with days:', days);
-        console.log('Current selectedDate:', this.selectedDate);
+        console.log('Current selectedDate:', this.selectedDate.toISOString());
+        console.trace('Call stack');
         
-        // 現在の日付の年月日を取得
-        const year = this.selectedDate.getFullYear();
-        const month = this.selectedDate.getMonth();
-        const day = this.selectedDate.getDate();
+        // 新しい日付を確実に計算する
+        const currentTime = this.selectedDate.getTime();
+        const oneDayInMs = 24 * 60 * 60 * 1000; // 1日のミリ秒数
+        const newTime = currentTime + (days * oneDayInMs);
+        const newDate = new Date(newTime);
         
-        // 新しい日付を作成（時間は00:00:00）
-        const newDate = new Date(year, month, day + days);
-        
-        console.log('New date:', newDate);
+        console.log('New date:', newDate.toISOString());
         this.selectedDate = newDate;
+        console.log('=== navigateDate END ===');
         this.updateSekkiForSelectedDate();
         this.render();
-        console.log('After render, selectedDate:', this.selectedDate);
+        console.log('After render, selectedDate:', this.selectedDate.toISOString());
     },
 
     goToToday() {
