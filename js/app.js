@@ -2204,6 +2204,9 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             }
         }
         
+        // 期間終了したチャレンジをチェック
+        this.checkAndShowChallengeReviews(challenges);
+        
         // 今日の日付に関連するアクティブなチャレンジのみフィルタ
         const today = this.selectedDate;
         const activeChallenges = challenges.filter(challenge => {
@@ -2425,6 +2428,339 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         // 再描画
         this.renderSeasonalChallenges();
         this.render();
+    },
+    
+    // 期間終了したチャレンジのレビュー通知をチェック
+    checkAndShowChallengeReviews(challenges) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        challenges.forEach(challenge => {
+            if (challenge.status === 'active') {
+                const endDate = new Date(challenge.endDate);
+                endDate.setHours(0, 0, 0, 0);
+                
+                // 期間が終了していて、まだレビューしていない場合
+                if (today > endDate) {
+                    challenge.status = 'pending_review';
+                    
+                    // レビュー通知を表示（一度だけ）
+                    const notificationKey = `challenge_review_notified_${challenge.id}`;
+                    if (!localStorage.getItem(notificationKey)) {
+                        this.showChallengeReviewNotification(challenge);
+                        localStorage.setItem(notificationKey, 'true');
+                    }
+                }
+            }
+        });
+        
+        // 変更があった場合は保存
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+    },
+    
+    // チャレンジレビュー通知を表示
+    showChallengeReviewNotification(challenge) {
+        // 通知要素を作成
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-fadeInUp max-w-md mx-4';
+        notification.innerHTML = `
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🌿</span>
+                <div class="flex-1">
+                    <div class="font-bold text-lg">「${challenge.targetSekki}」チャレンジ終了！</div>
+                    <div class="text-sm mt-1">${challenge.text}の振り返りをしましょう</div>
+                </div>
+                <button onclick="app.openChallengeReviewModal('${challenge.id}')" class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-green-50 transition-all">
+                    レビューする
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // 10秒後に自動で消去
+        setTimeout(() => {
+            notification.remove();
+        }, 10000);
+    },
+    
+    // チャレンジレビューモーダルを開く
+    openChallengeReviewModal(challengeId) {
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        const challenges = JSON.parse(challengeData);
+        const challenge = challenges.find(c => c.id === challengeId);
+        if (!challenge) return;
+        
+        // 統計を計算
+        const stats = this.calculateChallengeStats(challenge);
+        
+        // モーダルを表示
+        this.showChallengeReviewModal(challenge, stats);
+    },
+    
+    // チャレンジの統計を計算
+    calculateChallengeStats(challenge) {
+        const completions = challenge.completionHistory || [];
+        const totalDays = Math.ceil((new Date(challenge.endDate) - new Date(challenge.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+        const achievedDays = completions.length;
+        const achievementRate = Math.round((achievedDays / totalDays) * 100);
+        
+        // レベル別の統計
+        const levelCounts = { 1: 0, 2: 0, 3: 0 };
+        let totalPoints = 0;
+        
+        completions.forEach(completion => {
+            levelCounts[completion.level] = (levelCounts[completion.level] || 0) + 1;
+            const levelDef = challenge.levelDefinitions.find(def => def.level === completion.level);
+            totalPoints += levelDef ? levelDef.points : 0;
+        });
+        
+        // 平均レベル
+        const avgLevel = achievedDays > 0 
+            ? (completions.reduce((sum, c) => sum + c.level, 0) / achievedDays).toFixed(1)
+            : 0;
+        
+        return {
+            totalDays,
+            achievedDays,
+            achievementRate,
+            levelCounts,
+            avgLevel,
+            totalPoints
+        };
+    },
+    
+    // チャレンジレビューモーダルを表示
+    showChallengeReviewModal(challenge, stats) {
+        // 既存のモーダルがあれば削除
+        const existingModal = document.getElementById('challengeReviewModal');
+        if (existingModal) existingModal.remove();
+        
+        // モーダルを作成
+        const modal = document.createElement('div');
+        modal.id = 'challengeReviewModal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+        
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                <div class="text-center mb-6">
+                    <div class="text-4xl mb-2">🌿</div>
+                    <h2 class="text-2xl font-bold text-gray-800">「${challenge.targetSekki}」チャレンジ完了！</h2>
+                    <p class="text-gray-600 mt-2">${challenge.text}</p>
+                </div>
+                
+                <!-- 統計情報 -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h3 class="font-bold text-lg mb-3">チャレンジの成果</h3>
+                    
+                    <!-- 達成率 -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm text-gray-600">達成率</span>
+                            <span class="text-2xl font-bold ${stats.achievementRate >= 80 ? 'text-green-600' : stats.achievementRate >= 50 ? 'text-amber-600' : 'text-red-600'}">
+                                ${stats.achievementRate}%
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div class="bg-gradient-to-r from-green-400 to-emerald-600 h-3 rounded-full transition-all duration-500" 
+                                 style="width: ${stats.achievementRate}%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            ${stats.achievedDays}日 / ${stats.totalDays}日
+                        </div>
+                    </div>
+                    
+                    <!-- レベル分布 -->
+                    <div class="mb-4">
+                        <div class="text-sm text-gray-600 mb-2">レベル選択の内訳</div>
+                        <div class="grid grid-cols-3 gap-2">
+                            ${[1, 2, 3].map(level => `
+                                <div class="bg-white rounded-lg p-2 text-center">
+                                    <div class="text-xs text-gray-500">Lv.${level}</div>
+                                    <div class="text-lg font-bold">${stats.levelCounts[level]}回</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="text-center mt-2 text-sm text-gray-600">
+                            平均レベル: <span class="font-bold">${stats.avgLevel}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 獲得ポイント -->
+                    <div class="flex items-center justify-between bg-amber-50 rounded-lg p-3">
+                        <span class="text-sm font-medium">獲得ポイント</span>
+                        <span class="text-xl font-bold text-amber-700">${stats.totalPoints}pt</span>
+                    </div>
+                </div>
+                
+                <!-- 振り返りメッセージ -->
+                <div class="mb-6">
+                    ${this.getChallengeReviewMessage(stats)}
+                </div>
+                
+                <!-- アクションボタン -->
+                <div class="space-y-3">
+                    <button onclick="app.promoteChallengeToHabit('${challenge.id}')" 
+                            class="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-purple-700 transition-all flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                        </svg>
+                        定番の習慣に昇格させる
+                    </button>
+                    
+                    <button onclick="app.endChallenge('${challenge.id}')" 
+                            class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-300 transition-all">
+                        今回はここまでにする（終了）
+                    </button>
+                    
+                    <button onclick="app.closeChallengeReviewModal()" 
+                            class="w-full text-gray-500 py-2 hover:text-gray-700 transition-all text-sm">
+                        あとで決める
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    },
+    
+    // チャレンジの成果に応じたメッセージ
+    getChallengeReviewMessage(stats) {
+        if (stats.achievementRate >= 80) {
+            return `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="text-green-800 font-medium mb-1">素晴らしい成果です！🎉</div>
+                    <div class="text-sm text-green-700">
+                        ${stats.achievementRate}%という高い達成率は、この習慣があなたに合っている証拠です。
+                        ぜひ定番の習慣として続けることをおすすめします。
+                    </div>
+                </div>
+            `;
+        } else if (stats.achievementRate >= 50) {
+            return `
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div class="text-amber-800 font-medium mb-1">よく頑張りました！💪</div>
+                    <div class="text-sm text-amber-700">
+                        半分以上の日で実行できました。もし続けたい場合は、
+                        レベルの基準を調整して、より取り組みやすくすることも検討してみてください。
+                    </div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="text-blue-800 font-medium mb-1">お疲れ様でした！🌱</div>
+                    <div class="text-sm text-blue-700">
+                        今回は難しかったかもしれませんが、挑戦したこと自体が素晴らしいです。
+                        別の季節に、違うアプローチで再挑戦してみるのも良いかもしれません。
+                    </div>
+                </div>
+            `;
+        }
+    },
+    
+    // レビューモーダルを閉じる
+    closeChallengeReviewModal() {
+        const modal = document.getElementById('challengeReviewModal');
+        if (modal) modal.remove();
+    },
+    
+    // チャレンジを習慣に昇格
+    promoteChallengeToHabit(challengeId) {
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        const challenges = JSON.parse(challengeData);
+        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
+        if (challengeIndex === -1) return;
+        
+        const challenge = challenges[challengeIndex];
+        
+        // 習慣データを作成
+        const newHabit = {
+            id: Date.now().toString(),
+            name: challenge.text,
+            levels: challenge.levelDefinitions.map(def => def.criteria),
+            createdAt: new Date().toISOString(),
+            continuousDays: 0,
+            lastCompletedDate: null,
+            history: []
+        };
+        
+        // 習慣として保存
+        const habitData = localStorage.getItem('habit_tasks');
+        let data = { habits: [], hallOfFame: [] };
+        
+        if (habitData) {
+            try {
+                data = JSON.parse(habitData);
+            } catch (e) {
+                console.error("Error parsing habit data:", e);
+            }
+        }
+        
+        data.habits.push(newHabit);
+        localStorage.setItem('habit_tasks', JSON.stringify(data));
+        
+        // チャレンジのステータスを更新
+        challenge.status = 'archived';
+        challenge.review = {
+            decision: 'promote',
+            promotedHabitId: newHabit.id,
+            reviewedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+        
+        // 成功メッセージを表示
+        this.showSuccessNotification('習慣として登録されました！明日から表示されます。');
+        
+        // モーダルを閉じて再描画
+        this.closeChallengeReviewModal();
+        this.renderSeasonalChallenges();
+    },
+    
+    // チャレンジを終了
+    endChallenge(challengeId) {
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        const challenges = JSON.parse(challengeData);
+        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
+        if (challengeIndex === -1) return;
+        
+        const challenge = challenges[challengeIndex];
+        
+        // チャレンジのステータスを更新
+        challenge.status = 'archived';
+        challenge.review = {
+            decision: 'end',
+            reviewedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+        
+        // 労いのメッセージを表示
+        this.showSuccessNotification('お疲れ様でした！また新しい季節で挑戦しましょう。');
+        
+        // モーダルを閉じて再描画
+        this.closeChallengeReviewModal();
+        this.renderSeasonalChallenges();
+    },
+    
+    // 成功通知を表示
+    showSuccessNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fadeInUp';
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     },
     
     // 習慣データの分析関数

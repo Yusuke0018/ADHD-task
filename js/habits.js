@@ -513,6 +513,14 @@ const seasonalChallengeManager = {
                                 進捗: ${daysElapsed}/${totalDays}日 (残り${daysRemaining}日)
                             </div>` : 
                             ''}
+                        ${challenge.status === 'pending_review' ? 
+                            `<div class="mt-3">
+                                <button onclick="app.openChallengeReviewModal('${challenge.id}')" 
+                                        class="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-amber-700 transition-all text-sm font-medium">
+                                    振り返りを開始
+                                </button>
+                            </div>` : 
+                            ''}
                     </div>
                 </div>
             </div>
