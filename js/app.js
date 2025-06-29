@@ -309,6 +309,95 @@ const app = {
             }
         });
         
+        // タスクリストのイベントデリゲーション（タッチとクリックの両方に対応）
+        const taskList = document.getElementById('taskList');
+        const deadlineList = document.getElementById('deadlineList');
+        
+        // タスクリストのイベント処理
+        const handleTaskClick = (e) => {
+            const button = e.target.closest('button[data-action]');
+            if (!button) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const action = button.dataset.action;
+            const taskId = button.dataset.taskId;
+            
+            switch(action) {
+                case 'toggle':
+                    this.toggleTask(taskId);
+                    break;
+                case 'edit':
+                    this.editTask(taskId);
+                    break;
+                case 'postpone':
+                    this.postponeTask(taskId);
+                    break;
+                case 'delete':
+                    this.deleteTask(taskId);
+                    break;
+            }
+        };
+        
+        // 期限付きタスクのイベント処理
+        const handleDeadlineClick = (e) => {
+            const button = e.target.closest('button[data-action]');
+            if (!button) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const action = button.dataset.action;
+            const taskId = button.dataset.taskId;
+            
+            switch(action) {
+                case 'toggle':
+                    this.toggleDeadlineTask(taskId);
+                    break;
+                case 'edit':
+                    this.editDeadlineTask(taskId);
+                    break;
+                case 'delete':
+                    this.deleteDeadlineTask(taskId);
+                    break;
+            }
+        };
+        
+        // タッチとクリックの両方に対応
+        if ('ontouchstart' in window) {
+            taskList.addEventListener('touchstart', handleTaskClick, { passive: false });
+            deadlineList.addEventListener('touchstart', handleDeadlineClick, { passive: false });
+        }
+        taskList.addEventListener('click', handleTaskClick);
+        deadlineList.addEventListener('click', handleDeadlineClick);
+        
+        // グローバルなイベントデリゲーション（AIコメント、チャレンジレビューなど）
+        document.addEventListener('click', (e) => {
+            const button = e.target.closest('button[data-action]');
+            if (!button) return;
+            
+            const action = button.dataset.action;
+            
+            switch(action) {
+                case 'delete-ai-comment':
+                    this.deleteAIComment(button.dataset.period);
+                    break;
+                case 'open-challenge-review':
+                    this.openChallengeReviewModal(button.dataset.challengeId);
+                    break;
+                case 'promote-challenge':
+                    this.promoteChallengeToHabit(button.dataset.challengeId);
+                    break;
+                case 'end-challenge':
+                    this.endChallenge(button.dataset.challengeId);
+                    break;
+                case 'close-challenge-review':
+                    this.closeChallengeReviewModal();
+                    break;
+            }
+        });
+        
         document.querySelectorAll('.project-point-button').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const points = parseInt(e.currentTarget.dataset.projectPoints);
@@ -396,9 +485,15 @@ const app = {
             const endY = point.clientY;
             console.log('Swipe ended at:', endX, endY);
             
-            // イベントの伝播を停止
-            e.preventDefault();
-            e.stopPropagation();
+            // スワイプ処理のみでイベントの伝播を停止
+            const deltaX = Math.abs(endX - swipeStartX);
+            const deltaY = Math.abs(endY - swipeStartY);
+            
+            // 水平方向のスワイプのみ処理
+            if (deltaX > 50 && deltaX > deltaY) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
             
             this.handleSwipe(swipeStartX, swipeStartY, endX, endY);
         };
@@ -406,6 +501,10 @@ const app = {
         // タッチデバイスかどうかを判定
         if ('ontouchstart' in window) {
             swipeArea.addEventListener('touchstart', swipeStart, { passive: false });
+            swipeArea.addEventListener('touchmove', (e) => {
+                if (!isSwipeActive) return;
+                // スワイプ中の処理（必要に応じて）
+            }, { passive: false });
             swipeArea.addEventListener('touchend', swipeEnd, { passive: false });
         } else {
             swipeArea.addEventListener('pointerdown', swipeStart);
@@ -1230,7 +1329,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         commentContainer.className = 'ai-comment-container relative';
         commentContainer.innerHTML = `
             <div class="pr-8" style="white-space: pre-wrap; word-wrap: break-word;">${this.escapeHtml(comment)}</div>
-            <button onclick="app.deleteAIComment('${period}')" 
+            <button data-action="delete-ai-comment" data-period="${period}"
                     class="ai-comment-delete absolute top-0 right-0 p-1 text-gray-400 hover:text-gray-600 transition-all" 
                     title="削除">
                 <span class="text-xl leading-none">×</span>
@@ -1420,7 +1519,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                 <div class="washi-card rounded-lg p-3 ${task.isCompleted ? 'task-completed' : 'task-normal-active'}">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3 flex-1">
-                            <button onclick="app.toggleDeadlineTask('${task.id}')" class="wa-checkbox rounded-lg ${task.isCompleted ? 'checked' : ''} mt-0.5"></button>
+                            <button data-action="toggle" data-task-id="${task.id}" class="wa-checkbox rounded-lg ${task.isCompleted ? 'checked' : ''} mt-0.5"></button>
                             <div class="flex-1">
                                 <div class="text-base ${task.isCompleted ? 'text-gray-600' : 'text-gray-800'}" id="deadline-text-${task.id}">${this.escapeHtml(task.text)}</div>
                                 <div class="text-sm ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-600'} mt-1">
@@ -1431,12 +1530,12 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                         </div>
                         ${!task.isCompleted ? `
                         <div class="flex flex-col gap-1">
-                            <button onclick="app.editDeadlineTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="編集">
+                            <button data-action="edit" data-task-id="${task.id}" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="編集">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                             </button>
-                            <button onclick="app.deleteDeadlineTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all">
+                            <button data-action="delete" data-task-id="${task.id}" class="p-2 text-gray-400 hover:text-gray-600 transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -1589,7 +1688,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                 <div class="washi-card rounded-xl p-4 task-card mobile-compact animate-fadeInUp ${cardClass}">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3 flex-1">
-                            <button onclick="app.toggleTask('${task.id}')" class="wa-checkbox rounded-lg ${task.status !== 'pending' ? 'checked' : ''} mt-0.5"></button>
+                            <button data-action="toggle" data-task-id="${task.id}" class="wa-checkbox rounded-lg ${task.status !== 'pending' ? 'checked' : ''} mt-0.5"></button>
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     ${task.type === 'urgent' ? `
@@ -1605,19 +1704,19 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                         </div>
                         <div class="flex flex-col gap-1">
                             ${task.status === 'pending' ? `
-                                <button onclick="app.editTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="編集">
+                                <button data-action="edit" data-task-id="${task.id}" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="編集">
                                     <svg class="w-4 h-4 mobile-text-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                     </svg>
                                 </button>` : ''}
                             ${task.status === 'pending' ? `
-                                <button onclick="app.postponeTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="翌日へ先送り">
+                                <button data-action="postpone" data-task-id="${task.id}" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="翌日へ先送り">
                                     <svg class="w-4 h-4 mobile-text-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                     </svg>
                                 </button>` : ''}
                             ${task.status === 'pending' ? `
-                            <button onclick="app.deleteTask('${task.id}')" class="p-2 text-gray-400 hover:text-gray-600 transition-all">
+                            <button data-action="delete" data-task-id="${task.id}" class="p-2 text-gray-400 hover:text-gray-600 transition-all">
                                 <svg class="w-4 h-4 mobile-text-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
@@ -2594,7 +2693,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                     <div class="font-bold text-lg">「${challenge.targetSekki}」チャレンジ終了！</div>
                     <div class="text-sm mt-1">${challenge.text}の振り返りをしましょう</div>
                 </div>
-                <button onclick="app.openChallengeReviewModal('${challenge.id}')" class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-green-50 transition-all">
+                <button data-action="open-challenge-review" data-challenge-id="${challenge.id}" class="bg-white text-green-600 px-4 py-2 rounded-lg font-medium hover:bg-green-50 transition-all">
                     レビューする
                 </button>
             </div>
@@ -2726,7 +2825,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                 
                 <!-- アクションボタン -->
                 <div class="space-y-3">
-                    <button onclick="app.promoteChallengeToHabit('${challenge.id}')" 
+                    <button data-action="promote-challenge" data-challenge-id="${challenge.id}"
                             class="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-600 hover:to-purple-700 transition-all flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
@@ -2734,12 +2833,12 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                         定番の習慣に昇格させる
                     </button>
                     
-                    <button onclick="app.endChallenge('${challenge.id}')" 
+                    <button data-action="end-challenge" data-challenge-id="${challenge.id}"
                             class="w-full bg-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-300 transition-all">
                         今回はここまでにする（終了）
                     </button>
                     
-                    <button onclick="app.closeChallengeReviewModal()" 
+                    <button data-action="close-challenge-review"
                             class="w-full text-gray-500 py-2 hover:text-gray-700 transition-all text-sm">
                         あとで決める
                     </button>
