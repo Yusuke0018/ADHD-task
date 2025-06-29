@@ -1095,11 +1095,9 @@ const app = {
 
     toggleDeadlineForm(forceHide = null) {
         const form = document.getElementById('deadlineForm');
-        const activeCount = this.deadlineTasks.filter(t => !t.isCompleted).length;
         if (forceHide === false) { form.classList.add('hidden'); return; }
-        if (forceHide === true) { if (activeCount < 3) form.classList.remove('hidden'); else this.showError('期限付きタスクは3件までです'); return; }
+        if (forceHide === true) { form.classList.remove('hidden'); return; }
         if (form.classList.contains('hidden')) { 
-            if (activeCount >= 3) { this.showError('期限付きタスクは3件までです'); return; }
             form.classList.remove('hidden');
             document.getElementById('deadlineDate').min = new Date().toISOString().split('T')[0];
             document.getElementById('deadlineText').focus();
@@ -2522,7 +2520,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             const completedLevel = todayCompletion ? todayCompletion.level : 0;
             
             return `
-                <div class="bg-white rounded-lg p-3 border-2 ${isCompleted ? 'border-green-400 bg-green-50' : 'border-green-300'} transition-all hover:shadow-sm">
+                <div class="bg-white rounded-lg p-3 border-2 ${isCompleted ? 'border-green-400 bg-green-50 task-completed' : 'border-green-300'} transition-all hover:shadow-sm">
                     <div class="flex items-start gap-3">
                         <button 
                             class="seasonal-challenge-checkbox wa-checkbox rounded-lg ${isCompleted ? 'checked' : ''} flex-shrink-0"

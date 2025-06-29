@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>季節のチャレンジ データ確認</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold mb-4">季節のチャレンジ データ確認ツール</h1>
+        
+        <div id="output" class="space-y-4"></div>
+        
+        <div class="mt-6">
+            <button onclick="fixActiveStatus()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                すべての進行中チャレンジのステータスを'active'に修正
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // LocalStorageからデータを読み込み
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        const output = document.getElementById('output');
+        
+        if (challengeData) {
+            try {
+                const challenges = JSON.parse(challengeData);
+                
+                output.innerHTML = `
+                    <div class="mb-4">
+                        <h2 class="text-lg font-semibold">保存されているチャレンジ数: ${challenges.length}</h2>
+                    </div>
+                `;
+                
+                challenges.forEach((challenge, index) => {
+                    const startDate = new Date(challenge.startDate);
+                    const endDate = new Date(challenge.endDate);
+                    const today = new Date();
+                    const isInPeriod = today >= startDate && today <= endDate;
+                    
+                    output.innerHTML += `
+                        <div class="border rounded p-4 ${challenge.status === 'active' ? 'border-green-500' : 'border-gray-300'}">
+                            <h3 class="font-semibold">${index + 1}. ${challenge.name}</h3>
+                            <p class="text-sm text-gray-600">ID: ${challenge.id}</p>
+                            <p class="text-sm">ステータス: <span class="font-bold ${challenge.status === 'active' ? 'text-green-600' : 'text-red-600'}">${challenge.status}</span></p>
+                            <p class="text-sm">期間: ${challenge.startDate} 〜 ${challenge.endDate}</p>
+                            <p class="text-sm">現在期間内: <span class="font-bold ${isInPeriod ? 'text-green-600' : 'text-gray-600'}">${isInPeriod ? 'はい' : 'いいえ'}</span></p>
+                            <p class="text-sm">完了履歴: ${challenge.completionHistory ? challenge.completionHistory.length : 0}件</p>
+                        </div>
+                    `;
+                });
+                
+            } catch (e) {
+                output.innerHTML = '<p class="text-red-600">データの解析中にエラーが発生しました: ' + e.message + '</p>';
+            }
+        } else {
+            output.innerHTML = '<p class="text-gray-600">季節のチャレンジデータが見つかりません</p>';
+        }
+        
+        function fixActiveStatus() {
+            if (!challengeData) return;
+            
+            try {
+                const challenges = JSON.parse(challengeData);
+                const today = new Date();
+                
+                challenges.forEach(challenge => {
+                    const startDate = new Date(challenge.startDate);
+                    const endDate = new Date(challenge.endDate);
+                    
+                    // 現在期間内のチャレンジのステータスを'active'に修正
+                    if (today >= startDate && today <= endDate && challenge.status !== 'archived') {
+                        challenge.status = 'active';
+                    }
+                });
+                
+                localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+                alert('ステータスを修正しました。ページを再読み込みします。');
+                location.reload();
+                
+            } catch (e) {
+                alert('修正中にエラーが発生しました: ' + e.message);
+            }
+        }
+    </script>
+</body>
+</html>
