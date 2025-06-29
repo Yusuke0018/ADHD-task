@@ -26,6 +26,7 @@ const app = {
         this.loadData();
         this.bindEvents();
         this.updateSekki();
+        this.render(); // 追加：初期表示のため
         // スマホ対応：確実に表示
         requestAnimationFrame(() => {
             this.updateTodayDisplay();
@@ -561,11 +562,23 @@ const app = {
     selectedCompletionPoints: 0,
     
     // タスク完了モーダルを表示
-    showTaskCompletionModal(taskId) {
-        const task = this.tasks.find(t => t.id === taskId);
-        if (!task) return;
+    showTaskCompletionModal(taskIdOrObject) {
+        console.log('showTaskCompletionModal called with:', taskIdOrObject);
         
-        this.currentCompletingTaskId = taskId;
+        let task;
+        if (typeof taskIdOrObject === 'string') {
+            // 通常のタスクID
+            task = this.tasks.find(t => t.id === taskIdOrObject);
+            if (!task) return;
+        } else if (typeof taskIdOrObject === 'object' && taskIdOrObject.type === 'habit') {
+            // 習慣タスクオブジェクト
+            task = taskIdOrObject;
+        } else {
+            console.error('Invalid parameter:', taskIdOrObject);
+            return;
+        }
+        
+        this.currentCompletingTaskId = task.id || taskIdOrObject;
         this.selectedCompletionPoints = 0;
         this.selectedProjectId = null;
         this.selectedProjectPoints = 0;
@@ -575,22 +588,42 @@ const app = {
         const pointSelector = document.getElementById('completionPointSelector');
         const projectAssignment = document.getElementById('projectPointAssignment');
         
-        taskText.textContent = `「${task.text}」を完了しますか？`;
+        // タスクのテキストを設定（習慣の場合はレベル情報も含める）
+        if (task.type === 'habit' && this.currentCompletingTaskData) {
+            const level = this.currentCompletingTaskData.level;
+            taskText.innerHTML = `「<span class="font-bold">${this.currentCompletingTaskData.habitName}</span>」<br>
+                <span class="text-purple-600 font-medium">Lv.${level}: ${task.text.split(' - ')[1]}</span><br>
+                を完了しますか？`;
+        } else {
+            taskText.textContent = `「${task.text}」を完了しますか？`;
+        }
         
-        // 目標タスクの場合はポイント選択を表示
-        if (task.type === 'urgent') {
+        // 習慣タスクの場合
+        if (task.type === 'habit') {
+            // 習慣タスクでも通常ポイントとプロジェクトポイントを付与可能にする
             pointSelector.classList.remove('hidden');
+            projectAssignment.classList.remove('hidden');
+            this.loadProjectsForModal();
+            
+            // ポイントボタンをリセット
             document.querySelectorAll('.completion-point-button').forEach(btn => {
                 btn.classList.remove('border-gray-800', 'bg-gray-100');
                 btn.classList.add('border-gray-300');
             });
         } else {
-            pointSelector.classList.add('hidden');
+            // 目標タスクの場合はポイント選択を表示
+            if (task.type === 'urgent') {
+                pointSelector.classList.remove('hidden');
+                document.querySelectorAll('.completion-point-button').forEach(btn => {
+                    btn.classList.remove('border-gray-800', 'bg-gray-100');
+                    btn.classList.add('border-gray-300');
+                });
+            } else {
+                pointSelector.classList.add('hidden');
+            }
+            projectAssignment.classList.remove('hidden');
+            this.loadProjectsForModal();
         }
-        
-        // プロジェクトポイント付与セクションを表示
-        projectAssignment.classList.remove('hidden');
-        this.loadProjectsForModal();
         
         // チェックボックスをリセット
         document.getElementById('assignToProject').checked = false;
@@ -656,6 +689,12 @@ const app = {
     
     // タスクを完了する
     completeTask(isAchieved) {
+        // 習慣タスクの場合の特別処理
+        if (this.currentCompletingTaskId && this.currentCompletingTaskId.startsWith('habit_')) {
+            this.completeHabitTask(isAchieved);
+            return;
+        }
+        
         const task = this.tasks.find(t => t.id === this.currentCompletingTaskId);
         if (!task) return;
         
@@ -1520,9 +1559,416 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         }
         
         this.renderDeadlineTasks();
+        this.renderHabits();
         this.renderReflection();
         this.renderAISection();
-        this.renderDailyAIComment();},
+        this.renderDailyAIComment();
+    },
+
+    // 習慣タスクの表示
+    renderHabits() {
+        const habitList = document.getElementById('habitList');
+        const noHabitsEl = document.getElementById('noHabits');
+        
+        // 習慣データを取得
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) {
+            habitList.innerHTML = '';
+            noHabitsEl.classList.remove('hidden');
+            return;
+        }
+        
+        let habits = [];
+        try {
+            const data = JSON.parse(habitData);
+            habits = data.habits || [];
+        } catch (e) {
+            console.error('Error parsing habit data:', e);
+            habitList.innerHTML = '';
+            noHabitsEl.classList.remove('hidden');
+            return;
+        }
+        
+        if (habits.length === 0) {
+            habitList.innerHTML = '';
+            noHabitsEl.classList.remove('hidden');
+            return;
+        }
+        
+        noHabitsEl.classList.add('hidden');
+        const today = new Date().toDateString();
+        
+        // 習慣カードを生成
+        habitList.innerHTML = habits.map(habit => {
+            const isCompletedToday = habit.lastCompletedDate && new Date(habit.lastCompletedDate).toDateString() === today;
+            
+            // 完了したレベルを取得
+            let completedLevel = null;
+            if (isCompletedToday && habit.history && habit.history.length > 0) {
+                const todayHistory = habit.history.find(h => new Date(h.date).toDateString() === today);
+                if (todayHistory) {
+                    completedLevel = todayHistory.level;
+                }
+            }
+            
+            let cardClass = 'task-normal-active';
+            let statusBadge = '';
+            
+            if (isCompletedToday) {
+                cardClass = 'task-completed';
+                statusBadge = '<span class="task-completed-badge">達成</span>';
+            }
+            
+            return `
+                <div class="washi-card rounded-xl p-4 task-card mobile-compact animate-fadeInUp ${cardClass}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3 flex-1">
+                            <button 
+                                data-habit-id="${habit.id}"
+                                class="wa-checkbox rounded-lg ${isCompletedToday ? 'checked' : ''} mt-0.5 ${isCompletedToday ? 'habit-toggle-btn' : ''}"
+                                ${!isCompletedToday ? 'disabled' : ''}></button>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="task-type-label bg-purple-100 text-purple-700">
+                                        習慣 ${habit.continuousDays}日
+                                    </span>
+                                    ${statusBadge}
+                                    ${completedLevel ? `<span class="text-sm text-gray-600">Lv.${completedLevel} ${habit.levels[completedLevel - 1]}</span>` : ''}
+                                </div>
+                                <div class="task-text-lg">${habit.name}</div>
+                                ${!isCompletedToday ? `
+                                    <div class="flex gap-2 mt-2 flex-wrap">
+                                        ${habit.levels.map((level, index) => `
+                                            <button 
+                                                data-habit-id="${habit.id}"
+                                                data-level="${index + 1}"
+                                                class="habit-level-btn px-3 py-1.5 text-sm rounded-lg transition-all bg-purple-600 text-white hover:bg-purple-700">
+                                                Lv.${index + 1}: ${level}
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            ${!isCompletedToday ? `
+                                <button 
+                                    data-habit-id="${habit.id}"
+                                    class="habit-skip-btn p-2 text-gray-400 hover:text-gray-600 transition-all" title="お休み">
+                                    <svg class="w-4 h-4 mobile-text-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // イベントリスナーを追加（イベントデリゲーション）
+        this.attachHabitEventListeners();
+    },
+    
+    // 習慣ボタンのイベントリスナーを設定
+    attachHabitEventListeners() {
+        const habitList = document.getElementById('habitList');
+        if (!habitList) return;
+        
+        // 既存のリスナーを削除（重複防止）
+        if (this.habitClickHandler) {
+            habitList.removeEventListener('click', this.habitClickHandler);
+        }
+        
+        // クリックハンドラーを定義（アロー関数でthisを保持）
+        this.habitClickHandler = (e) => {
+            console.log('Habit click detected:', e.target);
+            console.log('Classes:', e.target.classList);
+            console.log('Dataset:', e.target.dataset);
+            
+            // クリックされた要素またはその親要素から対象を探す
+            let targetElement = e.target;
+            let habitId = targetElement.dataset?.habitId;
+            
+            // SVGやpathをクリックした場合は、親要素を確認
+            if (!habitId && targetElement.parentElement) {
+                targetElement = targetElement.parentElement;
+                habitId = targetElement.dataset?.habitId;
+            }
+            if (!habitId && targetElement.parentElement?.parentElement) {
+                targetElement = targetElement.parentElement.parentElement;
+                habitId = targetElement.dataset?.habitId;
+            }
+            
+            console.log('Final target element:', targetElement);
+            console.log('Habit ID found:', habitId);
+            
+            // レベルボタンのクリック
+            if (targetElement.classList.contains('habit-level-btn') && !targetElement.disabled) {
+                const level = parseInt(targetElement.dataset.level);
+                console.log('Level button clicked:', { habitId, level });
+                this.completeHabit(habitId, level);
+            }
+            // スキップボタンのクリック
+            else if (targetElement.classList.contains('habit-skip-btn')) {
+                console.log('Skip button clicked for habit:', habitId);
+                this.skipHabit(habitId);
+            }
+            // 取消ボタンのクリック
+            else if (targetElement.classList.contains('habit-cancel-btn')) {
+                console.log('Cancel button clicked for habit:', habitId);
+                this.cancelHabitCompletion(habitId);
+            }
+            // チェックボックスのクリック（完了済みの場合は取り消し）
+            else if (targetElement.classList.contains('habit-toggle-btn') && targetElement.classList.contains('checked')) {
+                console.log('Checkbox clicked for habit:', habitId);
+                this.cancelHabitCompletion(habitId);
+            } else {
+                console.log('Click not matched any handler');
+            }
+        };
+        
+        // イベントリスナーを追加
+        habitList.addEventListener('click', this.habitClickHandler);
+    },
+    
+    // 習慣の完了を取り消す
+    cancelHabitCompletion(habitId) {
+        console.log('cancelHabitCompletion called for:', habitId);
+        
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) {
+            console.error('No habit data found');
+            return;
+        }
+        
+        let data;
+        try {
+            data = JSON.parse(habitData);
+        } catch (e) {
+            console.error('Error parsing habit data:', e);
+            return;
+        }
+        
+        const habitIndex = data.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        const habit = data.habits[habitIndex];
+        const today = new Date().toDateString();
+        const lastCompleted = habit.lastCompletedDate ? new Date(habit.lastCompletedDate).toDateString() : null;
+        
+        if (lastCompleted === today) {
+            console.log('Canceling today\'s completion');
+            
+            // 今日の完了を取り消す
+            data.habits[habitIndex].continuousDays = Math.max(0, habit.continuousDays - 1);
+            
+            // 履歴から今日の記録を削除
+            if (habit.history) {
+                const beforeCount = habit.history.length;
+                data.habits[habitIndex].history = habit.history.filter(h => {
+                    const historyDate = new Date(h.date).toDateString();
+                    return historyDate !== today;
+                });
+                console.log(`History records removed: ${beforeCount - data.habits[habitIndex].history.length}`);
+            }
+            
+            // 最後の完了日を更新（前日の記録があればそれに戻す）
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toDateString();
+            
+            const yesterdayHistory = data.habits[habitIndex].history ? 
+                data.habits[habitIndex].history.find(h => new Date(h.date).toDateString() === yesterdayStr) : null;
+            
+            if (yesterdayHistory) {
+                data.habits[habitIndex].lastCompletedDate = yesterdayHistory.date;
+            } else {
+                data.habits[habitIndex].lastCompletedDate = null;
+            }
+            
+            console.log('Updated habit:', data.habits[habitIndex]);
+        } else {
+            console.log('Not completed today, nothing to cancel');
+        }
+        
+        localStorage.setItem('habit_tasks', JSON.stringify(data));
+        this.renderHabits();
+    },
+
+
+    // 習慣のスキップ処理
+    skipHabit(habitId) {
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) return;
+        
+        let data;
+        try {
+            data = JSON.parse(habitData);
+        } catch (e) {
+            console.error('Error parsing habit data:', e);
+            return;
+        }
+        
+        const habitIndex = data.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        // 継続日数はリセットしない（お休み日として処理）
+        data.habits[habitIndex].lastCompletedDate = new Date().toISOString();
+        
+        localStorage.setItem('habit_tasks', JSON.stringify(data));
+        this.renderHabits();
+    },
+
+    // 習慣タスクの完了処理
+    completeHabitTask(isAchieved) {
+        if (!this.currentCompletingTaskData) return;
+        
+        const { habitId, level } = this.currentCompletingTaskData;
+        
+        // 習慣データを取得
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) return;
+        
+        let data;
+        try {
+            data = JSON.parse(habitData);
+        } catch (e) {
+            console.error('Error parsing habit data:', e);
+            return;
+        }
+        
+        const habitIndex = data.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        const habit = data.habits[habitIndex];
+        const today = new Date().toDateString();
+        const lastCompleted = habit.lastCompletedDate ? new Date(habit.lastCompletedDate).toDateString() : null;
+        
+        if (isAchieved) {
+            // 継続日数の更新
+            if (lastCompleted !== today) {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yesterdayStr = yesterday.toDateString();
+                
+                if (lastCompleted === yesterdayStr) {
+                    // 連続している
+                    habit.continuousDays++;
+                } else {
+                    // 連続が途切れた
+                    habit.continuousDays = 1;
+                }
+                
+                habit.lastCompletedDate = new Date().toISOString();
+                
+                // 履歴に追加
+                if (!habit.history) habit.history = [];
+                habit.history.push({
+                    date: new Date().toISOString(),
+                    level: level,
+                    achieved: true,
+                    points: this.selectedCompletionPoints || 0
+                });
+                
+                // 100日達成チェック
+                if (habit.continuousDays >= 100 && !data.hallOfFame) {
+                    data.hallOfFame = [];
+                }
+                if (habit.continuousDays >= 100) {
+                    // 殿堂入り
+                    const hallOfFameHabit = {
+                        ...habit,
+                        achievedDate: new Date().toISOString()
+                    };
+                    data.hallOfFame.push(hallOfFameHabit);
+                    data.habits.splice(habitIndex, 1);
+                    
+                    // 達成のお祝いメッセージ
+                    this.showCelebration();
+                    setTimeout(() => {
+                        alert(`🎉 おめでとうございます！\n「${habit.name}」が100日継続を達成し、殿堂入りしました！`);
+                    }, 500);
+                }
+            }
+            
+            this.showCelebration();
+            
+            // 習慣タスクのポイントを加算
+            if (this.selectedCompletionPoints > 0) {
+                this.totalPoints += this.selectedCompletionPoints;
+                const dateStr = new Date().toDateString();
+                if (!this.dailyPointHistory[dateStr]) {
+                    this.dailyPointHistory[dateStr] = 0;
+                }
+                this.dailyPointHistory[dateStr] += this.selectedCompletionPoints;
+            }
+            
+            // プロジェクトにポイントを付与
+            const assignToProject = document.getElementById('assignToProject').checked;
+            if (assignToProject) {
+                const projectId = document.getElementById('projectSelector').value;
+                if (projectId && window.addPointsToProject) {
+                    // 習慣タスクのデフォルトポイントは10pt
+                    const pointsToAdd = this.selectedProjectPoints > 0 ? this.selectedProjectPoints : 10;
+                    window.addPointsToProject(projectId, pointsToAdd);
+                }
+            }
+        }
+        
+        localStorage.setItem('habit_tasks', JSON.stringify(data));
+        this.saveData(); // 通常のデータも保存（ポイント等）
+        this.closeTaskCompletionModal();
+        this.renderHabits();
+    },
+
+    // 習慣の完了処理（モーダル表示）
+    completeHabit(habitId, level) {
+        console.log('completeHabit called:', { habitId, level });
+        
+        // 習慣データを取得
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) {
+            console.error('No habit data found');
+            return;
+        }
+        
+        let data;
+        try {
+            data = JSON.parse(habitData);
+        } catch (e) {
+            console.error('Error parsing habit data:', e);
+            return;
+        }
+        
+        const habit = data.habits.find(h => h.id === habitId);
+        if (!habit) {
+            console.error('Habit not found:', habitId);
+            return;
+        }
+        
+        console.log('Found habit:', habit);
+        
+        // タスク完了モーダルを表示
+        this.currentCompletingTaskId = `habit_${habitId}_${Date.now()}`;
+        this.currentCompletingTaskData = {
+            habitId: habitId,
+            level: level,
+            habitName: habit.name
+        };
+        
+        console.log('Showing modal for habit:', {
+            id: this.currentCompletingTaskId,
+            text: `${habit.name} - ${habit.levels[level - 1]}`,
+            type: 'habit'
+        });
+        
+        this.showTaskCompletionModal({
+            id: this.currentCompletingTaskId,
+            text: `${habit.name} - ${habit.levels[level - 1]}`,
+            type: 'habit'
+        });
+    },
 
     renderReflection() {
         const dateStr = this.selectedDate.toDateString();
@@ -1911,6 +2357,9 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         }
     }
 };
+
+// グローバルに公開
+window.app = app;
 
 // Initialize app when DOM is ready
 if (document.readyState === 'loading') {
