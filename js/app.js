@@ -25,6 +25,7 @@ const app = {
     openaiApiKey: null,
     expandedHabitId: null,
     expandedSeasonalChallengeId: null,
+    lastSwipeTime: 0,
 
     init() {
         console.log('App initializing...');
@@ -365,6 +366,7 @@ const app = {
         let swipeStartX = 0;
         let swipeStartY = 0;
         let isSwipeActive = false; // スワイプ操作中かどうかのフラグ
+        let lastSwipeTime = 0; // 最後のスワイプ時刻
 
         const swipeStart = (e) => {
             console.log('swipeStart triggered', e.type);
@@ -393,6 +395,11 @@ const app = {
             const endX = point.clientX;
             const endY = point.clientY;
             console.log('Swipe ended at:', endX, endY);
+            
+            // イベントの伝播を停止
+            e.preventDefault();
+            e.stopPropagation();
+            
             this.handleSwipe(swipeStartX, swipeStartY, endX, endY);
         };
 
@@ -409,6 +416,15 @@ const app = {
     // --- NEW: スワイプ操作を処理するメソッド ---
     handleSwipe(startX, startY, endX, endY) {
         console.log('handleSwipe called');
+        
+        // デバウンス：300ms以内の連続呼び出しを防ぐ
+        const now = Date.now();
+        if (now - this.lastSwipeTime < 300) {
+            console.log('Swipe debounced - too soon after last swipe');
+            return;
+        }
+        this.lastSwipeTime = now;
+        
         const thresholdX = 50;  // 横スワイプとして認識する最小距離
         const restraintY = 100; // 横スワイプ中に許容される縦の最大移動距離
 
