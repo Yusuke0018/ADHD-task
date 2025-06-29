@@ -13,7 +13,10 @@ if (document.readyState === 'loading') {
 const app = {
     tasks: [],
     deadlineTasks: [],
-    selectedDate: new Date(),
+    selectedDate: (() => {
+        const today = new Date();
+        return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    })(),
     taskType: 'normal',
     totalPoints: 0,
     dailyPointHistory: {},
@@ -429,29 +432,31 @@ const app = {
     },
 
     navigateDate(days) {
-        console.log('=== navigateDate START ===');
         console.log('navigateDate called with days:', days);
-        console.log('Current selectedDate:', this.selectedDate.toISOString());
-        console.trace('Call stack');
         
-        // 新しい日付を確実に計算する
-        const currentTime = this.selectedDate.getTime();
-        const oneDayInMs = 24 * 60 * 60 * 1000; // 1日のミリ秒数
-        const newTime = currentTime + (days * oneDayInMs);
-        const newDate = new Date(newTime);
+        // 現在の日付を年月日で取得（ローカルタイム）
+        const year = this.selectedDate.getFullYear();
+        const month = this.selectedDate.getMonth();
+        const day = this.selectedDate.getDate();
         
-        console.log('New date:', newDate.toISOString());
+        // 新しい日付を作成（時間は0時0分0秒）
+        const newDate = new Date(year, month, day + days);
+        
+        console.log('Current date:', year, month + 1, day);
+        console.log('New date:', newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate());
+        
         this.selectedDate = newDate;
-        console.log('=== navigateDate END ===');
         this.updateSekkiForSelectedDate();
         this.render();
-        console.log('After render, selectedDate:', this.selectedDate.toISOString());
     },
 
     goToToday() {
-        this.selectedDate = new Date();
+        const today = new Date();
+        // 時間を0時0分0秒に正規化
+        this.selectedDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
         this.updateSekkiForSelectedDate();
-        this.render();},
+        this.render();
+    },
 
     selectDate(dateStr) {
         const newDate = new Date(dateStr);
@@ -1481,6 +1486,15 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         const dateDayEl = document.getElementById('currentDateDay');
         console.log('Updating date display elements:', { dateEl, dateYearEl, dateDayEl });
         console.log('Selected date in render:', this.selectedDate);
+        
+        // デバッグ：実際の日付を確認
+        console.log('Date debug:', {
+            selectedDate: this.selectedDate,
+            getDate: this.selectedDate.getDate(),
+            getUTCDate: this.selectedDate.getUTCDate(),
+            toLocaleDateString: this.selectedDate.toLocaleDateString('ja-JP'),
+            toISOString: this.selectedDate.toISOString()
+        });
         
         if (dateEl) dateEl.textContent = this.selectedDate.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' });
         if (dateYearEl) dateYearEl.textContent = this.selectedDate.toLocaleDateString('ja-JP', { year: 'numeric' });
