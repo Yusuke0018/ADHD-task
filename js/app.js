@@ -1870,7 +1870,11 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         // 習慣カードを生成
         habitList.innerHTML = habits.map(habit => {
-            const isCompletedToday = habit.lastCompletedDate && new Date(habit.lastCompletedDate).toDateString() === today;
+            const todayStr = new Date().toDateString();
+            const lastCompletedStr = habit.lastCompletedDate ? new Date(habit.lastCompletedDate).toDateString() : null;
+            const isCompletedToday = lastCompletedStr === todayStr;
+            
+            console.log(`Habit "${habit.name}": lastCompleted=${lastCompletedStr}, today=${todayStr}, isCompletedToday=${isCompletedToday}`);
             
             // 完了したレベルを取得
             let completedLevel = null;
@@ -1997,10 +2001,16 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                 console.log('Cancel button clicked for habit:', habitId);
                 this.cancelHabitCompletion(habitId);
             }
-            // チェックボックスのクリック（完了済みの場合は取り消し）
-            else if (targetElement.classList.contains('habit-toggle-btn') && targetElement.classList.contains('checked')) {
+            // チェックボックスのクリック（完了済みの場合は取り消し、未完了の場合はレベル選択表示）
+            else if (targetElement.classList.contains('habit-toggle-btn')) {
                 console.log('Checkbox clicked for habit:', habitId);
-                this.cancelHabitCompletion(habitId);
+                if (targetElement.classList.contains('checked')) {
+                    // 既に完了済みの場合は取り消し
+                    this.cancelHabitCompletion(habitId);
+                } else {
+                    // 未完了の場合はレベル選択を表示
+                    this.toggleHabitLevels(habitId);
+                }
             } else {
                 console.log('Click not matched any handler');
             }
@@ -2059,7 +2069,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         const lastCompleted = habit.lastCompletedDate ? new Date(habit.lastCompletedDate).toDateString() : null;
         
         if (lastCompleted === today) {
-            console.log('Canceling today\'s completion');
+            console.log('Canceling today\'s completion for habit:', habit.name);
+            console.log('Before cancellation:', { continuousDays: habit.continuousDays, lastCompletedDate: habit.lastCompletedDate });
             
             // 今日の完了を取り消す
             data.habits[habitIndex].continuousDays = Math.max(0, habit.continuousDays - 1);
