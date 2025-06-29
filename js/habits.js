@@ -581,8 +581,15 @@ const seasonalChallengeManager = {
     
     // 描画
     render() {
+        console.log('seasonalChallengeManager.render() called');
         const container = document.getElementById('seasonalChallenges');
-        if (!container) return;
+        if (!container) {
+            console.error('seasonalChallenges container not found');
+            return;
+        }
+        
+        console.log('Total challenges loaded:', this.challenges.length);
+        console.log('All challenges:', this.challenges);
         
         // アクティブなチャレンジをチェック
         this.checkActiveChallenges();
@@ -592,9 +599,12 @@ const seasonalChallengeManager = {
             c.status === 'active' || c.status === 'pending_review'
         );
         
+        console.log('Visible challenges:', visibleChallenges.length, visibleChallenges);
+        
         container.innerHTML = '';
         
         if (visibleChallenges.length === 0) {
+            console.log('No visible challenges - showing empty state');
             container.innerHTML = `
                 <div class="text-center py-8 text-gray-500">
                     <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -604,6 +614,7 @@ const seasonalChallengeManager = {
                 </div>
             `;
         } else {
+            console.log('Rendering visible challenges');
             visibleChallenges.forEach(challenge => {
                 container.appendChild(this.createChallengeCard(challenge));
             });
