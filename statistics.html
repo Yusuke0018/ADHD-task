@@ -581,6 +581,7 @@
                 if (dayTasks.length > 0) {
                     daysWithData++;
                     hasTaskActivity = true;
+                    daysWithActivity.add(dateStr); // タスクがある日も活動日として記録
                     dayTasks.forEach(task => {
                         totalTasks++;
                         dayTotal++;
@@ -967,7 +968,7 @@
                 <div class="stats-section">
                     <h2>活動統計</h2>
                     <div class="stat-item">
-                        <span class="stat-label">タスク登録日数</span>
+                        <span class="stat-label">タスクがある日数</span>
                         <span class="stat-value">${stats.daysWithData}日</span>
                     </div>
                     <div class="stat-item">
