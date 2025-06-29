@@ -498,38 +498,71 @@ const seasonalChallengeManager = {
         
         const sekkiData = JSON.parse(document.getElementById('targetSekki').value);
         
-        const challengeData = {
-            id: `seasonal_${new Date(sekkiData.startDate).toISOString().split('T')[0]}_${Date.now()}`,
-            text: document.getElementById('challengeName').value,
-            targetSekki: sekkiData.name,
-            startDate: sekkiData.startDate,
-            endDate: sekkiData.endDate,
-            levelDefinitions: [
-                {
-                    level: 1,
-                    criteria: document.getElementById('challengeLevel1').value,
-                    points: 1
-                },
-                {
-                    level: 2,
-                    criteria: document.getElementById('challengeLevel2').value,
-                    points: 2
-                },
-                {
-                    level: 3,
-                    criteria: document.getElementById('challengeLevel3').value,
-                    points: 3
-                }
-            ],
-            completionHistory: [],
-            status: 'active',
-            review: {
-                decision: null,
-                promotedHabitId: null
+        if (this.editingChallengeId) {
+            // 編集モード
+            const existingChallenge = this.challenges.find(c => c.id === this.editingChallengeId);
+            if (existingChallenge) {
+                // 既存のチャレンジを更新
+                existingChallenge.text = document.getElementById('challengeName').value;
+                existingChallenge.targetSekki = sekkiData.name;
+                existingChallenge.startDate = sekkiData.startDate;
+                existingChallenge.endDate = sekkiData.endDate;
+                existingChallenge.levelDefinitions = [
+                    {
+                        level: 1,
+                        criteria: document.getElementById('challengeLevel1').value,
+                        points: 1
+                    },
+                    {
+                        level: 2,
+                        criteria: document.getElementById('challengeLevel2').value,
+                        points: 2
+                    },
+                    {
+                        level: 3,
+                        criteria: document.getElementById('challengeLevel3').value,
+                        points: 3
+                    }
+                ];
+                console.log('Challenge updated:', existingChallenge);
             }
-        };
+        } else {
+            // 新規作成モード
+            const challengeData = {
+                id: `seasonal_${new Date(sekkiData.startDate).toISOString().split('T')[0]}_${Date.now()}`,
+                text: document.getElementById('challengeName').value,
+                targetSekki: sekkiData.name,
+                startDate: sekkiData.startDate,
+                endDate: sekkiData.endDate,
+                levelDefinitions: [
+                    {
+                        level: 1,
+                        criteria: document.getElementById('challengeLevel1').value,
+                        points: 1
+                    },
+                    {
+                        level: 2,
+                        criteria: document.getElementById('challengeLevel2').value,
+                        points: 2
+                    },
+                    {
+                        level: 3,
+                        criteria: document.getElementById('challengeLevel3').value,
+                        points: 3
+                    }
+                ],
+                completionHistory: [],
+                status: 'active',
+                review: {
+                    decision: null,
+                    promotedHabitId: null
+                }
+            };
+            
+            this.challenges.push(challengeData);
+            console.log('New challenge created:', challengeData);
+        }
         
-        this.challenges.push(challengeData);
         this.saveData();
         this.render();
         this.closeChallengeModal();
@@ -579,6 +612,22 @@ const seasonalChallengeManager = {
                             </div>` : 
                             ''}
                     </div>
+                </div>
+                <div class="flex flex-col gap-2 ml-3">
+                    <button onclick="seasonalChallengeManager.editChallenge('${challenge.id}')" 
+                            class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                            title="編集">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </button>
+                    <button onclick="seasonalChallengeManager.deleteChallenge('${challenge.id}')" 
+                            class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            title="削除">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         `;
@@ -654,6 +703,83 @@ const seasonalChallengeManager = {
             visibleChallenges.forEach(challenge => {
                 container.appendChild(this.createChallengeCard(challenge));
             });
+        }
+    },
+    
+    // チャレンジを編集
+    editChallenge(challengeId) {
+        const challenge = this.challenges.find(c => c.id === challengeId);
+        if (!challenge) {
+            console.error('Challenge not found:', challengeId);
+            return;
+        }
+        
+        // 編集モードでモーダルを開く
+        this.editingChallengeId = challengeId;
+        document.getElementById('challengeModalTitle').textContent = '季節のチャレンジを編集';
+        
+        // フォームに既存の値を設定
+        document.getElementById('challengeName').value = challenge.text || challenge.name || '';
+        
+        // レベル定義も設定
+        if (challenge.levelDefinitions) {
+            const level1Field = document.getElementById('challengeLevel1');
+            const level2Field = document.getElementById('challengeLevel2');
+            const level3Field = document.getElementById('challengeLevel3');
+            
+            if (level1Field && challenge.levelDefinitions[0]) {
+                level1Field.value = challenge.levelDefinitions[0].criteria || '';
+            }
+            if (level2Field && challenge.levelDefinitions[1]) {
+                level2Field.value = challenge.levelDefinitions[1].criteria || '';
+            }
+            if (level3Field && challenge.levelDefinitions[2]) {
+                level3Field.value = challenge.levelDefinitions[2].criteria || '';
+            }
+        }
+        
+        // 節気選択肢を設定
+        this.updateSekkiOptions();
+        
+        // 既存の節気を選択（可能であれば）
+        const sekkiSelect = document.getElementById('targetSekki');
+        if (sekkiSelect && challenge.targetSekki) {
+            for (let option of sekkiSelect.options) {
+                try {
+                    const optionData = JSON.parse(option.value);
+                    if (optionData.name === challenge.targetSekki) {
+                        option.selected = true;
+                        break;
+                    }
+                } catch (e) {
+                    // JSON解析エラーは無視
+                }
+            }
+        }
+        
+        document.getElementById('challengeModal').classList.remove('hidden');
+    },
+    
+    // チャレンジを削除
+    deleteChallenge(challengeId) {
+        const challenge = this.challenges.find(c => c.id === challengeId);
+        if (!challenge) {
+            console.error('Challenge not found:', challengeId);
+            return;
+        }
+        
+        const challengeName = challenge.text || challenge.name || 'このチャレンジ';
+        if (confirm(`「${challengeName}」を削除しますか？この操作は取り消せません。`)) {
+            // チャレンジを配列から削除
+            this.challenges = this.challenges.filter(c => c.id !== challengeId);
+            
+            // データを保存
+            this.saveData();
+            
+            // 再描画
+            this.render();
+            
+            console.log('Challenge deleted:', challengeId);
         }
     }
 };
