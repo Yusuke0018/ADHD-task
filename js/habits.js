@@ -333,7 +333,7 @@ const seasonalChallengeManager = {
         return nextYearSekki[0] || currentYearSekki[0];
     },
     
-    // 節気の選択肢を取得
+    // 節気の選択肢を取得（現在の節気と次の節気のみ）
     getAvailableSekkiOptions() {
         const now = new Date();
         const year = now.getFullYear();
@@ -345,10 +345,31 @@ const seasonalChallengeManager = {
         
         const currentYearSekki = sekkiData[year] || [];
         const nextYearSekki = sekkiData[nextYear] || [];
-        const allSekki = [...currentYearSekki, ...nextYearSekki.slice(0, 12)];
+        const allSekki = [...currentYearSekki, ...nextYearSekki];
         
-        // 今日以降の節気のみを返す
-        return allSekki.filter(sekki => sekki.date > now);
+        // 現在の節気を探す
+        let currentSekki = null;
+        let nextSekki = null;
+        
+        for (let i = 0; i < allSekki.length; i++) {
+            if (allSekki[i].date <= now) {
+                currentSekki = allSekki[i];
+            } else {
+                nextSekki = allSekki[i];
+                break;
+            }
+        }
+        
+        // 現在の節気と次の節気のみを返す
+        const result = [];
+        if (currentSekki) {
+            result.push(currentSekki);
+        }
+        if (nextSekki) {
+            result.push(nextSekki);
+        }
+        
+        return result;
     },
     
     // 節気の終了日を計算
@@ -417,10 +438,11 @@ const seasonalChallengeManager = {
                 endDate: this.getSekkiEndDate(sekki.date, sekki.name).toISOString()
             });
             
-            option.textContent = `${sekki.name} (${startDate}〜${endDate})`;
+            const periodLabel = index === 0 ? '【現在】' : '【次回】';
+            option.textContent = `${periodLabel} ${sekki.name} (${startDate}〜${endDate})`;
             
-            // 次の節気をデフォルト選択
-            if (sekki.name === nextSekki.name) {
+            // 次の節気をデフォルト選択（index=1が次の節気）
+            if (index === 1) {
                 option.selected = true;
             }
             
