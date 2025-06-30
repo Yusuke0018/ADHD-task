@@ -1670,19 +1670,20 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         noHabitsEl.classList.add('hidden');
         
-        // 今日の日付を統一フォーマットで取得
-        const todayYmd = dateUtils.getTodayYmd();
+        // 選択されている日付を統一フォーマットで取得
+        const selectedDateYmd = dateUtils.formatDateToYmd(this.selectedDate);
         
         // 習慣カードを生成
         habitList.innerHTML = habits.map(habit => {
-            // 履歴から今日の状態を確認
-            let isCompletedToday = false;
+            // 履歴から選択日の状態を確認
+            let isCompletedToday = false; // 変数名はそのまま利用
             let isSkippedToday = false;
             let completedLevel = null;
             
             if (habit.history && habit.history.length > 0) {
                 const todayHistory = habit.history.find(h => {
-                    return dateUtils.formatDateToYmd(h.date) === todayYmd;
+                    // h.dateが文字列の場合も考慮して new Date() で日付オブジェクトに変換
+                    return dateUtils.formatDateToYmd(new Date(h.date)) === selectedDateYmd;
                 });
                 
                 if (todayHistory) {
@@ -1911,11 +1912,11 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         const habit = data.habits[habitIndex];
         
-        const todayYmd = dateUtils.getTodayYmd();
+        const selectedDateYmd = dateUtils.formatDateToYmd(this.selectedDate);
         
-        // 今日の履歴を確認
+        // 選択日の履歴を確認
         const todayHistoryIndex = habit.history ? 
-            habit.history.findIndex(h => dateUtils.formatDateToYmd(h.date) === todayYmd) : -1;
+            habit.history.findIndex(h => dateUtils.formatDateToYmd(new Date(h.date)) === selectedDateYmd) : -1;
         
         if (todayHistoryIndex !== -1 && habit.history[todayHistoryIndex].achieved) {
             console.log('Canceling today\'s completion for habit:', habit.name);
@@ -1993,20 +1994,20 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         if (habitIndex === -1) return;
         
         const habit = data.habits[habitIndex];
-        const todayYmd = dateUtils.getTodayYmd();
+        const selectedDateYmd = dateUtils.formatDateToYmd(this.selectedDate);
         
         // 履歴に「お休み」として記録
         if (!habit.history) habit.history = [];
         
-        // 今日の記録があるか確認
+        // 選択日の記録があるか確認
         const existingTodayIndex = habit.history.findIndex(h => 
-            dateUtils.formatDateToYmd(h.date) === todayYmd
+            dateUtils.formatDateToYmd(new Date(h.date)) === selectedDateYmd
         );
         
         if (existingTodayIndex !== -1) {
             // 既存の記録を更新
             habit.history[existingTodayIndex] = {
-                date: todayYmd,
+                date: selectedDateYmd,
                 level: 'skipped',
                 achieved: false,
                 points: 0
@@ -2014,7 +2015,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         } else {
             // 新規追加
             habit.history.push({
-                date: todayYmd,
+                date: selectedDateYmd,
                 level: 'skipped',
                 achieved: false,
                 points: 0
@@ -2051,15 +2052,18 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         const habit = data.habits[habitIndex];
         
-        const todayYmd = dateUtils.getTodayYmd();
-        const yesterdayYmd = dateUtils.getYesterdayYmd();
+        // 選択日の日付を取得
+        const selectedDateYmd = dateUtils.formatDateToYmd(this.selectedDate);
+        const yesterday = new Date(this.selectedDate);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayYmd = dateUtils.formatDateToYmd(yesterday);
         
         if (isAchieved) {
-            // 既に今日の記録があるかチェック
+            // 既に選択日の記録があるかチェック
             if (!habit.history) habit.history = [];
             
             const existingTodayHistory = habit.history.find(h => 
-                dateUtils.formatDateToYmd(h.date) === todayYmd
+                dateUtils.formatDateToYmd(new Date(h.date)) === selectedDateYmd
             );
             
             // 既に今日の記録がある場合は何もしない
@@ -2084,7 +2088,9 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                 habit.continuousDays++;
             } else {
                 // スキップした日があっても、前回の実際の完了が2日前以内なら継続とみなす
-                const twoDaysAgoYmd = dateUtils.getDaysAgoYmd(2);
+                const twoDaysAgo = new Date(this.selectedDate);
+                twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+                const twoDaysAgoYmd = dateUtils.formatDateToYmd(twoDaysAgo);
                 
                 if (lastActuallyCompletedYmd === twoDaysAgoYmd) {
                     // 1日スキップしたが継続とみなす
@@ -2106,17 +2112,17 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             }
             
             // lastCompletedDateを更新（YYYY-MM-DD形式で統一）
-            habit.lastCompletedDate = todayYmd;
+            habit.lastCompletedDate = selectedDateYmd;
             
             // 履歴を更新または追加
             const existingTodayIndex = habit.history.findIndex(h => 
-                dateUtils.formatDateToYmd(h.date) === todayYmd
+                dateUtils.formatDateToYmd(new Date(h.date)) === selectedDateYmd
             );
             
             if (existingTodayIndex !== -1) {
                 // 既存の記録を更新（スキップから完了に変更など）
                 habit.history[existingTodayIndex] = {
-                    date: todayYmd,
+                    date: selectedDateYmd,
                     level: level,
                     achieved: true,
                     points: this.selectedCompletionPoints || 0
@@ -2124,7 +2130,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             } else {
                 // 新規追加
                 habit.history.push({
-                    date: todayYmd,
+                    date: selectedDateYmd,
                     level: level,
                     achieved: true,
                     points: this.selectedCompletionPoints || 0
