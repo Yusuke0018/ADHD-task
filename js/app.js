@@ -10,6 +10,36 @@ if (document.readyState === 'loading') {
     app.updateTodayDisplay();
 }
 
+// ===== 日付処理ユーティリティ関数 =====
+const dateUtils = {
+    // 日付をYYYY-MM-DD形式に統一する関数
+    formatDateToYmd(date) {
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return null;
+        
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    },
+
+    // 今日の日付を取得
+    getTodayYmd() {
+        return this.formatDateToYmd(new Date());
+    },
+
+    // 昨日の日付を取得
+    getYesterdayYmd() {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        return this.formatDateToYmd(yesterday);
+    },
+
+    // N日前の日付を取得
+    getDaysAgoYmd(days) {
+        const date = new Date();
+        date.setDate(date.getDate() - days);
+        return this.formatDateToYmd(date);
+    }
+};
+
 const app = {
     tasks: [],
     selectedDate: (() => {
@@ -1640,36 +1670,28 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         noHabitsEl.classList.add('hidden');
         
-        // 日付の一貫性を保つため、一度だけ今日の日付を取得
-        const today = new Date();
-        const todayYmd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        // 今日の日付を統一フォーマットで取得
+        const todayYmd = dateUtils.getTodayYmd();
         
         // 習慣カードを生成
         habitList.innerHTML = habits.map(habit => {
-            // 履歴から今日の達成状態を確認
+            // 履歴から今日の状態を確認
             let isCompletedToday = false;
+            let isSkippedToday = false;
             let completedLevel = null;
             
             if (habit.history && habit.history.length > 0) {
                 const todayHistory = habit.history.find(h => {
-                    if (!h.date || !h.achieved) return false;
-                    
-                    let historyYmd;
-                    if (h.date.includes('T') || h.date.includes('Z')) {
-                        const historyDate = new Date(h.date);
-                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
-                    } else if (h.date.includes('-') && h.date.length === 10) {
-                        historyYmd = h.date;
-                    } else {
-                        const historyDate = new Date(h.date);
-                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
-                    }
-                    return historyYmd === todayYmd;
+                    return dateUtils.formatDateToYmd(h.date) === todayYmd;
                 });
                 
                 if (todayHistory) {
-                    isCompletedToday = true;
-                    completedLevel = todayHistory.level;
+                    if (todayHistory.achieved) {
+                        isCompletedToday = true;
+                        completedLevel = todayHistory.level;
+                    } else if (todayHistory.level === 'skipped') {
+                        isSkippedToday = true;
+                    }
                 }
             }
             
@@ -1680,6 +1702,9 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             if (isCompletedToday) {
                 cardClass = 'task-completed';
                 statusBadge = '<span class="task-completed-badge">達成</span>';
+            } else if (isSkippedToday) {
+                cardClass = 'task-skipped';
+                statusBadge = '<span class="text-gray-500 text-sm">お休み中</span>';
             }
             
             return `
@@ -1698,7 +1723,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                                     ${completedLevel ? `<span class="text-sm text-purple-600 font-medium">今日のLv.${completedLevel} 達成済み</span>` : ''}
                                 </div>
                                 <div class="task-text-lg">${habit.name}</div>
-                                <div id="habit-levels-${habit.id}" class="habit-levels-container ${!isCompletedToday && this.expandedHabitId === habit.id ? '' : 'hidden'}">
+                                <div id="habit-levels-${habit.id}" class="habit-levels-container ${!isCompletedToday && !isSkippedToday && this.expandedHabitId === habit.id ? '' : 'hidden'}">
                                     <div class="mt-2 space-y-1">
                                         ${habit.levels.map((level, index) => `
                                             <button 
@@ -1716,7 +1741,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
-                            ${!isCompletedToday ? `
+                            ${!isCompletedToday && !isSkippedToday ? `
                                 <button 
                                     data-habit-id="${habit.id}"
                                     class="habit-skip-btn p-2 text-gray-400 hover:text-gray-600 transition-all" title="お休み">
@@ -1772,36 +1797,26 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             if (targetElement.classList.contains('habit-checkbox')) {
                 e.preventDefault();
                 
-                // 習慣が今日完了しているかチェック
+                // 習慣が今日完了またはスキップしているかチェック
                 const habitData = localStorage.getItem('habit_tasks');
                 if (habitData) {
                     try {
                         const data = JSON.parse(habitData);
                         const habit = data.habits.find(h => h.id === habitId);
                         if (habit) {
-                            const todayDate = new Date();
-                            const todayYmd = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
+                            const todayYmd = dateUtils.getTodayYmd();
                             
-                            let lastCompletedYmd = null;
-                            if (habit.lastCompletedDate) {
-                                if (habit.lastCompletedDate.includes('T') || habit.lastCompletedDate.includes('Z')) {
-                                    const lastDate = new Date(habit.lastCompletedDate);
-                                    lastCompletedYmd = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-                                } else if (habit.lastCompletedDate.includes('-') && habit.lastCompletedDate.length === 10) {
-                                    lastCompletedYmd = habit.lastCompletedDate;
-                                } else {
-                                    const lastDate = new Date(habit.lastCompletedDate);
-                                    if (!isNaN(lastDate.getTime())) {
-                                        lastCompletedYmd = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-                                    }
+                            const todayHistory = habit.history ? 
+                                habit.history.find(h => dateUtils.formatDateToYmd(h.date) === todayYmd) : null;
+                            
+                            if (todayHistory) {
+                                if (todayHistory.achieved) {
+                                    // 完了済みの場合は取り消し
+                                    this.cancelHabitCompletion(habitId);
+                                } else if (todayHistory.level === 'skipped') {
+                                    // スキップ済みの場合は何もしない（または取り消し処理を追加）
+                                    console.log('Habit is skipped today');
                                 }
-                            }
-                            
-                            const isCompletedToday = lastCompletedYmd === todayYmd;
-                            
-                            if (isCompletedToday) {
-                                // 完了済みの場合は取り消し
-                                this.cancelHabitCompletion(habitId);
                             } else {
                                 // 未完了の場合はレベル選択を表示
                                 this.toggleHabitLevels(habitId);
@@ -1896,81 +1911,66 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         const habit = data.habits[habitIndex];
         
-        // YYYY-MM-DD形式で日付を統一
-        const todayDate = new Date();
-        const todayYmd = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
+        const todayYmd = dateUtils.getTodayYmd();
         
-        let lastCompletedYmd = null;
-        if (habit.lastCompletedDate) {
-            if (habit.lastCompletedDate.includes('T') || habit.lastCompletedDate.includes('Z')) {
-                const lastDate = new Date(habit.lastCompletedDate);
-                lastCompletedYmd = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-            } else if (habit.lastCompletedDate.includes('-') && habit.lastCompletedDate.length === 10) {
-                lastCompletedYmd = habit.lastCompletedDate;
-            } else {
-                const lastDate = new Date(habit.lastCompletedDate);
-                if (!isNaN(lastDate.getTime())) {
-                    lastCompletedYmd = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-                }
-            }
-        }
+        // 今日の履歴を確認
+        const todayHistoryIndex = habit.history ? 
+            habit.history.findIndex(h => dateUtils.formatDateToYmd(h.date) === todayYmd) : -1;
         
-        if (lastCompletedYmd === todayYmd) {
+        if (todayHistoryIndex !== -1 && habit.history[todayHistoryIndex].achieved) {
             console.log('Canceling today\'s completion for habit:', habit.name);
             console.log('Before cancellation:', { continuousDays: habit.continuousDays, lastCompletedDate: habit.lastCompletedDate });
             
             // 今日の完了を取り消す
-            data.habits[habitIndex].continuousDays = Math.max(0, habit.continuousDays - 1);
+            habit.history.splice(todayHistoryIndex, 1);
             
-            // 履歴から今日の記録を削除
-            if (habit.history) {
-                const beforeCount = habit.history.length;
-                data.habits[habitIndex].history = habit.history.filter(h => {
-                    let historyYmd;
-                    if (h.date.includes('T') || h.date.includes('Z')) {
-                        const historyDate = new Date(h.date);
-                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
-                    } else if (h.date.includes('-') && h.date.length === 10) {
-                        historyYmd = h.date;
-                    } else {
-                        const historyDate = new Date(h.date);
-                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
+            // 連続日数を再計算
+            const completedHistory = habit.history
+                .filter(h => h.achieved === true)
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (completedHistory.length > 0) {
+                // 最後の完了日から連続日数を再計算
+                const lastCompletedDate = new Date(completedHistory[0].date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                lastCompletedDate.setHours(0, 0, 0, 0);
+                
+                const daysDiff = Math.floor((today - lastCompletedDate) / (1000 * 60 * 60 * 24));
+                
+                if (daysDiff <= 1) {
+                    // 最後の完了が昨日以前なら、その日までの連続日数を計算
+                    let continuousDays = 1;
+                    for (let i = 1; i < completedHistory.length; i++) {
+                        const prevDate = new Date(completedHistory[i - 1].date);
+                        const currDate = new Date(completedHistory[i].date);
+                        const diff = Math.floor((prevDate - currDate) / (1000 * 60 * 60 * 24));
+                        
+                        if (diff <= 2) { // スキップを考慮して2日まで許容
+                            continuousDays++;
+                        } else {
+                            break;
+                        }
                     }
-                    return historyYmd !== todayYmd;
-                });
-                console.log(`History records removed: ${beforeCount - data.habits[habitIndex].history.length}`);
-            }
-            
-            // 最後の完了日を更新（前日の記録があればそれに戻す）
-            const yesterday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - 1);
-            const yesterdayYmd = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-            
-            const yesterdayHistory = data.habits[habitIndex].history ? 
-                data.habits[habitIndex].history.find(h => {
-                    let historyYmd;
-                    if (h.date.includes('T') || h.date.includes('Z')) {
-                        const historyDate = new Date(h.date);
-                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
-                    } else if (h.date.includes('-') && h.date.length === 10) {
-                        historyYmd = h.date;
-                    } else {
-                        const historyDate = new Date(h.date);
-                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
-                    }
-                    return historyYmd === yesterdayYmd;
-                }) : null;
-            
-            if (yesterdayHistory) {
-                data.habits[habitIndex].lastCompletedDate = yesterdayYmd;
+                    habit.continuousDays = continuousDays;
+                } else {
+                    habit.continuousDays = 0;
+                }
+                
+                // lastCompletedDateを最後の完了日に更新
+                habit.lastCompletedDate = dateUtils.formatDateToYmd(completedHistory[0].date);
             } else {
-                data.habits[habitIndex].lastCompletedDate = null;
+                // 完了履歴がなくなった場合
+                habit.continuousDays = 0;
+                habit.lastCompletedDate = null;
             }
             
-            console.log('Updated habit:', data.habits[habitIndex]);
+            console.log('Updated habit:', habit);
         } else {
-            console.log('Not completed today, nothing to cancel');
+            console.log('Not completed today or skipped, nothing to cancel');
         }
         
+        data.habits[habitIndex] = habit;
         localStorage.setItem('habit_tasks', JSON.stringify(data));
         this.renderHabits();
     },
@@ -1992,8 +1992,37 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         const habitIndex = data.habits.findIndex(h => h.id === habitId);
         if (habitIndex === -1) return;
         
-        // 継続日数はリセットしない（お休み日として処理）
-        data.habits[habitIndex].lastCompletedDate = new Date().toISOString();
+        const habit = data.habits[habitIndex];
+        const todayYmd = dateUtils.getTodayYmd();
+        
+        // 履歴に「お休み」として記録
+        if (!habit.history) habit.history = [];
+        
+        // 今日の記録があるか確認
+        const existingTodayIndex = habit.history.findIndex(h => 
+            dateUtils.formatDateToYmd(h.date) === todayYmd
+        );
+        
+        if (existingTodayIndex !== -1) {
+            // 既存の記録を更新
+            habit.history[existingTodayIndex] = {
+                date: todayYmd,
+                level: 'skipped',
+                achieved: false,
+                points: 0
+            };
+        } else {
+            // 新規追加
+            habit.history.push({
+                date: todayYmd,
+                level: 'skipped',
+                achieved: false,
+                points: 0
+            });
+        }
+        
+        // lastCompletedDateは更新しない（お休みは完了ではないため）
+        data.habits[habitIndex] = habit;
         
         localStorage.setItem('habit_tasks', JSON.stringify(data));
         this.renderHabits();
@@ -2022,94 +2051,104 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         const habit = data.habits[habitIndex];
         
-        // YYYY-MM-DD形式で日付を統一
-        const todayDate = new Date();
-        const todayYmd = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
-        
-        let lastCompletedYmd = null;
-        if (habit.lastCompletedDate) {
-            if (habit.lastCompletedDate.includes('T') || habit.lastCompletedDate.includes('Z')) {
-                // ISO形式の場合
-                const lastDate = new Date(habit.lastCompletedDate);
-                lastCompletedYmd = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-            } else if (habit.lastCompletedDate.includes('-') && habit.lastCompletedDate.length === 10) {
-                // すでにYYYY-MM-DD形式
-                lastCompletedYmd = habit.lastCompletedDate;
-            } else {
-                // その他の形式（toDateString等）
-                const lastDate = new Date(habit.lastCompletedDate);
-                if (!isNaN(lastDate.getTime())) {
-                    lastCompletedYmd = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-                }
-            }
-        }
+        const todayYmd = dateUtils.getTodayYmd();
+        const yesterdayYmd = dateUtils.getYesterdayYmd();
         
         if (isAchieved) {
             // 既に今日の記録があるかチェック
             if (!habit.history) habit.history = [];
             
-            const existingTodayHistory = habit.history.find(h => {
-                if (!h.date) return false;
-                let historyYmd;
-                if (h.date.includes('T') || h.date.includes('Z')) {
-                    const historyDate = new Date(h.date);
-                    historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
-                } else {
-                    historyYmd = h.date;
-                }
-                return historyYmd === todayYmd;
-            });
+            const existingTodayHistory = habit.history.find(h => 
+                dateUtils.formatDateToYmd(h.date) === todayYmd
+            );
             
             // 既に今日の記録がある場合は何もしない
-            if (existingTodayHistory) {
+            if (existingTodayHistory && existingTodayHistory.achieved) {
                 this.closeTaskCompletionModal();
                 return;
             }
             
-            // 継続日数の更新
-            if (lastCompletedYmd !== todayYmd) {
-                // 昨日の日付を計算
-                const yesterday = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - 1);
-                const yesterdayYmd = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+            // 最後に実際に完了した日付を取得（スキップは除外）
+            let lastActuallyCompletedYmd = null;
+            const completedHistory = habit.history
+                .filter(h => h.achieved === true)
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (completedHistory.length > 0) {
+                lastActuallyCompletedYmd = dateUtils.formatDateToYmd(completedHistory[0].date);
+            }
+            
+            // 連続日数の更新
+            if (lastActuallyCompletedYmd === yesterdayYmd) {
+                // 昨日完了していた場合は継続
+                habit.continuousDays++;
+            } else {
+                // スキップした日があっても、前回の実際の完了が2日前以内なら継続とみなす
+                const twoDaysAgoYmd = dateUtils.getDaysAgoYmd(2);
                 
-                if (lastCompletedYmd === yesterdayYmd) {
-                    // 連続している
-                    habit.continuousDays++;
+                if (lastActuallyCompletedYmd === twoDaysAgoYmd) {
+                    // 1日スキップしたが継続とみなす
+                    const skippedYesterday = habit.history.some(h => 
+                        dateUtils.formatDateToYmd(h.date) === yesterdayYmd && h.level === 'skipped'
+                    );
+                    
+                    if (skippedYesterday) {
+                        // 昨日がスキップなら継続
+                        habit.continuousDays++;
+                    } else {
+                        // スキップではなく単に実行しなかった場合はリセット
+                        habit.continuousDays = 1;
+                    }
                 } else {
-                    // 連続が途切れた
+                    // 2日以上空いたらリセット
                     habit.continuousDays = 1;
                 }
-                
-                // YYYY-MM-DD形式で保存
-                habit.lastCompletedDate = todayYmd;
-                
-                // 履歴に追加
+            }
+            
+            // lastCompletedDateを更新（YYYY-MM-DD形式で統一）
+            habit.lastCompletedDate = todayYmd;
+            
+            // 履歴を更新または追加
+            const existingTodayIndex = habit.history.findIndex(h => 
+                dateUtils.formatDateToYmd(h.date) === todayYmd
+            );
+            
+            if (existingTodayIndex !== -1) {
+                // 既存の記録を更新（スキップから完了に変更など）
+                habit.history[existingTodayIndex] = {
+                    date: todayYmd,
+                    level: level,
+                    achieved: true,
+                    points: this.selectedCompletionPoints || 0
+                };
+            } else {
+                // 新規追加
                 habit.history.push({
                     date: todayYmd,
                     level: level,
                     achieved: true,
                     points: this.selectedCompletionPoints || 0
                 });
+            }
+            
+            // 100日達成チェック
+            if (habit.continuousDays >= 100 && !data.hallOfFame) {
+                data.hallOfFame = [];
+            }
+            if (habit.continuousDays >= 100) {
+                // 殿堂入り
+                const hallOfFameHabit = {
+                    ...habit,
+                    achievedDate: new Date().toISOString()
+                };
+                data.hallOfFame.push(hallOfFameHabit);
+                data.habits.splice(habitIndex, 1);
                 
-                // 100日達成チェック
-                if (habit.continuousDays >= 100 && !data.hallOfFame) {
-                    data.hallOfFame = [];
-                }
-                if (habit.continuousDays >= 100) {
-                    // 殿堂入り
-                    const hallOfFameHabit = {
-                        ...habit,
-                        achievedDate: new Date().toISOString()
-                    };
-                    data.hallOfFame.push(hallOfFameHabit);
-                    data.habits.splice(habitIndex, 1);
-                    
-                    // 達成のお祝いメッセージ
-                    this.showCelebration();
-                    setTimeout(() => {
-                        alert(`🎉 おめでとうございます！\n「${habit.name}」が100日継続を達成し、殿堂入りしました！`);
-                    }, 500);
-                }
+                // 達成のお祝いメッセージ
+                this.showCelebration();
+                setTimeout(() => {
+                    alert(`🎉 おめでとうございます！\n「${habit.name}」が100日継続を達成し、殿堂入りしました！`);
+                }, 500);
             }
             
             this.showCelebration();
