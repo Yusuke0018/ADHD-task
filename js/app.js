@@ -1152,7 +1152,8 @@ const app = {
         this.deadlineTasks.push(newTask);
         textEl.value = ''; dateEl.value = '';
         this.toggleDeadlineForm(false); 
-        this.saveData(); this.render();},
+        this.saveData(); 
+        this.render();},
 
     toggleDeadlineTask(taskId) {
         const task = this.deadlineTasks.find(t => t.id === taskId);
@@ -1602,6 +1603,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         const listEl = document.getElementById('deadlineList');
         const noTasksEl = document.getElementById('noDeadlineTasks');
         
+        
         const sortedTasks = [...this.deadlineTasks].sort((a, b) => {
             if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
             return new Date(a.deadline) - new Date(b.deadline);
@@ -1879,43 +1881,14 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         // 習慣カードを生成
         habitList.innerHTML = habits.map(habit => {
-            const lastCompletedDate = habit.lastCompletedDate;
+            // 履歴から今日の達成状態を確認
             let isCompletedToday = false;
-            let lastCompletedYmd = null;
-            
-            // lastCompletedDateがある場合は、YYYY-MM-DD形式で比較
-            if (lastCompletedDate) {
-                // lastCompletedDateがISO形式かどうかを判定
-                if (lastCompletedDate.includes('T') || lastCompletedDate.includes('Z')) {
-                    // ISO形式の場合
-                    const lastDate = new Date(lastCompletedDate);
-                    lastCompletedYmd = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-                } else if (lastCompletedDate.includes('-') && lastCompletedDate.length === 10) {
-                    // すでにYYYY-MM-DD形式の場合
-                    lastCompletedYmd = lastCompletedDate;
-                } else {
-                    // その他の形式の場合は新しい形式で保存し直す
-                    const lastDate = new Date(lastCompletedDate);
-                    if (!isNaN(lastDate.getTime())) {
-                        lastCompletedYmd = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, '0')}-${String(lastDate.getDate()).padStart(2, '0')}`;
-                    } else {
-                        lastCompletedYmd = null;
-                    }
-                }
-                
-                isCompletedToday = lastCompletedYmd === todayYmd;
-            }
-            
-            console.log(`Habit "${habit.name}":`);
-            console.log(`  - Raw lastCompletedDate: ${lastCompletedDate}`);
-            console.log(`  - Today YMD: ${todayYmd}`);
-            console.log(`  - Last completed YMD: ${lastCompletedYmd}`);
-            console.log(`  - IsCompletedToday: ${isCompletedToday}`);
-            
-            // 完了したレベルを取得
             let completedLevel = null;
-            if (isCompletedToday && habit.history && habit.history.length > 0) {
+            
+            if (habit.history && habit.history.length > 0) {
                 const todayHistory = habit.history.find(h => {
+                    if (!h.date || !h.achieved) return false;
+                    
                     let historyYmd;
                     if (h.date.includes('T') || h.date.includes('Z')) {
                         const historyDate = new Date(h.date);
@@ -1928,10 +1901,13 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                     }
                     return historyYmd === todayYmd;
                 });
+                
                 if (todayHistory) {
+                    isCompletedToday = true;
                     completedLevel = todayHistory.level;
                 }
             }
+            
             
             let cardClass = 'task-normal-active';
             let statusBadge = '';
@@ -2304,6 +2280,27 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         }
         
         if (isAchieved) {
+            // 既に今日の記録があるかチェック
+            if (!habit.history) habit.history = [];
+            
+            const existingTodayHistory = habit.history.find(h => {
+                if (!h.date) return false;
+                let historyYmd;
+                if (h.date.includes('T') || h.date.includes('Z')) {
+                    const historyDate = new Date(h.date);
+                    historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
+                } else {
+                    historyYmd = h.date;
+                }
+                return historyYmd === todayYmd;
+            });
+            
+            // 既に今日の記録がある場合は何もしない
+            if (existingTodayHistory) {
+                this.closeTaskCompletionModal();
+                return;
+            }
+            
             // 継続日数の更新
             if (lastCompletedYmd !== todayYmd) {
                 // 昨日の日付を計算
@@ -2322,7 +2319,6 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                 habit.lastCompletedDate = todayYmd;
                 
                 // 履歴に追加
-                if (!habit.history) habit.history = [];
                 habit.history.push({
                     date: todayYmd,
                     level: level,
