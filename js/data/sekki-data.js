@@ -54,4 +54,4 @@ const sekkiData = {
 };
 
 // Expose to global window object for compatibility
-window.sekkiDates = sekkiData;
+window.sekkiData = sekkiData;

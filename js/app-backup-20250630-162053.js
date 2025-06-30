@@ -1640,8 +1640,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         noHabitsEl.classList.add('hidden');
         
-        // 日付の一貫性を保つため、一度だけ選択された日付を取得
-        const today = this.selectedDate;
+        // 日付の一貫性を保つため、一度だけ今日の日付を取得
+        const today = new Date();
         const todayYmd = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         
         // 習慣カードを生成
@@ -1779,7 +1779,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                         const data = JSON.parse(habitData);
                         const habit = data.habits.find(h => h.id === habitId);
                         if (habit) {
-                            const todayDate = this.selectedDate;
+                            const todayDate = new Date();
                             const todayYmd = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
                             
                             let lastCompletedYmd = null;
@@ -1897,7 +1897,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         const habit = data.habits[habitIndex];
         
         // YYYY-MM-DD形式で日付を統一
-        const todayDate = this.selectedDate;
+        const todayDate = new Date();
         const todayYmd = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
         
         let lastCompletedYmd = null;
@@ -1993,7 +1993,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         if (habitIndex === -1) return;
         
         // 継続日数はリセットしない（お休み日として処理）
-        data.habits[habitIndex].lastCompletedDate = this.selectedDate.toISOString();
+        data.habits[habitIndex].lastCompletedDate = new Date().toISOString();
         
         localStorage.setItem('habit_tasks', JSON.stringify(data));
         this.renderHabits();
@@ -2023,7 +2023,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         const habit = data.habits[habitIndex];
         
         // YYYY-MM-DD形式で日付を統一
-        const todayDate = this.selectedDate;
+        const todayDate = new Date();
         const todayYmd = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
         
         let lastCompletedYmd = null;
@@ -2099,7 +2099,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
                     // 殿堂入り
                     const hallOfFameHabit = {
                         ...habit,
-                        achievedDate: this.selectedDate.toISOString()
+                        achievedDate: new Date().toISOString()
                     };
                     data.hallOfFame.push(hallOfFameHabit);
                     data.habits.splice(habitIndex, 1);
@@ -2117,7 +2117,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             // 習慣タスクのポイントを加算
             if (this.selectedCompletionPoints > 0) {
                 this.totalPoints += this.selectedCompletionPoints;
-                const dateStr = this.selectedDate.toDateString();
+                const dateStr = new Date().toDateString();
                 if (!this.dailyPointHistory[dateStr]) {
                     this.dailyPointHistory[dateStr] = 0;
                 }
