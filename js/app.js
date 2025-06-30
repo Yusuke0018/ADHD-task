@@ -12,7 +12,6 @@ if (document.readyState === 'loading') {
 
 const app = {
     tasks: [],
-    deadlineTasks: [],
     selectedDate: (() => {
         const today = new Date();
         return new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -236,13 +235,6 @@ const app = {
                 points: t.points || 0,
                 status: t.status || (t.isCompleted ? 'achieved' : 'pending') // 旧データの互換性
             }));
-            this.deadlineTasks = (data.deadlineTasks || []).map(t => ({ 
-                ...t, 
-                text: this.cleanText(t.text || ''), // Clean text when loading
-                deadline: new Date(t.deadline), 
-                createdAt: new Date(t.createdAt), 
-                completedAt: t.completedAt ? new Date(t.completedAt) : null 
-            }));
             this.totalPoints = data.totalPoints || 0;
             this.dailyPointHistory = data.dailyPointHistory || {};
             this.dailyReflections = data.dailyReflections || {};
@@ -253,8 +245,6 @@ const app = {
     saveData() {
         localStorage.setItem('focusTaskData', JSON.stringify({ 
             tasks: this.tasks, 
-            deadlineTasks: this.deadlineTasks, 
- 
             totalPoints: this.totalPoints, 
             dailyPointHistory: this.dailyPointHistory,
             dailyReflections: this.dailyReflections,
@@ -289,28 +279,7 @@ const app = {
             if (e.key === 'Enter') {
                 this.addTask();
             }
-        });
-        const deadlineToggleBtn = document.getElementById('deadlineToggle');
-        if (deadlineToggleBtn) {
-            deadlineToggleBtn.addEventListener('click', (e) => {
-                console.log('Deadline toggle clicked');
-                e.stopPropagation();
-                e.preventDefault();
-                this.toggleDeadlineForm();
-            });
-            
-            // スワイプイベントを無効化
-            deadlineToggleBtn.addEventListener('pointerdown', (e) => {
-                e.stopPropagation();
-            });
-            deadlineToggleBtn.addEventListener('pointerup', (e) => {
-                e.stopPropagation();
-            });
-        } else {
-            console.error('deadlineToggle button not found');
-        }
-        document.getElementById('addDeadline').addEventListener('click', () => this.addDeadlineTask());
-        document.getElementById('cancelDeadline').addEventListener('click', () => this.toggleDeadlineForm(false)); 
+        }); 
         
         // タスク完了モーダルのイベント
         document.getElementById('taskAchievedBtn').addEventListener('click', () => this.completeTask(true));
@@ -346,7 +315,6 @@ const app = {
         
         // タスクリストのイベントデリゲーション（タッチとクリックの両方に対応）
         const taskList = document.getElementById('taskList');
-        const deadlineList = document.getElementById('deadlineList');
         
         // タスクリストのイベント処理
         const handleTaskClick = (e) => {
@@ -388,54 +356,15 @@ const app = {
             }
         };
         
-        // 期限付きタスクのイベント処理
-        const handleDeadlineClick = (e) => {
-            console.log('Deadline click event:', e.type, e.target);
-            
-            const button = e.target.closest('button[data-action]');
-            if (!button) return;
-            
-            // タッチイベントの場合、クリックイベントを防ぐ
-            if (e.type === 'touchstart') {
-                e.preventDefault();
-                button._touched = true;
-                setTimeout(() => { delete button._touched; }, 500);
-            } else if (e.type === 'click' && button._touched) {
-                // タッチ後のクリックイベントを無視
-                return;
-            }
-            
-            e.stopPropagation();
-            
-            const action = button.dataset.action;
-            const taskId = button.dataset.taskId;
-            
-            console.log('Deadline action:', action, 'ID:', taskId);
-            
-            switch(action) {
-                case 'toggle':
-                    this.toggleDeadlineTask(taskId);
-                    break;
-                case 'edit':
-                    this.editDeadlineTask(taskId);
-                    break;
-                case 'delete':
-                    this.deleteDeadlineTask(taskId);
-                    break;
-            }
-        };
-        
         // タッチとクリックの両方に対応
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         
         if (isTouchDevice) {
             // タッチデバイスの場合
             taskList.addEventListener('touchstart', handleTaskClick, { passive: false });
-            deadlineList.addEventListener('touchstart', handleDeadlineClick, { passive: false });
         } else {
             // 非タッチデバイスの場合（マウスのみ）
             taskList.addEventListener('click', handleTaskClick);
-            deadlineList.addEventListener('click', handleDeadlineClick);
         }
         
         // ポインターイベントもサポート（Edge, Chrome等）
@@ -443,11 +372,6 @@ const app = {
             taskList.addEventListener('pointerdown', (e) => {
                 if (e.pointerType === 'touch' && !isTouchDevice) {
                     handleTaskClick(e);
-                }
-            });
-            deadlineList.addEventListener('pointerdown', (e) => {
-                if (e.pointerType === 'touch' && !isTouchDevice) {
-                    handleDeadlineClick(e);
                 }
             });
         }
@@ -545,7 +469,7 @@ const app = {
 
             const swipeStart = (e) => {
                 // スワイプを無効化するエリアを、本当に必要なものだけに限定する
-                if (e.target.closest('#deadlineToggle, #menuHandle, #menuItems, #customCalendarPopup, .point-select-button, .sekki-grid, textarea, .seasonal-challenge-checkbox, #seasonalChallengeList')) {
+                if (e.target.closest('#menuHandle, #menuItems, #customCalendarPopup, .point-select-button, .sekki-grid, textarea, .seasonal-challenge-checkbox, #seasonalChallengeList')) {
                     isSwipeActive = false;
                     return;
                 }
@@ -1109,112 +1033,7 @@ const app = {
         });
     },
 
-    toggleDeadlineForm(forceHide = null) {
-        console.log('toggleDeadlineForm called with forceHide:', forceHide);
-        const form = document.getElementById('deadlineForm');
-        if (!form) {
-            console.error('deadlineForm element not found');
-            return;
-        }
-        
-        if (forceHide === false) { 
-            form.classList.add('hidden'); 
-            return; 
-        }
-        
-        if (forceHide === true) { 
-            form.classList.remove('hidden'); 
-            return; 
-        }
-        
-        if (form.classList.contains('hidden')) { 
-            console.log('Showing deadline form');
-            form.classList.remove('hidden');
-            document.getElementById('deadlineDate').min = new Date().toISOString().split('T')[0];
-            document.getElementById('deadlineText').focus();
-        } else { 
-            console.log('Hiding deadline form');
-            form.classList.add('hidden');
-        }},
 
-    addDeadlineTask() {
-        const textEl = document.getElementById('deadlineText');
-        const dateEl = document.getElementById('deadlineDate');
-        let text = textEl.value.trim();
-        const date = dateEl.value;
-        if (!text || !date) { this.showError('内容と期限を入力してください'); return; }
-        
-        // Clean up text encoding issues
-        text = this.cleanText(text);
-        const activeCount = this.deadlineTasks.filter(t => !t.isCompleted).length;
-        if (activeCount >= 3) { this.showError('期限付きタスクは3件までです'); return; }
-        const newTask = { id: Date.now().toString(), text: text, deadline: new Date(date + "T23:59:59"), createdAt: new Date(), isCompleted: false, completedAt: null };
-        this.deadlineTasks.push(newTask);
-        textEl.value = ''; dateEl.value = '';
-        this.toggleDeadlineForm(false); 
-        this.saveData(); 
-        this.render();},
-
-    toggleDeadlineTask(taskId) {
-        const task = this.deadlineTasks.find(t => t.id === taskId);
-        if (!task) return;
-        if (!task.isCompleted) { this.showCelebration(); }
-        task.isCompleted = !task.isCompleted;
-        task.completedAt = task.isCompleted ? new Date() : null;
-        this.saveData(); this.render();},
-
-    deleteDeadlineTask(taskId) {
-        this.deadlineTasks = this.deadlineTasks.filter(t => t.id !== taskId);
-        this.saveData(); this.render();},
-
-    editDeadlineTask(taskId) {
-        const task = this.deadlineTasks.find(t => t.id === taskId);
-        if (!task) return;
-        
-        const taskTextElement = document.getElementById(`deadline-text-${taskId}`);
-        if (!taskTextElement) return;
-        
-        // 現在のテキストを保存
-        const currentText = task.text;
-        
-        // 編集用の入力フィールドを作成
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = currentText;
-        input.className = 'w-full px-3 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 text-base';
-        
-        // テキスト要素を入力フィールドに置き換え
-        taskTextElement.replaceWith(input);
-        input.focus();
-        input.select();
-        
-        // 編集を確定する関数
-        const confirmEdit = () => {
-            const newText = input.value.trim();
-            if (newText && newText !== currentText) {
-                task.text = newText;
-                this.saveData();
-            }
-            this.render();
-        };
-        
-        // 編集をキャンセルする関数
-        const cancelEdit = () => {
-            this.render();
-        };
-        
-        // イベントリスナーを追加
-        input.addEventListener('blur', confirmEdit);
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                confirmEdit();
-            } else if (e.key === 'Escape') {
-                e.preventDefault();
-                cancelEdit();
-            }
-        });
-    },
 
     
     
@@ -1599,59 +1418,6 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
     getTodayTasks() {
         return this.tasks.filter(t => new Date(t.scheduledFor).toDateString() === this.selectedDate.toDateString());},
 
-    renderDeadlineTasks() {
-        const listEl = document.getElementById('deadlineList');
-        const noTasksEl = document.getElementById('noDeadlineTasks');
-        
-        
-        const sortedTasks = [...this.deadlineTasks].sort((a, b) => {
-            if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
-            return new Date(a.deadline) - new Date(b.deadline);
-        });
-        
-        if (sortedTasks.length === 0) {
-            listEl.innerHTML = '';
-            noTasksEl.classList.remove('hidden');
-            return;
-        }
-        
-        noTasksEl.classList.add('hidden');
-        listEl.innerHTML = sortedTasks.map(task => {
-            const deadline = new Date(task.deadline);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-            const isOverdue = daysLeft < 0;
-            
-            return `
-                <div class="washi-card rounded-lg p-3 ${task.isCompleted ? 'task-completed' : 'task-normal-active'}">
-                    <div class="flex items-start justify-between gap-3">
-                        <div class="flex items-start gap-3 flex-1">
-                            <input type="checkbox" data-action="toggle" data-task-id="${task.id}" class="wa-checkbox rounded-lg mt-0.5" ${task.isCompleted ? 'checked' : ''}>
-                            <div class="flex-1">
-                                <div class="text-base ${task.isCompleted ? 'text-gray-600' : 'text-gray-800'}" id="deadline-text-${task.id}">${this.escapeHtml(task.text)}</div>
-                                <div class="text-sm ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-600'} mt-1">
-                                    期限: ${deadline.toLocaleDateString('ja-JP')} 
-                                    ${!task.isCompleted ? `(${isOverdue ? '期限切れ' : `あと${daysLeft}日`})` : ''}
-                                </div>
-                            </div>
-                        </div>
-                        ${!task.isCompleted ? `
-                        <div class="flex flex-col gap-1">
-                            <button data-action="edit" data-task-id="${task.id}" class="p-2 text-gray-400 hover:text-gray-600 transition-all" title="編集">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                            </button>
-                            <button data-action="delete" data-task-id="${task.id}" class="p-2 text-gray-400 hover:text-gray-600 transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </div>` : ''}
-                    </div>
-                </div>`;
-        }).join('');},
 
 
     updateTodayDisplay(retry = 0) {
@@ -1835,7 +1601,6 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
             }).join('');
         }
         
-        this.renderDeadlineTasks();
         this.renderSeasonalChallenges();
         this.renderHabits();
         this.renderReflection();

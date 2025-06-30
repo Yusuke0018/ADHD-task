@@ -192,31 +192,6 @@
             <!-- エラーメッセージ -->
             <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 animate-fadeInUp"></div>
 
-            <!-- 期限付きタスク -->
-            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp" style="animation-delay: 0.1s">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">期限付きタスク</h3>
-                    <button id="deadlineToggle" class="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <div id="deadlineForm" class="hidden mb-4 p-3 bg-gray-50 rounded-xl animate-fadeInUp">
-                    <div class="flex flex-col gap-3">
-                        <input type="text" id="deadlineText" placeholder="タスク内容..." class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
-                        <div class="flex gap-2">
-                            <input type="date" id="deadlineDate" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
-                            <button id="addDeadline" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all">追加</button>
-                            <button id="cancelDeadline" class="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all">×</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="deadlineList" class="space-y-2"></div>
-                <p id="noDeadlineTasks" class="text-center py-4 text-gray-500 text-sm">期限付きタスクはありません</p>
-            </div>
 
             <!-- 季節のチャレンジ -->
             <div id="seasonalChallengeSection" class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp border-2 border-green-300 bg-gradient-to-br from-green-50 to-emerald-50" style="animation-delay: 0.13s">
