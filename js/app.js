@@ -265,7 +265,15 @@ const app = {
         }));},
 
     bindEvents() { 
-        // console.log('bindEvents called');
+        console.log('bindEvents called');
+        
+        // 既にイベントが登録されている場合はスキップ
+        if (this.eventsAlreadyBound) {
+            console.warn('bindEvents called multiple times - skipping to prevent duplicate events!');
+            return;
+        }
+        this.eventsAlreadyBound = true;
+        
         // 既存のイベントリスナーを削除してから追加
         const prevDayBtn = document.getElementById('prevDay');
         const nextDayBtn = document.getElementById('nextDay');
