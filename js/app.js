@@ -383,8 +383,12 @@ const app = {
             
             const action = button.dataset.action;
             
+            // デバッグ用のログ
+            console.log('Action button clicked:', action);
+            
             switch(action) {
                 case 'toggle-reflection':
+                    console.log('Calling toggleReflection from event delegation');
                     this.toggleReflection();
                     break;
                 case 'delete-ai-comment':
@@ -1042,19 +1046,25 @@ const app = {
 
 
     toggleReflection() {
+        console.log('toggleReflection function called!');
         const form = document.getElementById('reflectionForm');
         const display = document.getElementById('reflectionDisplay');
         const noReflection = document.getElementById('noReflection');
         const dateStr = this.selectedDate.toDateString();
         const existingReflection = this.dailyReflections[dateStr];
         
+        console.log('Form element:', form);
+        console.log('Form has hidden class:', form?.classList.contains('hidden'));
+        
         if (form.classList.contains('hidden')) {
+            console.log('Showing reflection form');
             form.classList.remove('hidden');
             display.classList.add('hidden');
             noReflection.classList.add('hidden');
             document.getElementById('reflectionInput').value = existingReflection || '';
             document.getElementById('reflectionInput').focus();
         } else {
+            console.log('Hiding reflection form');
             form.classList.add('hidden');
             if (existingReflection) {
                 display.textContent = existingReflection;
