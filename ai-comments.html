@@ -587,7 +587,7 @@
                         messages: [
                             {
                                 role: 'system',
-                                content: `You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese. Your response should be approximately ${charLimit} characters in Japanese. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Ensure your response is a complete, coherent message.`
+                                content: `You are a supportive coach for someone with ADHD tendencies. Provide encouraging, practical advice while being understanding of ADHD challenges. Write in Japanese. Your response MUST be between ${Math.floor(charLimit * 0.9)} and ${charLimit} characters in Japanese (aim for exactly ${charLimit} characters). IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Ensure your response is a complete, coherent message. Make sure to write a substantive response that uses the full character count by providing detailed advice, examples, and encouragement.`
                             },
                             {
                                 role: 'user',

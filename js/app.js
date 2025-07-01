@@ -1261,7 +1261,7 @@ Provide personalized, encouraging advice that:
 5. Encourages AI/automation solutions where appropriate
 6. When habit data is provided, give specific, actionable feedback
 
-Write in warm, supportive Japanese. Your response should be approximately ${charLimit} characters. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence.`
+Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(charLimit * 0.9)} and ${charLimit} characters (aim for exactly ${charLimit} characters). IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Make sure to write a substantive response that uses the full character count by providing detailed advice, specific examples, and comprehensive encouragement.`
                         },
                         {
                             role: 'user',
@@ -2431,7 +2431,7 @@ Provide personalized, encouraging advice that:
 5. Encourages AI/automation solutions where appropriate
 6. When habit data is provided, give specific, actionable feedback
 
-Write in warm, supportive Japanese. Your response should be approximately ${charLimit} characters. IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence.`
+Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(charLimit * 0.9)} and ${charLimit} characters (aim for exactly ${charLimit} characters). IMPORTANT: Always complete your sentences and thoughts. Never cut off mid-sentence. Make sure to write a substantive response that uses the full character count by providing detailed advice, specific examples, and comprehensive encouragement.`
                         },
                         {
                             role: 'user',
