@@ -384,6 +384,9 @@ const app = {
             const action = button.dataset.action;
             
             switch(action) {
+                case 'toggle-reflection':
+                    this.toggleReflection();
+                    break;
                 case 'delete-ai-comment':
                     this.deleteAIComment(button.dataset.period);
                     break;
@@ -416,12 +419,10 @@ const app = {
         });
         
         // Add event listeners with null checks
-        const reflectionToggle = document.getElementById('reflectionToggle');
         const saveReflection = document.getElementById('saveReflection');
         const cancelReflection = document.getElementById('cancelReflection');
         const reflectionInput = document.getElementById('reflectionInput');
         
-        if (reflectionToggle) reflectionToggle.addEventListener('click', () => this.toggleReflection());
         if (saveReflection) saveReflection.addEventListener('click', () => this.saveReflection());
         if (cancelReflection) cancelReflection.addEventListener('click', () => this.toggleReflection(false));
         if (reflectionInput) {
