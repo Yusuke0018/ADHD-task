@@ -25,6 +25,10 @@ const app = {
     expandedHabitId: null,
     expandedSeasonalChallengeId: null,
     lastSwipeTime: 0,
+    isScrolling: false,
+    scrollTimeout: null,
+    touchStartY: null,
+    touchStartTime: null,
 
     init() {
         console.log('App initializing...');
@@ -312,6 +316,9 @@ const app = {
             });
         });
         
+        // スクロール検知の設定
+        this.setupScrollDetection();
+        
         // プロジェクトポイント付与のイベント
         document.getElementById('assignToProject').addEventListener('change', (e) => {
             const selectionArea = document.getElementById('projectSelectionArea');
@@ -339,6 +346,14 @@ const app = {
         // タスクリストのイベント処理
         const handleTaskClick = (e) => {
             console.log('Task click event:', e.type, e.target);
+            
+            // スクロール中は誤タップを防ぐ
+            if (this.isScrolling) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Ignored click during scroll');
+                return;
+            }
             
             const button = e.target.closest('button[data-action]');
             if (!button) return;
@@ -3416,6 +3431,81 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         if (hasAnyBadge) {
             calendarToggle.classList.add('has-status-badges');
         }
+    },
+    
+    setupScrollDetection() {
+        // タッチスクロールの検知
+        let touchStartY = null;
+        let scrollStartTime = null;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+            scrollStartTime = Date.now();
+            this.touchStartY = touchStartY;
+            this.touchStartTime = scrollStartTime;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (touchStartY === null) return;
+            
+            const touchY = e.touches[0].clientY;
+            const diffY = Math.abs(touchY - touchStartY);
+            const timeDiff = Date.now() - scrollStartTime;
+            
+            // 10px以上移動したらスクロール中と判定
+            if (diffY > 10) {
+                this.isScrolling = true;
+                
+                // 既存のタイムアウトをクリア
+                if (this.scrollTimeout) {
+                    clearTimeout(this.scrollTimeout);
+                }
+                
+                // スクロール終了を検知するタイマー設定
+                this.scrollTimeout = setTimeout(() => {
+                    this.isScrolling = false;
+                    console.log('Scroll ended');
+                }, 300);
+            }
+        }, { passive: true });
+        
+        document.addEventListener('touchend', (e) => {
+            touchStartY = null;
+            scrollStartTime = null;
+            
+            // タッチ終了後もしばらくスクロール状態を維持
+            if (this.isScrolling) {
+                setTimeout(() => {
+                    this.isScrolling = false;
+                }, 300);
+            }
+        }, { passive: true });
+        
+        // マウスホイールスクロールの検知
+        document.addEventListener('wheel', (e) => {
+            this.isScrolling = true;
+            
+            if (this.scrollTimeout) {
+                clearTimeout(this.scrollTimeout);
+            }
+            
+            this.scrollTimeout = setTimeout(() => {
+                this.isScrolling = false;
+            }, 300);
+        }, { passive: true });
+        
+        // スクロールイベントの検知（念のため）
+        document.addEventListener('scroll', (e) => {
+            this.isScrolling = true;
+            
+            if (this.scrollTimeout) {
+                clearTimeout(this.scrollTimeout);
+            }
+            
+            this.scrollTimeout = setTimeout(() => {
+                this.isScrolling = false;
+            }, 300);
+        }, { passive: true });
     }
 };
 
