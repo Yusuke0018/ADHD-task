@@ -1,3 +1,5 @@
+import { fetchSunTime } from './sunTimeAPI.js';
+
 // ページ読み込み完了後の処理
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
@@ -41,6 +43,7 @@ const app = {
         this.loadData();
         this.bindEvents();
         this.updateSekki();
+        this.updateSunTimeDisplay(); // 日の出・日の入り時刻を更新
         this.render(); // 追加：初期表示のため
         
         // 振り返りボタンの存在確認
@@ -160,6 +163,19 @@ const app = {
             }
         }
         return false;},
+    
+    async updateSunTimeDisplay() {
+        const sunTimeData = await fetchSunTime();
+        if (sunTimeData) {
+            const sunriseEl = document.getElementById('sunriseTime');
+            const sunsetEl = document.getElementById('sunsetTime');
+
+            if (sunriseEl && sunsetEl) {
+                sunriseEl.textContent = sunTimeData.sunrise.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+                sunsetEl.textContent = sunTimeData.sunset.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+            }
+        }
+    },
     
     updateCalendarSekkiInfo() {
         const dateInput = document.getElementById('dateInput');
