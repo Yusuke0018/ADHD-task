@@ -1389,7 +1389,11 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         // 期間内のタスクと振り返りを収集
         const tasksInPeriod = this.tasks.filter(t => {
             const taskDate = new Date(t.scheduledFor);
-            return taskDate >= startDate && taskDate <= endDate;
+            // 日付の比較を正確にするため、時間部分を除外
+            const taskDateOnly = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate());
+            const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+            const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+            return taskDateOnly >= startDateOnly && taskDateOnly <= endDateOnly;
         });
         
         const completedTasks = tasksInPeriod.filter(t => t.status === 'achieved');
@@ -1407,7 +1411,8 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         // 習慣データの分析を追加
         const habitAnalysis = this.analyzeHabitData(startDate, endDate);
         
-        let prompt = `期間: ${startDate.toLocaleDateString('ja-JP')} - ${endDate.toLocaleDateString('ja-JP')}\n`;
+        let prompt = `対象日付: ${selectedDate.toLocaleDateString('ja-JP')}\n`;
+        prompt += `期間: ${startDate.toLocaleDateString('ja-JP')} - ${endDate.toLocaleDateString('ja-JP')}\n`;
         prompt += `完了タスク: ${completedTasks.length}件\n`;
         prompt += `未完了タスク: ${incompleteTasks.length}件\n`;
         prompt += `獲得ポイント: ${totalPointsInPeriod}pt\n`;
