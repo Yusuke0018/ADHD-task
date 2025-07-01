@@ -1,17 +1,5 @@
 import { fetchSunTime } from './sunTimeAPI.js';
 
-// ページ読み込み完了後の処理
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        app.updateSekki();
-        app.updateTodayDisplay();
-    });
-} else {
-    // 既に読み込み完了している場合
-    app.updateSekki();
-    app.updateTodayDisplay();
-}
-
 const app = {
     tasks: [],
     selectedDate: (() => {
@@ -163,6 +151,21 @@ const app = {
             }
         }
         return false;},
+    
+    updateTodayDisplay() {
+        const todayYear = document.getElementById('todayDateYear');
+        const todayFull = document.getElementById('todayDateFull');
+        const todayDay = document.getElementById('todayDateDay');
+        
+        if (todayYear && todayFull && todayDay) {
+            const now = new Date();
+            const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+            
+            todayYear.textContent = `${now.getFullYear()}年`;
+            todayFull.textContent = `${now.getMonth() + 1}月${now.getDate()}日`;
+            todayDay.textContent = `(${weekdays[now.getDay()]})`;
+        }
+    },
     
     async updateSunTimeDisplay() {
         const sunTimeData = await fetchSunTime();
