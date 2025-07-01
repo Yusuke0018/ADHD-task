@@ -46,13 +46,7 @@ const app = {
             if (reflectionButton) {
                 console.log('Reflection button data-action:', reflectionButton.dataset.action);
                 console.log('Reflection button classes:', reflectionButton.className);
-                
-                // 直接クリックイベントを追加してテスト
-                reflectionButton.addEventListener('click', (e) => {
-                    console.log('Direct click event fired!');
-                    console.log('Event already handled?', e.defaultPrevented);
-                    // e.stopPropagation(); // これをコメントアウト
-                });
+                // デバッグ用の直接イベントリスナーは削除（重複の原因）
             }
         }, 1000);
         
@@ -396,24 +390,13 @@ const app = {
         
         // グローバルなイベントデリゲーション（AIコメント、チャレンジレビューなど）
         document.addEventListener('click', (e) => {
-            // より詳細なデバッグ
-            console.log('Document clicked, target:', e.target);
-            console.log('Clicked element classes:', e.target.className);
-            console.log('Parent element:', e.target.parentElement);
-            
             const button = e.target.closest('button[data-action]');
-            console.log('Closest button with data-action:', button);
-            
             if (!button) return;
             
             const action = button.dataset.action;
             
-            // デバッグ用のログ
-            console.log('Action button clicked:', action);
-            
             switch(action) {
                 case 'toggle-reflection':
-                    console.log('Calling toggleReflection from event delegation');
                     e.preventDefault(); // デフォルト動作を防ぐ
                     e.stopPropagation(); // イベントの伝播を止める
                     this.toggleReflection();
@@ -1073,25 +1056,21 @@ const app = {
 
 
     toggleReflection() {
-        console.log('toggleReflection function called!');
         const form = document.getElementById('reflectionForm');
         const display = document.getElementById('reflectionDisplay');
         const noReflection = document.getElementById('noReflection');
         const dateStr = this.selectedDate.toDateString();
         const existingReflection = this.dailyReflections[dateStr];
         
-        console.log('Form element:', form);
-        console.log('Form has hidden class:', form?.classList.contains('hidden'));
-        
         if (form.classList.contains('hidden')) {
-            console.log('Showing reflection form');
+            // フォームを表示
             form.classList.remove('hidden');
             display.classList.add('hidden');
             noReflection.classList.add('hidden');
             document.getElementById('reflectionInput').value = existingReflection || '';
             document.getElementById('reflectionInput').focus();
         } else {
-            console.log('Hiding reflection form');
+            // フォームを非表示
             form.classList.add('hidden');
             if (existingReflection) {
                 display.textContent = existingReflection;
