@@ -389,14 +389,20 @@ const app = {
         }
         
         // グローバルなイベントデリゲーション（AIコメント、チャレンジレビューなど）
+        let reflectionClickCount = 0;
         document.addEventListener('click', (e) => {
             const button = e.target.closest('button[data-action]');
             if (!button) return;
             
             const action = button.dataset.action;
             
+            if (action === 'toggle-reflection') {
+                console.log('Action button clicked:', action, 'count:', ++reflectionClickCount);
+            }
+            
             switch(action) {
                 case 'toggle-reflection':
+                    console.log('Calling toggleReflection from event delegation');
                     e.preventDefault(); // デフォルト動作を防ぐ
                     e.stopPropagation(); // イベントの伝播を止める
                     this.toggleReflection();
@@ -1056,13 +1062,18 @@ const app = {
 
 
     toggleReflection() {
+        console.log('toggleReflection called - stack trace:', new Error().stack);
         const form = document.getElementById('reflectionForm');
         const display = document.getElementById('reflectionDisplay');
         const noReflection = document.getElementById('noReflection');
         const dateStr = this.selectedDate.toDateString();
         const existingReflection = this.dailyReflections[dateStr];
         
+        console.log('Form element:', form);
+        console.log('Form has hidden class:', form?.classList.contains('hidden'));
+        
         if (form.classList.contains('hidden')) {
+            console.log('Showing reflection form');
             // フォームを表示
             form.classList.remove('hidden');
             display.classList.add('hidden');
@@ -1070,6 +1081,7 @@ const app = {
             document.getElementById('reflectionInput').value = existingReflection || '';
             document.getElementById('reflectionInput').focus();
         } else {
+            console.log('Hiding reflection form');
             // フォームを非表示
             form.classList.add('hidden');
             if (existingReflection) {
@@ -2266,7 +2278,7 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
     },
 
     renderReflection() {
-        console.log('renderReflection called');
+        console.log('renderReflection called - stack trace:', new Error().stack);
         const dateStr = this.selectedDate.toDateString();
         const reflection = this.dailyReflections[dateStr];
         const display = document.getElementById('reflectionDisplay');
@@ -2275,11 +2287,13 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
         
         console.log('Form hidden status in renderReflection:', form.classList.contains('hidden'));
         
+        // フォームが表示されている場合は、フォームの状態を変更しない
         if (!form.classList.contains('hidden')) {
             console.log('Form is visible, skipping render');
             return;
         }
         
+        // フォームが非表示の場合のみ、reflectionの内容に応じて表示を更新
         if (reflection) {
             display.textContent = reflection;
             display.classList.remove('hidden');
