@@ -50,7 +50,8 @@ const app = {
                 // 直接クリックイベントを追加してテスト
                 reflectionButton.addEventListener('click', (e) => {
                     console.log('Direct click event fired!');
-                    e.stopPropagation();
+                    console.log('Event already handled?', e.defaultPrevented);
+                    // e.stopPropagation(); // これをコメントアウト
                 });
             }
         }, 1000);
@@ -413,6 +414,8 @@ const app = {
             switch(action) {
                 case 'toggle-reflection':
                     console.log('Calling toggleReflection from event delegation');
+                    e.preventDefault(); // デフォルト動作を防ぐ
+                    e.stopPropagation(); // イベントの伝播を止める
                     this.toggleReflection();
                     break;
                 case 'delete-ai-comment':
@@ -2284,13 +2287,17 @@ Write in warm, supportive Japanese. Your response should be approximately ${char
     },
 
     renderReflection() {
+        console.log('renderReflection called');
         const dateStr = this.selectedDate.toDateString();
         const reflection = this.dailyReflections[dateStr];
         const display = document.getElementById('reflectionDisplay');
         const noReflection = document.getElementById('noReflection');
         const form = document.getElementById('reflectionForm');
         
+        console.log('Form hidden status in renderReflection:', form.classList.contains('hidden'));
+        
         if (!form.classList.contains('hidden')) {
+            console.log('Form is visible, skipping render');
             return;
         }
         
