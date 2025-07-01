@@ -27,17 +27,34 @@ const app = {
     lastSwipeTime: 0,
 
     init() {
-        // console.log('App initializing...');
+        console.log('App initializing...');
         
         // タッチデバイスのデバッグ情報
         const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        // console.log('Touch device:', isTouchDevice);
-        // console.log('User Agent:', navigator.userAgent);
+        console.log('Touch device:', isTouchDevice);
+        console.log('User Agent:', navigator.userAgent);
         
         this.loadData();
         this.bindEvents();
         this.updateSekki();
         this.render(); // 追加：初期表示のため
+        
+        // 振り返りボタンの存在確認
+        setTimeout(() => {
+            const reflectionButton = document.getElementById('reflectionToggle');
+            console.log('Reflection button found:', reflectionButton);
+            if (reflectionButton) {
+                console.log('Reflection button data-action:', reflectionButton.dataset.action);
+                console.log('Reflection button classes:', reflectionButton.className);
+                
+                // 直接クリックイベントを追加してテスト
+                reflectionButton.addEventListener('click', (e) => {
+                    console.log('Direct click event fired!');
+                    e.stopPropagation();
+                });
+            }
+        }, 1000);
+        
         // スマホ対応：確実に表示
         requestAnimationFrame(() => {
             this.updateTodayDisplay();
@@ -378,7 +395,14 @@ const app = {
         
         // グローバルなイベントデリゲーション（AIコメント、チャレンジレビューなど）
         document.addEventListener('click', (e) => {
+            // より詳細なデバッグ
+            console.log('Document clicked, target:', e.target);
+            console.log('Clicked element classes:', e.target.className);
+            console.log('Parent element:', e.target.parentElement);
+            
             const button = e.target.closest('button[data-action]');
+            console.log('Closest button with data-action:', button);
+            
             if (!button) return;
             
             const action = button.dataset.action;

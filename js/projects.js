@@ -587,9 +587,14 @@ function saveProjectMemo() {
 }
 
 // モーダル外クリックで閉じる
-document.getElementById('projectDetailModal').addEventListener('click', (e) => {
-    if (e.target.id === 'projectDetailModal') {
-        closeProjectDetail();
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('projectDetailModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target.id === 'projectDetailModal') {
+                closeProjectDetail();
+            }
+        });
     }
 });
 
