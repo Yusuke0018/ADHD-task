@@ -1009,6 +1009,12 @@ const app = {
     postponeTask(taskId) {
         const task = this.tasks.find(t => t.id === taskId);
         if (!task) return;
+        
+        // 確認ダイアログを表示
+        if (!confirm(`タスク「${task.text}」を翌日に先送りしますか？`)) {
+            return;
+        }
+        
         const year = this.selectedDate.getFullYear();
         const month = this.selectedDate.getMonth();
         const day = this.selectedDate.getDate();
@@ -1024,6 +1030,14 @@ const app = {
         setTimeout(() => { this.saveData(); this.render(); }, 600);},
 
     deleteTask(taskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (!task) return;
+        
+        // 確認ダイアログを表示
+        if (!confirm(`タスク「${task.text}」を削除しますか？\nこの操作は取り消せません。`)) {
+            return;
+        }
+        
         this.tasks = this.tasks.filter(t => t.id !== taskId);
         this.saveData();
         this.render();},
