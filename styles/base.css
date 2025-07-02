@@ -228,20 +228,34 @@ button svg {
     overflow: visible;
 }
 
+/* 目標タスク完了 */
+.task-completed.task-goal {
+    background-color: rgba(254, 243, 199, 0.95);
+    border: 2px solid #f59e0b;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+/* 習慣タスク完了 */
+.task-completed.task-habit {
+    background-color: rgba(237, 233, 254, 0.95);
+    border: 2px solid #8b5cf6;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+}
+
 /* 完了ハンコエフェクト */
 .task-completed::after {
     content: '完';
     position: absolute;
     top: 50%;
-    right: 20px;
-    transform: translateY(-50%) rotate(-15deg);
-    font-size: 2.5rem;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    font-size: 4rem;
     font-weight: bold;
     color: rgba(220, 38, 38, 0.8);
     border: 3px solid rgba(220, 38, 38, 0.8);
     border-radius: 50%;
-    width: 60px;
-    height: 60px;
+    width: 90px;
+    height: 90px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -254,14 +268,14 @@ button svg {
 
 @keyframes stampAnimation {
     0% {
-        transform: translateY(-50%) rotate(-15deg) scale(1.5);
+        transform: translate(-50%, -50%) rotate(-15deg) scale(1.5);
         opacity: 0;
     }
     50% {
-        transform: translateY(-50%) rotate(-15deg) scale(1.1);
+        transform: translate(-50%, -50%) rotate(-15deg) scale(1.1);
     }
     100% {
-        transform: translateY(-50%) rotate(-15deg) scale(1);
+        transform: translate(-50%, -50%) rotate(-15deg) scale(1);
         opacity: 1;
     }
 }
@@ -394,10 +408,11 @@ button svg {
     
     /* モバイル用完了ハンコエフェクト */
     .task-completed::after {
-        font-size: 1.8rem;
-        width: 45px;
-        height: 45px;
-        right: 10px;
+        font-size: 3rem;
+        width: 70px;
+        height: 70px;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-15deg);
     }
     
     /* モバイル用未達成ハンコエフェクト */

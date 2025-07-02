@@ -1639,7 +1639,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                 let statusBadge = '';
                 
                 if (task.status === 'achieved') {
-                    cardClass = 'task-completed';
+                    cardClass = task.type === 'urgent' ? 'task-completed task-goal' : 'task-completed';
                     statusBadge = '<span class="task-completed-badge">達成</span>';
                 } else if (task.status === 'notAchieved') {
                     cardClass = 'task-notachieved';
@@ -1768,7 +1768,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             let statusBadge = '';
             
             if (isCompletedToday) {
-                cardClass = 'task-completed';
+                cardClass = 'task-completed task-habit';
                 statusBadge = '<span class="task-completed-badge">達成</span>';
             }
             
