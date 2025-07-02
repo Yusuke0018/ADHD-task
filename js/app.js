@@ -2720,6 +2720,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             const todayCompletion = challenge.completionHistory.find(h => h.date.startsWith(todayStr));
             const isCompleted = !!todayCompletion;
             const completedLevel = todayCompletion ? todayCompletion.level : 0;
+            const isPassed = todayCompletion && todayCompletion.status === 'passed';
             
             // カードのクラスを判定
             let cardClass = 'bg-white rounded-lg p-3 border-2 transition-all hover:shadow-sm';
@@ -2775,12 +2776,33 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                                             </div>
                                         </button>
                                     `).join('')}
+                                    <div class="flex gap-1 mt-1">
+                                        <button 
+                                            class="seasonal-challenge-pass-btn flex-1 p-2 text-amber-600 hover:bg-amber-50 rounded-lg text-sm font-medium transition-colors"
+                                            data-challenge-id="${challenge.id}"
+                                            ${isCompleted ? 'disabled' : ''}
+                                        >
+                                            パス
+                                        </button>
+                                        <button 
+                                            class="seasonal-challenge-notachieved-btn flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-medium transition-colors"
+                                            data-challenge-id="${challenge.id}"
+                                            ${isCompleted ? 'disabled' : ''}
+                                        >
+                                            未達成
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             
                             ${isCompleted ? `
-                                <div class="mt-1 text-sm text-green-600 font-medium">
-                                    今日のLv.${completedLevel} 達成済み
+                                <div class="mt-1 text-sm font-medium">
+                                    ${isPassed ? 
+                                        '<span class="text-amber-600">お休み中</span>' : 
+                                        todayCompletion.status === 'notAchieved' ?
+                                            '<span class="text-blue-600">未達成</span>' :
+                                            `<span class="text-green-600">今日のLv.${completedLevel} 達成済み</span>`
+                                    }
                                 </div>
                             ` : ''}
                         </div>
@@ -2849,6 +2871,14 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             // 取消ボタンのクリック
             else if (targetElement.classList.contains('seasonal-challenge-cancel-btn')) {
                 this.cancelSeasonalChallengeCompletion(challengeId);
+            }
+            // パスボタンのクリック
+            else if (targetElement.classList.contains('seasonal-challenge-pass-btn') && !targetElement.disabled) {
+                this.passSeasonalChallenge(challengeId);
+            }
+            // 未達成ボタンのクリック
+            else if (targetElement.classList.contains('seasonal-challenge-notachieved-btn') && !targetElement.disabled) {
+                this.notAchieveSeasonalChallenge(challengeId);
             }
         };
         
