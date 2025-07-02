@@ -446,13 +446,21 @@ const habitManager = {
                 const dayRecord = habit.history.find(h => {
                     if (!h.date) return false;
                     let recordDate = h.date;
+                    // YYYY-MM-DD形式に統一
                     if (h.date.includes('T')) {
                         recordDate = h.date.split('T')[0];
+                    } else if (h.date.includes('-') && h.date.length > 10) {
+                        // YYYY-MM-DD以降に時刻情報がある場合
+                        recordDate = h.date.substring(0, 10);
                     }
+                    
                     return recordDate === dateStr;
                 });
                 
                 if (dayRecord) {
+                    // デバッグ用ログ
+                    console.log(`Day ${i} (${dateStr}):`, dayRecord);
+                    
                     if (dayRecord.achieved) {
                         status = '完';
                         statusClass = 'bg-green-500 text-white';
