@@ -216,6 +216,45 @@ const habitManager = {
         this.render();
     },
     
+    // 習慣を未達成にする
+    notAchieveHabit(habitId) {
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        const habitIndex = this.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        const habit = this.habits[habitIndex];
+        
+        // 履歴に未達成を記録
+        if (!habit.history) {
+            habit.history = [];
+        }
+        
+        // 今日の記録を更新または追加
+        const existingRecordIndex = habit.history.findIndex(h => h.date === dateStr);
+        if (existingRecordIndex !== -1) {
+            habit.history[existingRecordIndex] = {
+                date: dateStr,
+                achieved: false,
+                passed: false,
+                notAchieved: true,
+                level: null
+            };
+        } else {
+            habit.history.push({
+                date: dateStr,
+                achieved: false,
+                passed: false,
+                notAchieved: true,
+                level: null
+            });
+        }
+        
+        this.saveData();
+        this.render();
+    },
+    
     // 継続日数を更新
     updateContinuousDays(habit) {
         const today = new Date();
@@ -351,9 +390,14 @@ const habitManager = {
                                 Lv.3
                             </button>
                         </div>
-                        <button onclick="habitManager.passHabit('${habit.id}')" class="w-full mt-1 p-2 text-amber-600 hover:bg-amber-50 rounded text-xs font-medium transition-colors">
-                            パス
-                        </button>
+                        <div class="flex gap-1 mt-1">
+                            <button onclick="habitManager.passHabit('${habit.id}')" class="flex-1 p-2 text-amber-600 hover:bg-amber-50 rounded text-xs font-medium transition-colors">
+                                パス
+                            </button>
+                            <button onclick="habitManager.notAchieveHabit('${habit.id}')" class="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded text-xs font-medium transition-colors">
+                                未達成
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -398,6 +442,9 @@ const habitManager = {
                     } else if (dayRecord.passed) {
                         status = 'パ';
                         statusClass = 'bg-amber-200 text-amber-800 border-2 border-amber-400';
+                    } else if (dayRecord.notAchieved) {
+                        status = '未';
+                        statusClass = 'bg-blue-200 text-blue-800 border-2 border-blue-400';
                     }
                 }
             }
