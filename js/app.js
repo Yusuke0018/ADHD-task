@@ -2560,8 +2560,22 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             const isCompleted = !!todayCompletion;
             const completedLevel = todayCompletion ? todayCompletion.level : 0;
             
+            // カードのクラスを判定
+            let cardClass = 'bg-white rounded-lg p-3 border-2 transition-all hover:shadow-sm';
+            if (todayCompletion) {
+                if (todayCompletion.status === 'passed') {
+                    cardClass += ' border-amber-300 bg-amber-50 task-skipped';
+                } else if (todayCompletion.status === 'notAchieved') {
+                    cardClass += ' border-blue-300 bg-blue-50 task-notachieved';
+                } else {
+                    cardClass += ' border-green-400 bg-green-50 task-completed';
+                }
+            } else {
+                cardClass += ' border-green-300';
+            }
+            
             return `
-                <div class="bg-white rounded-lg p-3 border-2 ${isCompleted ? 'border-green-400 bg-green-50 task-completed' : 'border-green-300'} transition-all hover:shadow-sm">
+                <div class="${cardClass}">
                     <div class="flex items-start gap-3">
                         <button 
                             class="seasonal-challenge-checkbox wa-checkbox rounded-lg ${isCompleted ? 'checked' : ''} flex-shrink-0"
@@ -2581,7 +2595,24 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
                                     </button>
-                                ` : ''}
+                                ` : `
+                                    <div class="flex gap-1">
+                                        <button 
+                                            class="seasonal-challenge-pass-btn text-amber-600 hover:text-amber-700 text-sm px-2 py-1 rounded"
+                                            data-challenge-id="${challenge.id}"
+                                            title="パス"
+                                        >
+                                            パス
+                                        </button>
+                                        <button 
+                                            class="seasonal-challenge-notachieve-btn text-blue-600 hover:text-blue-700 text-sm px-2 py-1 rounded"
+                                            data-challenge-id="${challenge.id}"
+                                            title="未達成"
+                                        >
+                                            未達成
+                                        </button>
+                                    </div>
+                                `}
                             </div>
                             
                             <!-- レベル選択 -->
@@ -2651,6 +2682,14 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             // 取消ボタンのクリック
             else if (targetElement.classList.contains('seasonal-challenge-cancel-btn')) {
                 this.cancelSeasonalChallengeCompletion(challengeId);
+            }
+            // パスボタンのクリック
+            else if (targetElement.classList.contains('seasonal-challenge-pass-btn')) {
+                this.passSeasonalChallenge(challengeId);
+            }
+            // 未達成ボタンのクリック
+            else if (targetElement.classList.contains('seasonal-challenge-notachieve-btn')) {
+                this.notAchieveSeasonalChallenge(challengeId);
             }
         };
         
@@ -2729,6 +2768,62 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         
         modal.classList.remove('hidden');
         modal.classList.remove('pointer-events-none');
+    },
+    
+    // 季節のチャレンジをパスする
+    passSeasonalChallenge(challengeId) {
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        let challenges = JSON.parse(challengeData);
+        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
+        if (challengeIndex === -1) return;
+        
+        const todayStr = this.selectedDate.toISOString().split('T')[0];
+        const challenge = challenges[challengeIndex];
+        
+        if (!challenge.completionHistory) challenge.completionHistory = [];
+        
+        const todayIndex = challenge.completionHistory.findIndex(h => h.date.startsWith(todayStr));
+        const newRecord = { date: todayStr, status: 'passed' };
+        
+        if (todayIndex !== -1) {
+            challenges[challengeIndex].completionHistory[todayIndex] = newRecord;
+        } else {
+            challenges[challengeIndex].completionHistory.push(newRecord);
+        }
+        
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+        this.renderSeasonalChallenges();
+        this.render();
+    },
+    
+    // 季節のチャレンジを未達成にする
+    notAchieveSeasonalChallenge(challengeId) {
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        let challenges = JSON.parse(challengeData);
+        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
+        if (challengeIndex === -1) return;
+        
+        const todayStr = this.selectedDate.toISOString().split('T')[0];
+        const challenge = challenges[challengeIndex];
+        
+        if (!challenge.completionHistory) challenge.completionHistory = [];
+        
+        const todayIndex = challenge.completionHistory.findIndex(h => h.date.startsWith(todayStr));
+        const newRecord = { date: todayStr, status: 'notAchieved' };
+        
+        if (todayIndex !== -1) {
+            challenges[challengeIndex].completionHistory[todayIndex] = newRecord;
+        } else {
+            challenges[challengeIndex].completionHistory.push(newRecord);
+        }
+        
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+        this.renderSeasonalChallenges();
+        this.render();
     },
     
     // 季節のチャレンジの完了を取り消す
