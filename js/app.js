@@ -326,6 +326,7 @@ const app = {
         
         // タスク完了モーダルのイベント
         document.getElementById('taskAchievedBtn').addEventListener('click', () => this.completeTask(true));
+        document.getElementById('taskPassBtn').addEventListener('click', () => this.passCurrentTask());
         document.getElementById('taskNotAchievedBtn').addEventListener('click', () => this.completeTask(false));
         document.getElementById('taskCompletionCancelBtn').addEventListener('click', () => this.closeTaskCompletionModal());
         document.querySelectorAll('.completion-point-button').forEach(btn => {
@@ -800,6 +801,9 @@ const app = {
         const taskText = document.getElementById('taskCompletionText');
         const pointSelector = document.getElementById('completionPointSelector');
         const projectAssignment = document.getElementById('projectPointAssignment');
+        const passBtn = document.getElementById('taskPassBtn');
+        const achievedBtn = document.getElementById('taskAchievedBtn');
+        const notAchievedBtn = document.getElementById('taskNotAchievedBtn');
         
         // タスクのテキストを設定（習慣の場合はレベル情報も含める）
         if (task.type === 'habit' && this.currentCompletingTaskData) {
@@ -809,6 +813,18 @@ const app = {
                 を完了しますか？`;
         } else {
             taskText.textContent = `「${task.text}」を完了しますか？`;
+        }
+        
+        // パスボタンの表示制御と達成/未達成ボタンのflex-1クラス調整
+        const isHabitOrSeasonal = task.type === 'habit' || this.currentCompletingTaskId?.startsWith('seasonal_');
+        if (isHabitOrSeasonal) {
+            passBtn.classList.remove('hidden');
+            achievedBtn.classList.remove('flex-1');
+            notAchievedBtn.classList.remove('flex-1');
+        } else {
+            passBtn.classList.add('hidden');
+            achievedBtn.classList.add('flex-1');
+            notAchievedBtn.classList.add('flex-1');
         }
         
         // 習慣タスクの場合
@@ -1023,6 +1039,29 @@ const app = {
             btn.classList.remove('border-blue-500', 'bg-blue-50');
             btn.classList.add('border-gray-300');
         });
+    },
+    
+    // 現在のタスクをパスする
+    passCurrentTask() {
+        // 習慣タスクの場合
+        if (this.currentCompletingTaskId && this.currentCompletingTaskId.startsWith('habit_')) {
+            const habitId = this.currentCompletingTaskData?.habitId;
+            if (habitId) {
+                this.skipHabit(habitId);
+                this.closeTaskCompletionModal();
+            }
+            return;
+        }
+        
+        // 季節のチャレンジの場合
+        if (this.currentCompletingTaskId && this.currentCompletingTaskId.startsWith('seasonal_')) {
+            const challengeId = this.currentCompletingTaskData?.challengeId;
+            if (challengeId) {
+                this.passSeasonalChallenge(challengeId);
+                this.closeTaskCompletionModal();
+            }
+            return;
+        }
     },
 
     postponeTask(taskId) {
@@ -2777,7 +2816,30 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             // チェックボックスのクリック
             if (targetElement.classList.contains('seasonal-challenge-checkbox') && !targetElement.disabled) {
                 e.preventDefault();
-                this.toggleSeasonalChallengeLevels(challengeId);
+                
+                // パス状態をチェック
+                const challengeData = localStorage.getItem('seasonal_challenges');
+                if (challengeData) {
+                    try {
+                        const challenges = JSON.parse(challengeData);
+                        const challenge = challenges.find(c => c.id === challengeId);
+                        if (challenge) {
+                            const todayStr = this.selectedDate.toISOString().split('T')[0];
+                            const todayCompletion = challenge.completionHistory?.find(h => h.date.startsWith(todayStr));
+                            
+                            if (todayCompletion && todayCompletion.status === 'passed') {
+                                // パス状態の場合は解除
+                                this.cancelSeasonalChallengePass(challengeId);
+                            } else {
+                                // それ以外の場合はレベル選択を表示
+                                this.toggleSeasonalChallengeLevels(challengeId);
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error checking challenge pass status:', e);
+                        this.toggleSeasonalChallengeLevels(challengeId);
+                    }
+                }
             }
             // レベルボタンのクリック
             else if (targetElement.classList.contains('seasonal-challenge-level-btn') && !targetElement.disabled) {
@@ -2888,6 +2950,30 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             challenges[challengeIndex].completionHistory[todayIndex] = newRecord;
         } else {
             challenges[challengeIndex].completionHistory.push(newRecord);
+        }
+        
+        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+        this.renderSeasonalChallenges();
+        this.render();
+    },
+    
+    // 季節のチャレンジのパスを取り消す
+    cancelSeasonalChallengePass(challengeId) {
+        const challengeData = localStorage.getItem('seasonal_challenges');
+        if (!challengeData) return;
+        
+        let challenges = JSON.parse(challengeData);
+        const challengeIndex = challenges.findIndex(c => c.id === challengeId);
+        if (challengeIndex === -1) return;
+        
+        const todayStr = this.selectedDate.toISOString().split('T')[0];
+        const challenge = challenges[challengeIndex];
+        
+        // 今日のパス記録を削除
+        if (challenge.completionHistory) {
+            challenges[challengeIndex].completionHistory = challenge.completionHistory.filter(h => {
+                return !(h.date.startsWith(todayStr) && h.status === 'passed');
+            });
         }
         
         localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
