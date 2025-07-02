@@ -138,6 +138,36 @@ const habitManager = {
         this.render();
         this.closeModal();
     },
+    
+    // 習慣をパスする
+    passHabit(habitId) {
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        const habitIndex = this.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        const habit = this.habits[habitIndex];
+        
+        // 履歴にパスを記録
+        if (!habit.history) {
+            habit.history = [];
+        }
+        
+        // 今日の記録がないか確認
+        const existingRecord = habit.history.find(h => h.date === dateStr);
+        if (!existingRecord) {
+            habit.history.push({
+                date: dateStr,
+                achieved: false,
+                passed: true,
+                level: null
+            });
+        }
+        
+        this.saveData();
+        this.render();
+    },
 
     // 削除確認モーダル表示
     showDeleteModal(habitId) {
@@ -184,6 +214,9 @@ const habitManager = {
                 </div>
             `;
         } else {
+            // 週間進捗カレンダーを作成
+            const weekProgressHtml = this.createWeekProgress(habit);
+            
             card.innerHTML = `
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
@@ -196,8 +229,13 @@ const habitManager = {
                         <div class="mt-3 flex items-center gap-4 text-sm">
                             <span class="text-purple-600 font-medium">継続: ${habit.continuousDays}日</span>
                         </div>
+                        <!-- 週間進捗カレンダー -->
+                        <div class="mt-4">
+                            ${weekProgressHtml}
+                        </div>
                     </div>
                     <div class="flex flex-col gap-2">
+                        ${this.createTodayActionButtons(habit)}
                         <button onclick="habitManager.showEditModal('${habit.id}')" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -214,6 +252,86 @@ const habitManager = {
         }
         
         return card;
+    },
+
+    // 今日の操作ボタンを作成
+    createTodayActionButtons(habit) {
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        // 今日の記録を確認
+        const todayRecord = habit.history && habit.history.find(h => h.date === dateStr);
+        
+        if (!todayRecord) {
+            // 今日の記録がない場合はパスボタンを表示
+            return `
+                <button onclick="habitManager.passHabit('${habit.id}')" class="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors" title="パス">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                    </svg>
+                </button>
+            `;
+        }
+        
+        // 記録がある場合は空を返す
+        return '';
+    },
+
+    // 週間進捗カレンダーを作成
+    createWeekProgress(habit) {
+        const today = new Date();
+        const dayLabels = ['日', '月', '火', '水', '木', '金', '土'];
+        let html = '<div class="grid grid-cols-7 gap-1 text-center">';
+        
+        // 今日から過去6日間の進捗を表示
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            
+            // その日の記録を確認
+            let status = '未';
+            let statusClass = 'bg-gray-200 text-gray-700';
+            let additionalClass = '';
+            
+            if (habit.history && habit.history.length > 0) {
+                const dayRecord = habit.history.find(h => {
+                    if (!h.date) return false;
+                    let recordDate = h.date;
+                    if (h.date.includes('T')) {
+                        recordDate = h.date.split('T')[0];
+                    }
+                    return recordDate === dateStr;
+                });
+                
+                if (dayRecord) {
+                    if (dayRecord.achieved) {
+                        status = '完';
+                        statusClass = 'bg-green-500 text-white';
+                    } else if (dayRecord.passed) {
+                        status = 'パ';
+                        statusClass = 'bg-amber-200 text-amber-800 border-2 border-amber-400';
+                        additionalClass = 'relative';
+                    }
+                }
+            }
+            
+            const isToday = i === 0;
+            const borderClass = isToday ? 'ring-2 ring-purple-500' : '';
+            
+            html += `
+                <div class="flex flex-col items-center">
+                    <div class="text-xs text-gray-600 mb-1">${dayLabels[date.getDay()]}</div>
+                    <div class="w-10 h-10 rounded-lg ${statusClass} ${borderClass} ${additionalClass} flex items-center justify-center text-sm font-bold">
+                        ${status}
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">${date.getDate()}</div>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        return html;
     },
 
     // 描画
