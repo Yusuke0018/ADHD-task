@@ -139,6 +139,46 @@ const habitManager = {
         this.closeModal();
     },
     
+    // 習慣を完了する
+    completeHabit(habitId, level) {
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        const habitIndex = this.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        const habit = this.habits[habitIndex];
+        
+        // 履歴に完了を記録
+        if (!habit.history) {
+            habit.history = [];
+        }
+        
+        // 今日の記録を更新または追加
+        const existingRecordIndex = habit.history.findIndex(h => h.date === dateStr);
+        if (existingRecordIndex !== -1) {
+            habit.history[existingRecordIndex] = {
+                date: dateStr,
+                achieved: true,
+                passed: false,
+                level: level
+            };
+        } else {
+            habit.history.push({
+                date: dateStr,
+                achieved: true,
+                passed: false,
+                level: level
+            });
+        }
+        
+        // 継続日数を更新
+        this.updateContinuousDays(habit);
+        
+        this.saveData();
+        this.render();
+    },
+    
     // 習慣をパスする
     passHabit(habitId) {
         const today = new Date();
@@ -154,9 +194,16 @@ const habitManager = {
             habit.history = [];
         }
         
-        // 今日の記録がないか確認
-        const existingRecord = habit.history.find(h => h.date === dateStr);
-        if (!existingRecord) {
+        // 今日の記録を更新または追加
+        const existingRecordIndex = habit.history.findIndex(h => h.date === dateStr);
+        if (existingRecordIndex !== -1) {
+            habit.history[existingRecordIndex] = {
+                date: dateStr,
+                achieved: false,
+                passed: true,
+                level: null
+            };
+        } else {
             habit.history.push({
                 date: dateStr,
                 achieved: false,
@@ -167,6 +214,31 @@ const habitManager = {
         
         this.saveData();
         this.render();
+    },
+    
+    // 継続日数を更新
+    updateContinuousDays(habit) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        let continuousDays = 0;
+        let checkDate = new Date(today);
+        
+        // 今日から遡って連続達成日数をカウント
+        while (true) {
+            const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
+            const record = habit.history.find(h => h.date === dateStr);
+            
+            if (record && record.achieved) {
+                continuousDays++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+                break;
+            }
+        }
+        
+        habit.continuousDays = continuousDays;
+        habit.lastCompletedDate = today.toISOString();
     },
 
     // 削除確認モーダル表示
@@ -263,13 +335,27 @@ const habitManager = {
         const todayRecord = habit.history && habit.history.find(h => h.date === dateStr);
         
         if (!todayRecord) {
-            // 今日の記録がない場合はパスボタンを表示
+            // 今日の記録がない場合は完了ボタンとパスボタンを表示
             return `
-                <button onclick="habitManager.passHabit('${habit.id}')" class="p-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors" title="パス">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
-                    </svg>
-                </button>
+                <div class="flex flex-col gap-1">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+                        <div class="text-xs text-gray-600 mb-1 text-center">今日の達成</div>
+                        <div class="flex gap-1">
+                            <button onclick="habitManager.completeHabit('${habit.id}', 1)" class="flex-1 p-2 bg-green-100 hover:bg-green-200 text-green-700 rounded text-xs font-medium transition-colors">
+                                Lv.1
+                            </button>
+                            <button onclick="habitManager.completeHabit('${habit.id}', 2)" class="flex-1 p-2 bg-green-200 hover:bg-green-300 text-green-700 rounded text-xs font-medium transition-colors">
+                                Lv.2
+                            </button>
+                            <button onclick="habitManager.completeHabit('${habit.id}', 3)" class="flex-1 p-2 bg-green-300 hover:bg-green-400 text-green-700 rounded text-xs font-medium transition-colors">
+                                Lv.3
+                            </button>
+                        </div>
+                        <button onclick="habitManager.passHabit('${habit.id}')" class="w-full mt-1 p-2 text-amber-600 hover:bg-amber-50 rounded text-xs font-medium transition-colors">
+                            パス
+                        </button>
+                    </div>
+                </div>
             `;
         }
         
@@ -293,6 +379,7 @@ const habitManager = {
             let status = '未';
             let statusClass = 'bg-gray-200 text-gray-700';
             let additionalClass = '';
+            let textSize = 'text-lg';
             
             if (habit.history && habit.history.length > 0) {
                 const dayRecord = habit.history.find(h => {
@@ -311,7 +398,6 @@ const habitManager = {
                     } else if (dayRecord.passed) {
                         status = 'パ';
                         statusClass = 'bg-amber-200 text-amber-800 border-2 border-amber-400';
-                        additionalClass = 'relative';
                     }
                 }
             }
@@ -322,7 +408,7 @@ const habitManager = {
             html += `
                 <div class="flex flex-col items-center">
                     <div class="text-xs text-gray-600 mb-1">${dayLabels[date.getDay()]}</div>
-                    <div class="w-10 h-10 rounded-lg ${statusClass} ${borderClass} ${additionalClass} flex items-center justify-center text-sm font-bold">
+                    <div class="w-10 h-10 rounded-lg ${statusClass} ${borderClass} flex items-center justify-center ${textSize} font-bold">
                         ${status}
                     </div>
                     <div class="text-xs text-gray-500 mt-1">${date.getDate()}</div>
