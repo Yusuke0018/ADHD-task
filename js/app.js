@@ -1911,13 +1911,30 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                                 }
                             }
                             
-                            const isCompletedToday = lastCompletedYmd === todayYmd;
+                            // 今日の履歴を確認
+                            let todayStatus = null;
+                            if (habit.history && habit.history.length > 0) {
+                                const todayHistory = habit.history.find(h => {
+                                    const historyDate = h.date.split('T')[0];
+                                    return historyDate === todayYmd;
+                                });
+                                if (todayHistory) {
+                                    if (todayHistory.achieved) {
+                                        todayStatus = 'completed';
+                                    } else if (todayHistory.passed) {
+                                        todayStatus = 'passed';
+                                    }
+                                }
+                            }
                             
-                            if (isCompletedToday) {
+                            if (todayStatus === 'completed') {
                                 // 完了済みの場合は取り消し
                                 this.cancelHabitCompletion(habitId);
+                            } else if (todayStatus === 'passed') {
+                                // パス状態の場合は履歴から削除
+                                this.cancelHabitPass(habitId);
                             } else {
-                                // 未完了の場合はレベル選択を表示
+                                // 未記録の場合はレベル選択を表示
                                 this.toggleHabitLevels(habitId);
                             }
                         }
@@ -2083,6 +2100,37 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             console.log('Updated habit:', data.habits[habitIndex]);
         } else {
             console.log('Not completed today, nothing to cancel');
+        }
+        
+        localStorage.setItem('habit_tasks', JSON.stringify(data));
+        this.renderHabits();
+    },
+    
+    // 習慣のパスを取り消す
+    cancelHabitPass(habitId) {
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) return;
+        
+        let data;
+        try {
+            data = JSON.parse(habitData);
+        } catch (e) {
+            console.error('Error parsing habit data:', e);
+            return;
+        }
+        
+        const habitIndex = data.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        const habit = data.habits[habitIndex];
+        const todayYmd = `${this.selectedDate.getFullYear()}-${String(this.selectedDate.getMonth() + 1).padStart(2, '0')}-${String(this.selectedDate.getDate()).padStart(2, '0')}`;
+        
+        // 今日のパス記録を削除
+        if (habit.history) {
+            data.habits[habitIndex].history = habit.history.filter(h => {
+                const historyDate = h.date.split('T')[0];
+                return !(historyDate === todayYmd && h.passed);
+            });
         }
         
         localStorage.setItem('habit_tasks', JSON.stringify(data));

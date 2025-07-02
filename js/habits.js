@@ -335,11 +335,10 @@ const habitManager = {
             if (todayRecord) {
                 if (todayRecord.achieved) {
                     cardClass += ' task-completed';
-                } else if (todayRecord.passed) {
-                    cardClass += ' task-skipped';
                 } else if (todayRecord.notAchieved) {
                     cardClass += ' task-notachieved';
                 }
+                // パスの場合はスタイルを適用しない
             }
             card.className = cardClass;
             
@@ -457,13 +456,11 @@ const habitManager = {
                     if (dayRecord.achieved) {
                         status = '完';
                         statusClass = 'bg-green-500 text-white';
-                    } else if (dayRecord.passed) {
-                        status = 'パ';
-                        statusClass = 'bg-amber-200 text-amber-800 border-2 border-amber-400';
                     } else if (dayRecord.notAchieved) {
                         status = '未';
                         statusClass = 'bg-blue-200 text-blue-800 border-2 border-blue-400';
                     }
+                    // パスの場合は表示しない（デフォルトの'未'のまま）
                 }
             }
             
