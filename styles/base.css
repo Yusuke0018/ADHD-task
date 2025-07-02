@@ -425,6 +425,54 @@ button svg {
     }
 }
 
+/* パスしたタスクのスタイル */
+.task-skipped {
+    background-color: rgba(254, 251, 235, 0.95);
+    border: 2px solid #fbbf24;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
+    position: relative;
+    overflow: visible;
+}
+
+/* パスハンコエフェクト */
+.task-skipped::after {
+    content: 'パス';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    font-size: 4rem;
+    font-weight: bold;
+    color: rgba(245, 158, 11, 0.8);
+    border: 3px solid rgba(245, 158, 11, 0.8);
+    border-radius: 50%;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: serif;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    animation: stampAnimation 0.3s ease-out;
+}
+
+.task-skipped .task-text-lg {
+    color: #92400e;
+}
+
+@media (max-width: 640px) {
+    /* モバイル用パスハンコエフェクト */
+    .task-skipped::after {
+        font-size: 3rem;
+        width: 70px;
+        height: 70px;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-15deg);
+    }
+}
+
 /* カスタムカレンダースタイル */
 .calendar-day {
     min-height: 60px;

@@ -1763,6 +1763,27 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                 }
             }
             
+            // パス状態の確認
+            let isSkippedToday = false;
+            if (habit.history && habit.history.length > 0) {
+                const todayHistory = habit.history.find(h => {
+                    let historyYmd;
+                    if (h.date.includes('T') || h.date.includes('Z')) {
+                        const historyDate = new Date(h.date);
+                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
+                    } else if (h.date.includes('-') && h.date.length === 10) {
+                        historyYmd = h.date;
+                    } else {
+                        const historyDate = new Date(h.date);
+                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
+                    }
+                    return historyYmd === todayYmd;
+                });
+                
+                if (todayHistory && todayHistory.passed) {
+                    isSkippedToday = true;
+                }
+            }
             
             let cardClass = 'task-normal-active';
             let statusBadge = '';
@@ -1770,6 +1791,9 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             if (isCompletedToday) {
                 cardClass = 'task-completed task-habit';
                 statusBadge = '<span class="task-completed-badge">達成</span>';
+            } else if (isSkippedToday) {
+                cardClass = 'task-skipped';
+                statusBadge = '<span class="text-amber-600 text-sm font-medium">お休み中</span>';
             }
             
             return `
@@ -1806,7 +1830,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
-                            ${!isCompletedToday ? `
+                            ${!isCompletedToday && !isSkippedToday ? `
                                 <button 
                                     data-habit-id="${habit.id}"
                                     class="habit-skip-btn p-2 text-gray-400 hover:text-gray-600 transition-all" title="お休み">
@@ -2082,8 +2106,32 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         const habitIndex = data.habits.findIndex(h => h.id === habitId);
         if (habitIndex === -1) return;
         
-        // 継続日数はリセットしない（お休み日として処理）
-        data.habits[habitIndex].lastCompletedDate = this.selectedDate.toISOString();
+        const habit = data.habits[habitIndex];
+        const todayYmd = `${this.selectedDate.getFullYear()}-${String(this.selectedDate.getMonth() + 1).padStart(2, '0')}-${String(this.selectedDate.getDate()).padStart(2, '0')}`;
+        
+        // 履歴を初期化
+        if (!habit.history) {
+            data.habits[habitIndex].history = [];
+        }
+        
+        // 今日の記録を更新または追加
+        const existingIndex = data.habits[habitIndex].history.findIndex(h => {
+            const historyDate = h.date.split('T')[0];
+            return historyDate === todayYmd;
+        });
+        
+        const skipRecord = {
+            date: todayYmd,
+            achieved: false,
+            passed: true,
+            level: null
+        };
+        
+        if (existingIndex !== -1) {
+            data.habits[habitIndex].history[existingIndex] = skipRecord;
+        } else {
+            data.habits[habitIndex].history.push(skipRecord);
+        }
         
         localStorage.setItem('habit_tasks', JSON.stringify(data));
         this.renderHabits();
