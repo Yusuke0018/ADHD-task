@@ -456,11 +456,14 @@ const habitManager = {
                     if (dayRecord.achieved) {
                         status = '完';
                         statusClass = 'bg-green-500 text-white';
+                    } else if (dayRecord.passed) {
+                        status = 'ー';
+                        statusClass = 'bg-gray-300 text-gray-600';
+                        textSize = 'text-2xl';  // ハイフンを大きく表示
                     } else if (dayRecord.notAchieved) {
                         status = '未';
                         statusClass = 'bg-blue-200 text-blue-800 border-2 border-blue-400';
                     }
-                    // パスの場合は表示しない（デフォルトの'未'のまま）
                 }
             }
             
