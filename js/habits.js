@@ -305,9 +305,9 @@ const habitManager = {
     // 習慣カード作成
     createHabitCard(habit, isHallOfFame = false) {
         const card = document.createElement('div');
-        card.className = 'washi-card rounded-xl p-4 hover:shadow-lg transition-shadow duration-300';
         
         if (isHallOfFame) {
+            card.className = 'washi-card rounded-xl p-4 hover:shadow-lg transition-shadow duration-300';
             card.innerHTML = `
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
@@ -325,6 +325,24 @@ const habitManager = {
                 </div>
             `;
         } else {
+            // 今日の状態を確認
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            const todayRecord = habit.history ? habit.history.find(h => h.date === dateStr) : null;
+            
+            // カードのクラスを設定
+            let cardClass = 'washi-card rounded-xl p-4 hover:shadow-lg transition-shadow duration-300';
+            if (todayRecord) {
+                if (todayRecord.achieved) {
+                    cardClass += ' task-completed';
+                } else if (todayRecord.passed) {
+                    cardClass += ' task-skipped';
+                } else if (todayRecord.notAchieved) {
+                    cardClass += ' task-notachieved';
+                }
+            }
+            card.className = cardClass;
+            
             // 週間進捗カレンダーを作成
             const weekProgressHtml = this.createWeekProgress(habit);
             

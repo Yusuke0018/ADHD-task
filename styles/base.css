@@ -441,7 +441,7 @@ button svg {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-15deg);
-    font-size: 4rem;
+    font-size: 2.5rem;
     font-weight: bold;
     color: rgba(245, 158, 11, 0.8);
     border: 3px solid rgba(245, 158, 11, 0.8);
@@ -465,7 +465,7 @@ button svg {
 @media (max-width: 640px) {
     /* モバイル用パスハンコエフェクト */
     .task-skipped::after {
-        font-size: 3rem;
+        font-size: 2rem;
         width: 70px;
         height: 70px;
         left: 50%;

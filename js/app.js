@@ -2343,15 +2343,29 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         const challengeIndex = challenges.findIndex(c => c.id === challengeId);
         if (challengeIndex === -1) return;
         
+        const todayStr = this.selectedDate.toISOString().split('T')[0];
+        
+        // 履歴を初期化
+        if (!challenges[challengeIndex].completionHistory) {
+            challenges[challengeIndex].completionHistory = [];
+        }
+        
+        // 今日の記録を探す
+        const todayIndex = challenges[challengeIndex].completionHistory.findIndex(h => h.date.startsWith(todayStr));
+        
         if (isAchieved) {
-            const todayStr = this.selectedDate.toISOString().split('T')[0];
-            
-            // 今日の記録を追加
-            challenges[challengeIndex].completionHistory.push({
+            const newRecord = {
                 date: todayStr,
                 level: level,
-                points: this.selectedCompletionPoints || 0
-            });
+                points: this.selectedCompletionPoints || 0,
+                status: 'achieved'
+            };
+            
+            if (todayIndex !== -1) {
+                challenges[challengeIndex].completionHistory[todayIndex] = newRecord;
+            } else {
+                challenges[challengeIndex].completionHistory.push(newRecord);
+            }
             
             // セレブレーション表示
             this.showCelebration();
@@ -2374,6 +2388,18 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                     const pointsToAdd = this.selectedProjectPoints > 0 ? this.selectedProjectPoints : 10;
                     window.addPointsToProject(projectId, pointsToAdd);
                 }
+            }
+        } else {
+            // 未達成の記録
+            const newRecord = {
+                date: todayStr,
+                status: 'notAchieved'
+            };
+            
+            if (todayIndex !== -1) {
+                challenges[challengeIndex].completionHistory[todayIndex] = newRecord;
+            } else {
+                challenges[challengeIndex].completionHistory.push(newRecord);
             }
         }
         
@@ -2643,24 +2669,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                         </svg>
                                     </button>
-                                ` : `
-                                    <div class="flex gap-1">
-                                        <button 
-                                            class="seasonal-challenge-pass-btn text-amber-600 hover:text-amber-700 text-sm px-2 py-1 rounded"
-                                            data-challenge-id="${challenge.id}"
-                                            title="パス"
-                                        >
-                                            パス
-                                        </button>
-                                        <button 
-                                            class="seasonal-challenge-notachieve-btn text-blue-600 hover:text-blue-700 text-sm px-2 py-1 rounded"
-                                            data-challenge-id="${challenge.id}"
-                                            title="未達成"
-                                        >
-                                            未達成
-                                        </button>
-                                    </div>
-                                `}
+                                ` : ''}
                             </div>
                             
                             <!-- レベル選択 -->
@@ -2730,14 +2739,6 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             // 取消ボタンのクリック
             else if (targetElement.classList.contains('seasonal-challenge-cancel-btn')) {
                 this.cancelSeasonalChallengeCompletion(challengeId);
-            }
-            // パスボタンのクリック
-            else if (targetElement.classList.contains('seasonal-challenge-pass-btn')) {
-                this.passSeasonalChallenge(challengeId);
-            }
-            // 未達成ボタンのクリック
-            else if (targetElement.classList.contains('seasonal-challenge-notachieve-btn')) {
-                this.notAchieveSeasonalChallenge(challengeId);
             }
         };
         
