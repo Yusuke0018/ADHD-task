@@ -1871,21 +1871,15 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                                                 </div>
                                             </button>
                                         `).join('')}
-                                        <div class="flex gap-2 mt-2">
+                                        <div class="flex gap-1 mt-1">
                                             <button 
                                                 data-habit-id="${habit.id}"
-                                                class="habit-skip-modal-btn flex-1 px-3 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all font-medium text-sm">
-                                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                                                </svg>
+                                                class="habit-skip-modal-btn flex-1 p-2 text-amber-600 hover:bg-amber-50 rounded-lg text-sm font-medium transition-colors">
                                                 パス
                                             </button>
                                             <button 
                                                 data-habit-id="${habit.id}"
-                                                class="habit-notachieved-btn flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium text-sm">
-                                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
+                                                class="habit-notachieved-btn flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded-lg text-sm font-medium transition-colors">
                                                 未達成
                                             </button>
                                         </div>
