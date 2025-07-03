@@ -484,6 +484,22 @@
         </div>
     </div>
 
+    <!-- 確認ダイアログモーダル -->
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden pointer-events-none flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full pointer-events-auto">
+            <h3 id="confirmationTitle" class="text-xl font-bold text-gray-800 mb-4">確認</h3>
+            <p id="confirmationMessage" class="text-gray-600 mb-6">本当に実行しますか？</p>
+            <div class="flex gap-2">
+                <button id="confirmationYes" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium">
+                    はい
+                </button>
+                <button id="confirmationNo" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors font-medium">
+                    キャンセル
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Files with cache busting -->
     <script src="js/data/sekki-data.js?v=3"></script>
     <script src="js/animations/seasonal-animations.js?v=3"></script>

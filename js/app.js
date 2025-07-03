@@ -746,25 +746,32 @@ const app = {
         
         // 既に完了している場合はpendingに戻す
         if (task.status !== 'pending') {
-            if (task.type === 'urgent' && task.points > 0) {
-                this.totalPoints -= task.points;
-                const dateStr = new Date(task.scheduledFor).toDateString();
-                if (this.dailyPointHistory[dateStr]) {
-                    this.dailyPointHistory[dateStr] -= task.points;
+            // 確認ダイアログを表示
+            this.showConfirmationDialog(
+                '達成を取り消しますか？',
+                `「${task.text}」の達成を取り消します。${task.points > 0 ? `${task.points}ポイントも取り消されます。` : ''}`,
+                () => {
+                    if (task.type === 'urgent' && task.points > 0) {
+                        this.totalPoints -= task.points;
+                        const dateStr = new Date(task.scheduledFor).toDateString();
+                        if (this.dailyPointHistory[dateStr]) {
+                            this.dailyPointHistory[dateStr] -= task.points;
+                        }
+                    }
+                    // プロジェクトポイントを戻す
+                    if (task.projectId && task.projectPoints && window.addPointsToProject) {
+                        window.addPointsToProject(task.projectId, -task.projectPoints);
+                    }
+                    task.status = 'pending';
+                    task.completedAt = null;
+                    task.points = 0;
+                    task.projectId = null;
+                    task.projectPoints = 0;
+                    this.saveData();
+                    this.render();
+                    this.updateDailyStatusIndicators();
                 }
-            }
-            // プロジェクトポイントを戻す
-            if (task.projectId && task.projectPoints && window.addPointsToProject) {
-                window.addPointsToProject(task.projectId, -task.projectPoints);
-            }
-            task.status = 'pending';
-            task.completedAt = null;
-            task.points = 0;
-            task.projectId = null;
-            task.projectPoints = 0;
-            this.saveData();
-            this.render();
-            this.updateDailyStatusIndicators();
+            );
         } else {
             // 未完了の場合は完了モーダルを表示
             this.showTaskCompletionModal(taskId);
@@ -1864,6 +1871,24 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                                                 </div>
                                             </button>
                                         `).join('')}
+                                        <div class="flex gap-2 mt-2">
+                                            <button 
+                                                data-habit-id="${habit.id}"
+                                                class="habit-skip-modal-btn flex-1 px-3 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all font-medium text-sm">
+                                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                                                </svg>
+                                                パス
+                                            </button>
+                                            <button 
+                                                data-habit-id="${habit.id}"
+                                                class="habit-notachieved-btn flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium text-sm">
+                                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                未達成
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1996,6 +2021,16 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                 console.log('Skip button clicked for habit:', habitId);
                 this.skipHabit(habitId);
             }
+            // モーダル内のスキップボタンのクリック
+            else if (targetElement.classList.contains('habit-skip-modal-btn')) {
+                console.log('Modal skip button clicked for habit:', habitId);
+                this.skipHabit(habitId);
+            }
+            // 未達成ボタンのクリック
+            else if (targetElement.classList.contains('habit-notachieved-btn')) {
+                console.log('Not achieved button clicked for habit:', habitId);
+                this.notAchieveHabit(habitId);
+            }
             // 取消ボタンのクリック
             else if (targetElement.classList.contains('habit-cancel-btn')) {
                 console.log('Cancel button clicked for habit:', habitId);
@@ -2064,6 +2099,20 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         const habitIndex = data.habits.findIndex(h => h.id === habitId);
         if (habitIndex === -1) return;
         
+        const habit = data.habits[habitIndex];
+        
+        // 確認ダイアログを表示
+        this.showConfirmationDialog(
+            '達成を取り消しますか？',
+            `「${habit.name}」の今日の達成を取り消します。連続記録がリセットされる可能性があります。`,
+            () => {
+                this.performHabitCancellation(habitId, data, habitIndex);
+            }
+        );
+    },
+    
+    // 習慣の完了取り消しを実行
+    performHabitCancellation(habitId, data, habitIndex) {
         const habit = data.habits[habitIndex];
         
         // YYYY-MM-DD形式で日付を統一
@@ -2162,18 +2211,26 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         if (habitIndex === -1) return;
         
         const habit = data.habits[habitIndex];
-        const todayYmd = `${this.selectedDate.getFullYear()}-${String(this.selectedDate.getMonth() + 1).padStart(2, '0')}-${String(this.selectedDate.getDate()).padStart(2, '0')}`;
         
-        // 今日のパス記録を削除
-        if (habit.history) {
-            data.habits[habitIndex].history = habit.history.filter(h => {
-                const historyDate = h.date.split('T')[0];
-                return !(historyDate === todayYmd && h.passed);
-            });
-        }
-        
-        localStorage.setItem('habit_tasks', JSON.stringify(data));
-        this.renderHabits();
+        // 確認ダイアログを表示
+        this.showConfirmationDialog(
+            'パスを取り消しますか？',
+            `「${habit.name}」の今日のパスを取り消します。`,
+            () => {
+                const todayYmd = `${this.selectedDate.getFullYear()}-${String(this.selectedDate.getMonth() + 1).padStart(2, '0')}-${String(this.selectedDate.getDate()).padStart(2, '0')}`;
+                
+                // 今日のパス記録を削除
+                if (habit.history) {
+                    data.habits[habitIndex].history = habit.history.filter(h => {
+                        const historyDate = h.date.split('T')[0];
+                        return !(historyDate === todayYmd && h.passed);
+                    });
+                }
+                
+                localStorage.setItem('habit_tasks', JSON.stringify(data));
+                this.renderHabits();
+            }
+        );
     },
 
 
@@ -2747,17 +2804,30 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                         <div class="flex-1">
                             <div class="flex items-center justify-between">
                                 <h4 class="font-medium text-gray-800 mb-1">${challenge.text}</h4>
-                                ${isCompleted ? `
-                                    <button 
-                                        class="seasonal-challenge-cancel-btn text-gray-400 hover:text-gray-600 p-1"
-                                        data-challenge-id="${challenge.id}"
-                                        title="取消"
-                                    >
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                    </button>
-                                ` : ''}
+                                <div class="flex items-center gap-1">
+                                    ${!isCompleted && !isPassed ? `
+                                        <button 
+                                            class="seasonal-challenge-skip-btn p-2 text-gray-400 hover:text-gray-600 transition-all"
+                                            data-challenge-id="${challenge.id}"
+                                            title="お休み"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                                            </svg>
+                                        </button>
+                                    ` : ''}
+                                    ${isCompleted ? `
+                                        <button 
+                                            class="seasonal-challenge-cancel-btn text-gray-400 hover:text-gray-600 p-1"
+                                            data-challenge-id="${challenge.id}"
+                                            title="取消"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    ` : ''}
+                                </div>
                             </div>
                             
                             <!-- レベル選択 -->
@@ -2871,6 +2941,10 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             // 取消ボタンのクリック
             else if (targetElement.classList.contains('seasonal-challenge-cancel-btn')) {
                 this.cancelSeasonalChallengeCompletion(challengeId);
+            }
+            // 三日月スキップボタンのクリック
+            else if (targetElement.classList.contains('seasonal-challenge-skip-btn')) {
+                this.passSeasonalChallenge(challengeId);
             }
             // パスボタンのクリック
             else if (targetElement.classList.contains('seasonal-challenge-pass-btn') && !targetElement.disabled) {
@@ -2996,19 +3070,27 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         const challengeIndex = challenges.findIndex(c => c.id === challengeId);
         if (challengeIndex === -1) return;
         
-        const todayStr = this.selectedDate.toISOString().split('T')[0];
         const challenge = challenges[challengeIndex];
         
-        // 今日のパス記録を削除
-        if (challenge.completionHistory) {
-            challenges[challengeIndex].completionHistory = challenge.completionHistory.filter(h => {
-                return !(h.date.startsWith(todayStr) && h.status === 'passed');
-            });
-        }
-        
-        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
-        this.renderSeasonalChallenges();
-        this.render();
+        // 確認ダイアログを表示
+        this.showConfirmationDialog(
+            'パスを取り消しますか？',
+            `「${challenge.text}」の今日のパスを取り消します。`,
+            () => {
+                const todayStr = this.selectedDate.toISOString().split('T')[0];
+                
+                // 今日のパス記録を削除
+                if (challenge.completionHistory) {
+                    challenges[challengeIndex].completionHistory = challenge.completionHistory.filter(h => {
+                        return !(h.date.startsWith(todayStr) && h.status === 'passed');
+                    });
+                }
+                
+                localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+                this.renderSeasonalChallenges();
+                this.render();
+            }
+        );
     },
     
     // 季節のチャレンジを未達成にする
@@ -3049,31 +3131,39 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         if (challengeIndex === -1) return;
         
         const challenge = challenges[challengeIndex];
-        const todayStr = this.selectedDate.toISOString().split('T')[0];
         
-        // 今日の記録を削除
-        const todayIndex = challenge.completionHistory.findIndex(h => h.date.startsWith(todayStr));
-        if (todayIndex !== -1) {
-            const completion = challenge.completionHistory[todayIndex];
-            const points = challenge.levelDefinitions.find(def => def.level === completion.level)?.points || 0;
-            
-            // ポイントを減算
-            const dateStr = this.selectedDate.toDateString();
-            if (this.dailyPointHistory[dateStr]) {
-                this.dailyPointHistory[dateStr] -= points;
+        // 確認ダイアログを表示
+        this.showConfirmationDialog(
+            '達成を取り消しますか？',
+            `「${challenge.text}」の今日の達成を取り消します。`,
+            () => {
+                const todayStr = this.selectedDate.toISOString().split('T')[0];
+                
+                // 今日の記録を削除
+                const todayIndex = challenge.completionHistory.findIndex(h => h.date.startsWith(todayStr));
+                if (todayIndex !== -1) {
+                    const completion = challenge.completionHistory[todayIndex];
+                    const points = challenge.levelDefinitions.find(def => def.level === completion.level)?.points || 0;
+                    
+                    // ポイントを減算
+                    const dateStr = this.selectedDate.toDateString();
+                    if (this.dailyPointHistory[dateStr]) {
+                        this.dailyPointHistory[dateStr] -= points;
+                    }
+                    
+                    // 記録を削除
+                    challenge.completionHistory.splice(todayIndex, 1);
+                }
+                
+                // 保存
+                localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
+                this.saveData();
+                
+                // 再描画
+                this.renderSeasonalChallenges();
+                this.render();
             }
-            
-            // 記録を削除
-            challenge.completionHistory.splice(todayIndex, 1);
-        }
-        
-        // 保存
-        localStorage.setItem('seasonal_challenges', JSON.stringify(challenges));
-        this.saveData();
-        
-        // 再描画
-        this.renderSeasonalChallenges();
-        this.render();
+        );
     },
     
     // 期間終了したチャレンジのレビュー通知をチェック
@@ -3407,6 +3497,40 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         setTimeout(() => {
             notification.remove();
         }, 3000);
+    },
+    
+    // 確認ダイアログを表示
+    showConfirmationDialog(title, message, onConfirm) {
+        const modal = document.getElementById('confirmationModal');
+        const titleEl = document.getElementById('confirmationTitle');
+        const messageEl = document.getElementById('confirmationMessage');
+        const yesBtn = document.getElementById('confirmationYes');
+        const noBtn = document.getElementById('confirmationNo');
+        
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+        
+        // 既存のリスナーを削除
+        const newYesBtn = yesBtn.cloneNode(true);
+        const newNoBtn = noBtn.cloneNode(true);
+        yesBtn.parentNode.replaceChild(newYesBtn, yesBtn);
+        noBtn.parentNode.replaceChild(newNoBtn, noBtn);
+        
+        // 新しいリスナーを追加
+        newYesBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.add('pointer-events-none');
+            if (onConfirm) onConfirm();
+        });
+        
+        newNoBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+            modal.classList.add('pointer-events-none');
+        });
+        
+        // モーダルを表示
+        modal.classList.remove('hidden');
+        modal.classList.remove('pointer-events-none');
     },
     
     // 習慣データの分析関数
