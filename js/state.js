@@ -14,7 +14,6 @@ export const state = {
     dailyAIComments: {},
     openaiApiKey: null,
     expandedHabitId: null,
-    expandedSeasonalChallengeId: null,
     lastSwipeTime: 0
 };
 

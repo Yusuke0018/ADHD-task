@@ -6,7 +6,6 @@ import { getTasksForDate, getTaskStats } from './taskManager.js';
 
 // 習慣データとプロジェクトデータのインポート（外部ファイルから）
 let habitTasks = [];
-let seasonalChallenges = [];
 
 // 外部ファイルの読み込み確認
 try {
@@ -23,7 +22,6 @@ export function render() {
     updateDateDisplay();
     renderTasks();
     renderHabits();
-    renderSeasonalChallenges();
     updatePointsDisplay();
     renderReflection();
     renderDailyAIComment();
@@ -239,67 +237,6 @@ function createHabitElement(habit) {
     return habitEl;
 }
 
-// ===== 季節のチャレンジの描画 =====
-export function renderSeasonalChallenges() {
-    const challengeList = document.getElementById('seasonalChallengeList');
-    const noChallenges = document.getElementById('noSeasonalChallenges');
-    
-    if (!challengeList) return;
-    
-    challengeList.innerHTML = '';
-    
-    // 外部ファイルから季節のチャレンジデータを取得
-    try {
-        const savedChallenges = localStorage.getItem('seasonal_challenges');
-        seasonalChallenges = savedChallenges ? JSON.parse(savedChallenges) : [];
-    } catch (e) {
-        seasonalChallenges = [];
-    }
-    
-    const activeChallenges = seasonalChallenges.filter(challenge => challenge.active !== false);
-    
-    if (activeChallenges.length === 0) {
-        if (noChallenges) noChallenges.classList.remove('hidden');
-        return;
-    }
-    
-    if (noChallenges) noChallenges.classList.add('hidden');
-    
-    activeChallenges.forEach(challenge => {
-        const challengeEl = createSeasonalChallengeElement(challenge);
-        challengeList.appendChild(challengeEl);
-    });
-}
-
-function createSeasonalChallengeElement(challenge) {
-    const today = dateUtils.formatDateToYmd(state.selectedDate);
-    const isCompleted = challenge.completedDates && challenge.completedDates.includes(today);
-    
-    const challengeEl = document.createElement('div');
-    challengeEl.className = `seasonal-challenge-item p-3 bg-green-50 rounded-lg border ${isCompleted ? 'border-green-300 bg-green-100' : 'border-green-200'}`;
-    
-    challengeEl.innerHTML = `
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <button onclick="window.app.toggleSeasonalChallenge('${challenge.id}', '${today}')" 
-                        class="w-5 h-5 rounded-full border-2 ${
-                            isCompleted 
-                                ? 'bg-green-500 border-green-500' 
-                                : 'border-green-300 hover:border-green-400'
-                        } transition-all flex items-center justify-center">
-                    ${isCompleted ? 
-                        '<svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>' 
-                        : ''
-                    }
-                </button>
-                <span class="text-sm font-medium text-green-800">${challenge.name}</span>
-            </div>
-            <div class="text-xs text-green-600">${challenge.season || '通年'}</div>
-        </div>
-    `;
-    
-    return challengeEl;
-}
 
 // ===== ポイント表示の更新 =====
 export function updatePointsDisplay() {
