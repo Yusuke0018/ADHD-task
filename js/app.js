@@ -1795,11 +1795,9 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             let isNotAchievedToday = false;
             if (habit.history && habit.history.length > 0) {
                 const todayHistory = habit.history.find(h => {
+                    if (!h.date) return false;
                     let historyYmd;
-                    if (h.date.includes('T') || h.date.includes('Z')) {
-                        const historyDate = new Date(h.date);
-                        historyYmd = `${historyDate.getFullYear()}-${String(historyDate.getMonth() + 1).padStart(2, '0')}-${String(historyDate.getDate()).padStart(2, '0')}`;
-                    } else if (h.date.includes('-') && h.date.length === 10) {
+                    if (typeof h.date === 'string' && h.date.includes('-') && h.date.length === 10) {
                         historyYmd = h.date;
                     } else {
                         const historyDate = new Date(h.date);
@@ -1813,6 +1811,12 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                 }
                 if (todayHistory && todayHistory.notAchieved) {
                     isNotAchievedToday = true;
+                }
+                
+                // デバッグログ
+                if (todayHistory) {
+                    console.log('Today history for habit', habit.name, ':', todayHistory);
+                    console.log('isNotAchievedToday:', isNotAchievedToday);
                 }
             }
             
@@ -2011,8 +2015,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             // 未達成ボタンのクリック
             else if (targetElement.classList.contains('habit-notachieved-btn')) {
                 console.log('Not achieved button clicked for habit:', habitId);
-                habitManager.notAchieveHabit(habitId);
-                this.renderHabits();  // 習慣リストを再描画
+                this.notAchieveHabit(habitId);
             }
             // 取消ボタンのクリック
             else if (targetElement.classList.contains('habit-cancel-btn')) {
@@ -2214,6 +2217,58 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                 this.renderHabits();
             }
         );
+    },
+
+    // 習慣を未達成にする
+    notAchieveHabit(habitId) {
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) return;
+        
+        let data;
+        try {
+            data = JSON.parse(habitData);
+        } catch (e) {
+            console.error('Error parsing habit data:', e);
+            return;
+        }
+        
+        const habitIndex = data.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        const habit = data.habits[habitIndex];
+        const todayYmd = `${this.selectedDate.getFullYear()}-${String(this.selectedDate.getMonth() + 1).padStart(2, '0')}-${String(this.selectedDate.getDate()).padStart(2, '0')}`;
+        
+        // 履歴に未達成を記録
+        if (!data.habits[habitIndex].history) {
+            data.habits[habitIndex].history = [];
+        }
+        
+        // 今日の記録を更新または追加
+        const existingRecordIndex = data.habits[habitIndex].history.findIndex(h => {
+            const historyDate = h.date.split('T')[0];
+            return historyDate === todayYmd;
+        });
+        
+        if (existingRecordIndex !== -1) {
+            data.habits[habitIndex].history[existingRecordIndex] = {
+                date: todayYmd,
+                achieved: false,
+                passed: false,
+                notAchieved: true,
+                level: null
+            };
+        } else {
+            data.habits[habitIndex].history.push({
+                date: todayYmd,
+                achieved: false,
+                passed: false,
+                notAchieved: true,
+                level: null
+            });
+        }
+        
+        localStorage.setItem('habit_tasks', JSON.stringify(data));
+        this.renderHabits();
     },
 
 
