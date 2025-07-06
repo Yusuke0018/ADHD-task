@@ -1792,6 +1792,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             
             // パス状態の確認
             let isSkippedToday = false;
+            let isNotAchievedToday = false;
             if (habit.history && habit.history.length > 0) {
                 const todayHistory = habit.history.find(h => {
                     let historyYmd;
@@ -1810,6 +1811,9 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                 if (todayHistory && todayHistory.passed) {
                     isSkippedToday = true;
                 }
+                if (todayHistory && todayHistory.notAchieved) {
+                    isNotAchievedToday = true;
+                }
             }
             
             let cardClass = 'task-normal-active';
@@ -1821,6 +1825,9 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             } else if (isSkippedToday) {
                 cardClass = 'task-skipped';
                 statusBadge = '<span class="text-amber-600 text-sm font-medium">お休み中</span>';
+            } else if (isNotAchievedToday) {
+                cardClass = 'task-notachieved';
+                statusBadge = '<span class="text-blue-600 text-sm font-medium">未達成</span>';
             }
             
             return `
@@ -1869,7 +1876,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
-                            ${!isCompletedToday && !isSkippedToday ? `
+                            ${!isCompletedToday && !isSkippedToday && !isNotAchievedToday ? `
                                 <button 
                                     data-habit-id="${habit.id}"
                                     class="habit-skip-btn p-2 text-gray-400 hover:text-gray-600 transition-all" title="お休み">
@@ -2005,6 +2012,7 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
             else if (targetElement.classList.contains('habit-notachieved-btn')) {
                 console.log('Not achieved button clicked for habit:', habitId);
                 habitManager.notAchieveHabit(habitId);
+                this.renderHabits();  // 習慣リストを再描画
             }
             // 取消ボタンのクリック
             else if (targetElement.classList.contains('habit-cancel-btn')) {
