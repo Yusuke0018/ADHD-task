@@ -30,7 +30,9 @@ const habitManager = {
                 this.hallOfFameHabits = data.hallOfFame || [];
                 
                 // 既存データに最大連続日数を追加（初回のみ）
-                this.habits.forEach(habit => {
+                console.log('Processing habits, count:', this.habits.length);
+                this.habits.forEach((habit, index) => {
+                    console.log(`Processing habit ${index}:`, habit.name);
                     if (habit.maxContinuousDays === undefined) {
                         habit.maxContinuousDays = habit.continuousDays || 0;
                     }
