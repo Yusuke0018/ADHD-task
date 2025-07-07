@@ -329,68 +329,104 @@ const habitManager = {
     
     // 継続日数を更新
     updateContinuousDays(habit) {
+        // デフォルト値を設定
+        habit.continuousDays = 0;
+        habit.maxContinuousDays = habit.maxContinuousDays || 0;
+
         if (!habit.history || habit.history.length === 0) {
-            habit.continuousDays = 0;
-            habit.maxContinuousDays = habit.maxContinuousDays || 0;
             return;
         }
 
-        // 履歴を日付でソート（新しい順）
-        const sortedHistory = [...habit.history].sort((a, b) => {
-            return new Date(b.date) - new Date(a.date);
-        });
+        // 達成記録のみを抽出してソート（古い順）
+        const achievedRecords = habit.history
+            .filter(r => r.achieved)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        // 今日から遡って継続日数を計算
-        let currentStreak = 0;
-        let tempStreak = 0;
-        let maxStreak = habit.maxContinuousDays || 0;
-        let lastDate = null;
-        let checkingCurrent = true;
+        if (achievedRecords.length === 0) {
+            // 一度も達成していない場合
+            return;
+        }
 
-        for (const record of sortedHistory) {
+        // 連続日数を計算
+        let streaks = [];
+        let currentStreak = 1;
+        
+        for (let i = 1; i < achievedRecords.length; i++) {
+            const prevDate = new Date(achievedRecords[i - 1].date.split('T')[0]);
+            const currDate = new Date(achievedRecords[i].date.split('T')[0]);
+            prevDate.setHours(0, 0, 0, 0);
+            currDate.setHours(0, 0, 0, 0);
+            
+            const dayDiff = (currDate - prevDate) / (1000 * 60 * 60 * 24);
+            
+            if (dayDiff === 1) {
+                // 連続している
+                currentStreak++;
+            } else if (dayDiff > 1) {
+                // 間に日がある場合、その間にパス以外の記録があるかチェック
+                let interrupted = false;
+                
+                for (const record of habit.history) {
+                    const recordDate = new Date(record.date.split('T')[0]);
+                    recordDate.setHours(0, 0, 0, 0);
+                    
+                    if (recordDate > prevDate && recordDate < currDate) {
+                        if (!record.passed && !record.achieved) {
+                            // 未達成がある場合は中断
+                            interrupted = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (interrupted) {
+                    // 連続が途切れた
+                    streaks.push(currentStreak);
+                    currentStreak = 1;
+                } else {
+                    // パスのみなので継続
+                    currentStreak++;
+                }
+            }
+        }
+        
+        // 最後のストリークを追加
+        streaks.push(currentStreak);
+        
+        // 最大値を計算
+        const maxFromHistory = Math.max(...streaks);
+        habit.maxContinuousDays = Math.max(habit.maxContinuousDays, maxFromHistory);
+        
+        // 現在の連続日数を計算（今日または最近から遡る）
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // 最新の達成日を取得
+        const lastAchievedDate = new Date(achievedRecords[achievedRecords.length - 1].date.split('T')[0]);
+        lastAchievedDate.setHours(0, 0, 0, 0);
+        
+        const daysSinceLastAchieved = (today - lastAchievedDate) / (1000 * 60 * 60 * 24);
+        
+        // 最後の達成から今日までの間に未達成があるかチェック
+        let currentStreakValid = true;
+        for (const record of habit.history) {
             const recordDate = new Date(record.date.split('T')[0]);
             recordDate.setHours(0, 0, 0, 0);
-
-            if (lastDate) {
-                const dayDiff = (lastDate - recordDate) / (1000 * 60 * 60 * 24);
-                
-                // 日付が連続していない（1日より大きい差がある）
-                if (dayDiff > 1) {
-                    if (checkingCurrent) {
-                        currentStreak = tempStreak;
-                        checkingCurrent = false;
-                    }
-                    maxStreak = Math.max(maxStreak, tempStreak);
-                    tempStreak = 0;
+            
+            if (recordDate >= lastAchievedDate && recordDate <= today) {
+                if (record.notAchieved) {
+                    currentStreakValid = false;
+                    break;
                 }
             }
-
-            if (record.achieved) {
-                tempStreak++;
-            } else if (record.passed) {
-                // パスの場合は継続とみなすが、カウントは増やさない
-                // 何もしない
-            } else {
-                // 未達成の場合は継続が切れる
-                if (checkingCurrent) {
-                    currentStreak = tempStreak;
-                    checkingCurrent = false;
-                }
-                maxStreak = Math.max(maxStreak, tempStreak);
-                tempStreak = 0;
-            }
-
-            lastDate = recordDate;
         }
-
-        // 最後のストリークを確認
-        if (checkingCurrent) {
-            currentStreak = tempStreak;
+        
+        if (currentStreakValid && daysSinceLastAchieved <= 1) {
+            // 最後のストリークが現在も続いている
+            habit.continuousDays = currentStreak;
+        } else {
+            habit.continuousDays = 0;
         }
-        maxStreak = Math.max(maxStreak, tempStreak);
-
-        habit.continuousDays = currentStreak;
-        habit.maxContinuousDays = maxStreak;
     },
 
     // 削除確認モーダル表示
