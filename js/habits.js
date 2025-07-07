@@ -27,6 +27,14 @@ const habitManager = {
                 const data = JSON.parse(storedData);
                 this.habits = data.habits || [];
                 this.hallOfFameHabits = data.hallOfFame || [];
+                
+                // 既存データに最大連続日数を追加（初回のみ）
+                this.habits.forEach(habit => {
+                    if (habit.maxContinuousDays === undefined) {
+                        habit.maxContinuousDays = habit.continuousDays || 0;
+                    }
+                });
+                
                 console.log('Loaded habits:', {
                     habitsCount: this.habits.length,
                     habits: this.habits,
@@ -125,6 +133,7 @@ const habitManager = {
                 ...habitData,
                 createdAt: new Date().toISOString(),
                 continuousDays: 0,
+                maxContinuousDays: 0,
                 lastCompletedDate: null,
                 history: []
             };
@@ -263,13 +272,15 @@ const habitManager = {
         let continuousDays = 0;
         let checkDate = new Date(today);
         
-        // 今日から遡って連続達成日数をカウント
+        // 今日から遡って連続達成日数をカウント（パスも継続とみなす）
         while (true) {
             const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
             const record = habit.history.find(h => h.date === dateStr);
             
-            if (record && record.achieved) {
-                continuousDays++;
+            if (record && (record.achieved || record.passed)) {
+                if (record.achieved) {
+                    continuousDays++;
+                }
                 checkDate.setDate(checkDate.getDate() - 1);
             } else {
                 break;
@@ -277,6 +288,12 @@ const habitManager = {
         }
         
         habit.continuousDays = continuousDays;
+        
+        // 最大連続日数を更新
+        if (!habit.maxContinuousDays || continuousDays > habit.maxContinuousDays) {
+            habit.maxContinuousDays = continuousDays;
+        }
+        
         habit.lastCompletedDate = today.toISOString();
     },
 
@@ -356,6 +373,7 @@ const habitManager = {
                         </div>
                         <div class="mt-3 flex items-center gap-4 text-sm">
                             <span class="text-purple-600 font-medium">継続: ${habit.continuousDays}日</span>
+                            <span class="text-gray-600">最大: ${habit.maxContinuousDays || 0}日</span>
                         </div>
                         <!-- 週間進捗カレンダー -->
                         <div class="mt-4">
