@@ -335,7 +335,7 @@ const habitManager = {
             return;
         }
 
-        // 履歴を日付順にソート
+        // 履歴を日付順にソートし、日付オブジェクトを作成
         const sortedHistory = habit.history
             .map(r => ({ ...r, dateObj: new Date(r.date.split('T')[0]) }))
             .sort((a, b) => a.dateObj - b.dateObj);
@@ -349,35 +349,45 @@ const habitManager = {
                 if (lastCompletionDate) {
                     const diff = (record.dateObj - lastCompletionDate) / (1000 * 60 * 60 * 24);
                     if (diff === 1) {
+                        // 前の日が達成日ならストリークを継続
                         currentStreak++;
                     } else if (diff > 1) {
                         // 連続が途切れたか、間にパスがあったかチェック
                         const daysBetween = diff - 1;
-                        const passedDays = sortedHistory.filter(h =>
-                            h.passed &&
-                            new Date(h.date.split('T')[0]) > lastCompletionDate &&
-                            new Date(h.date.split('T')[0]) < record.dateObj
-                        ).length;
+                        // 間の日数を特定
+                        const betweenDates = [];
+                        for (let i = 1; i <= daysBetween; i++) {
+                            const d = new Date(lastCompletionDate);
+                            d.setDate(d.getDate() + i);
+                            betweenDates.push(d.toISOString().split('T')[0]);
+                        }
+                        // 間の日にパス以外の記録がないか確認
+                        const hasBreakingRecord = sortedHistory.some(h =>
+                            betweenDates.includes(h.date.split('T')[0]) && !h.passed
+                        );
 
-                        if (daysBetween === passedDays) {
-                            // 間の日がすべてパスなら継続
-                            currentStreak++;
-                        } else {
+                        if (hasBreakingRecord) {
                             // 途切れた
                             maxStreak = Math.max(maxStreak, currentStreak);
                             currentStreak = 1;
+                        } else {
+                            // パスのみなら継続
+                            currentStreak++;
                         }
                     }
                 } else {
+                    // 最初の達成
                     currentStreak = 1;
                 }
                 lastCompletionDate = record.dateObj;
-            } else if (!record.passed) { // notAchieved or other states
+            } else { // notAchieved または passed
                 maxStreak = Math.max(maxStreak, currentStreak);
                 currentStreak = 0;
-                lastCompletionDate = null;
+                // `passed` の場合は lastCompletionDate を維持する
+                if (!record.passed) {
+                    lastCompletionDate = null;
+                }
             }
-            // `passed` の場合は何もしない（ストリークは維持されるが、lastCompletionDateは更新されない）
         }
 
         maxStreak = Math.max(maxStreak, currentStreak);
