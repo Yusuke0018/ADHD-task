@@ -335,62 +335,59 @@ const habitManager = {
             return;
         }
 
-        // 履歴を日付オブジェクトに変換し、ソート
-        const sortedHistory = habit.history
-            .map(r => ({ ...r, dateObj: new Date(r.date.split('T')[0] + 'T00:00:00') }))
-            .sort((a, b) => a.dateObj - b.dateObj);
+        // 履歴を日付でソート（新しい順）
+        const sortedHistory = [...habit.history].sort((a, b) => {
+            return new Date(b.date) - new Date(a.date);
+        });
 
+        // 今日から遡って継続日数を計算
         let currentStreak = 0;
-        let maxStreak = 0;
+        let tempStreak = 0;
+        let maxStreak = habit.maxContinuousDays || 0;
+        let lastDate = null;
+        let checkingCurrent = true;
 
-        for (let i = 0; i < sortedHistory.length; i++) {
-            const record = sortedHistory[i];
+        for (const record of sortedHistory) {
+            const recordDate = new Date(record.date.split('T')[0]);
+            recordDate.setHours(0, 0, 0, 0);
+
+            if (lastDate) {
+                const dayDiff = (lastDate - recordDate) / (1000 * 60 * 60 * 24);
+                
+                // 日付が連続していない（1日より大きい差がある）
+                if (dayDiff > 1) {
+                    if (checkingCurrent) {
+                        currentStreak = tempStreak;
+                        checkingCurrent = false;
+                    }
+                    maxStreak = Math.max(maxStreak, tempStreak);
+                    tempStreak = 0;
+                }
+            }
 
             if (record.achieved) {
-                if (i === 0) {
-                    currentStreak = 1; // 最初の達成
-                } else {
-                    const prevRecord = sortedHistory[i - 1];
-                    const diff = (record.dateObj - prevRecord.dateObj) / (1000 * 60 * 60 * 24);
-
-                    if (diff === 1) {
-                        // 前日が達成またはパスなら継続
-                        if (prevRecord.achieved || prevRecord.passed) {
-                            currentStreak++;
-                        } else {
-                            currentStreak = 1;
-                        }
-                    } else if (diff > 1) {
-                        // 日が飛んでいる場合、間がすべてパスか確認
-                        const daysBetween = diff - 1;
-                        const datesBetween = [];
-                        for (let j = 1; j <= daysBetween; j++) {
-                            const d = new Date(prevRecord.dateObj);
-                            d.setDate(d.getDate() + j);
-                            datesBetween.push(d.toISOString().split('T')[0]);
-                        }
-                        
-                        const passedDaysCount = sortedHistory.filter(h =>
-                            datesBetween.includes(h.date.split('T')[0]) && h.passed
-                        ).length;
-
-                        if (daysBetween === passedDaysCount) {
-                            currentStreak++;
-                        } else {
-                            currentStreak = 1;
-                        }
-                    } else { // 同じ日の記録など
-                        // ストリークは変わらない
-                    }
-                }
+                tempStreak++;
             } else if (record.passed) {
-                // パスの場合は継続日数は変わらない
-            } else { // notAchieved
-                maxStreak = Math.max(maxStreak, currentStreak);
-                currentStreak = 0;
+                // パスの場合は継続とみなすが、カウントは増やさない
+                // 何もしない
+            } else {
+                // 未達成の場合は継続が切れる
+                if (checkingCurrent) {
+                    currentStreak = tempStreak;
+                    checkingCurrent = false;
+                }
+                maxStreak = Math.max(maxStreak, tempStreak);
+                tempStreak = 0;
             }
-            maxStreak = Math.max(maxStreak, currentStreak);
+
+            lastDate = recordDate;
         }
+
+        // 最後のストリークを確認
+        if (checkingCurrent) {
+            currentStreak = tempStreak;
+        }
+        maxStreak = Math.max(maxStreak, tempStreak);
 
         habit.continuousDays = currentStreak;
         habit.maxContinuousDays = maxStreak;
