@@ -3244,6 +3244,12 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         return div.innerHTML;
     },
     
+    // 日付をYYYY-MM-DD形式にフォーマット
+    formatDateToYmd(date) {
+        const d = new Date(date);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    },
+    
     calendarMonth: new Date(),
     
     toggleCustomCalendar(show = null) {
