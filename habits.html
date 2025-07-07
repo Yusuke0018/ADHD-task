@@ -311,8 +311,7 @@
             // 初期化後すぐに再レンダリング
             setTimeout(() => {
                 console.log('Re-rendering after init...');
-                habitManager.loadHabits();
-                habitManager.render();
+                habitManager.init(); // loadHabitsではなくinitを呼ぶ
             }, 100);
         }
         
@@ -325,8 +324,7 @@
         
         window.addEventListener('load', () => {
             console.log('Window loaded, checking habits...');
-            habitManager.loadHabits();
-            habitManager.render();
+            habitManager.init(); // loadHabitsではなくinitを呼ぶ
         });
     </script>
 </body>
