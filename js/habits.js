@@ -331,11 +331,14 @@ const habitManager = {
     
     // 継続日数を更新
     updateContinuousDays(habit) {
+        console.log('updateContinuousDays called for:', habit.name);
+        
         // デフォルト値を設定
         habit.continuousDays = 0;
         habit.maxContinuousDays = habit.maxContinuousDays || 0;
 
         if (!habit.history || habit.history.length === 0) {
+            console.log('No history, returning early');
             return;
         }
 
