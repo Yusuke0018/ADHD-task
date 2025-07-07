@@ -337,106 +337,132 @@ const habitManager = {
             return;
         }
 
-        // 履歴を日付順にソート（新しい順）
-        const sortedHistory = [...habit.history].sort((a, b) => {
-            return new Date(b.date) - new Date(a.date);
+        // デバッグ用ログ
+        console.log(`=== Updating continuity for ${habit.name} ===`);
+        console.log('History:', habit.history);
+
+        // 今日の日付
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // 履歴から日付の配列を作成（達成またはパスの日のみ）
+        const activeDates = {};
+        habit.history.forEach(record => {
+            const dateStr = record.date.split('T')[0];
+            if (record.achieved || record.passed) {
+                activeDates[dateStr] = record;
+            }
         });
 
-        // デバッグ用ログ
-        console.log(`Updating continuity for ${habit.name}`);
-        console.log('Sorted history:', sortedHistory);
+        console.log('Active dates:', activeDates);
 
-        // 現在の継続日数を計算（今日から過去に向かって）
+        // 現在の継続日数を計算
         let currentStreak = 0;
-        let checkDate = new Date();
-        checkDate.setHours(0, 0, 0, 0);
-        let isActive = true;
+        let checkDate = new Date(today);
+        let consecutiveDays = 0;
 
-        // 今日から過去に向かってチェック
-        while (isActive) {
+        // 今日から過去に向かって連続性をチェック
+        for (let i = 0; i < 365; i++) {
             const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
-            const record = sortedHistory.find(r => {
-                const recordDateStr = r.date.split('T')[0];
-                return recordDateStr === dateStr;
-            });
+            
+            const record = habit.history.find(r => r.date.split('T')[0] === dateStr);
+            
+            console.log(`Day ${i}: ${dateStr}`, record);
 
-            console.log(`Checking date ${dateStr}, found record:`, record);
-
-            if (!record) {
-                // 記録がない日
-                if (currentStreak === 0) {
-                    // まだ開始していない場合は過去の日をチェック
-                    checkDate.setDate(checkDate.getDate() - 1);
-                    
-                    // 過去30日以上前まで遡ったら中止
-                    const daysSinceToday = (new Date().getTime() - checkDate.getTime()) / (1000 * 60 * 60 * 24);
-                    if (daysSinceToday > 30) {
-                        isActive = false;
-                    }
-                } else {
-                    // 連続が途切れた
-                    isActive = false;
+            if (record) {
+                if (record.achieved) {
+                    consecutiveDays++;
+                } else if (record.passed) {
+                    // パスは継続を維持するが日数には含めない
+                    // 何もしない
+                } else if (record.notAchieved) {
+                    // 未達成で連続が途切れる
+                    break;
                 }
-            } else if (record.achieved) {
-                // 達成した日
-                currentStreak++;
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else if (record.passed) {
-                // パスした日は継続を維持
-                checkDate.setDate(checkDate.getDate() - 1);
-            } else if (record.notAchieved) {
-                // 未達成の日で継続が途切れる
-                isActive = false;
+            } else {
+                // 記録がない日
+                if (i === 0) {
+                    // 今日の記録がない場合は、過去の記録を続けてチェック
+                } else if (consecutiveDays > 0 || Object.keys(activeDates).some(d => d === dateStr)) {
+                    // すでに連続が始まっているか、この日に記録があるべきだった
+                    break;
+                }
             }
+            
+            checkDate.setDate(checkDate.getDate() - 1);
         }
 
-        habit.continuousDays = currentStreak;
+        habit.continuousDays = consecutiveDays;
+        console.log(`Current streak: ${consecutiveDays}`);
 
         // 全ての連続期間を計算（最大継続日数の計算用）
+        const sortedHistory = [...habit.history].sort((a, b) => {
+            return new Date(a.date) - new Date(b.date);
+        });
+
         const allStreaks = [];
         let tempStreak = 0;
-        let lastDate = null;
+        let inStreak = false;
         
-        // 古い順にして計算
-        const historyAsc = [...sortedHistory].reverse();
+        console.log('Calculating all streaks...');
         
-        for (let i = 0; i < historyAsc.length; i++) {
-            const record = historyAsc[i];
-            const currentDate = new Date(record.date.split('T')[0]);
-            currentDate.setHours(0, 0, 0, 0);
+        // 日付ごとにマップを作成
+        const dateMap = {};
+        sortedHistory.forEach(record => {
+            const dateStr = record.date.split('T')[0];
+            dateMap[dateStr] = record;
+        });
+        
+        // 最初の記録から最後の記録まで日ごとにチェック
+        if (sortedHistory.length > 0) {
+            const firstDate = new Date(sortedHistory[0].date.split('T')[0]);
+            const lastDate = new Date(sortedHistory[sortedHistory.length - 1].date.split('T')[0]);
             
-            // 前の記録との日数差をチェック
-            if (lastDate) {
-                const dayDiff = (currentDate - lastDate) / (1000 * 60 * 60 * 24);
+            const currentDate = new Date(firstDate);
+            
+            while (currentDate <= lastDate) {
+                const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                const record = dateMap[dateStr];
                 
-                // 1日より離れていたら（パスの日も含めて間が空いたら）連続が切れる
-                if (dayDiff > 1) {
-                    if (tempStreak > 0) {
-                        allStreaks.push(tempStreak);
+                if (record) {
+                    if (record.achieved) {
+                        tempStreak++;
+                        inStreak = true;
+                    } else if (record.passed) {
+                        // パスは継続を維持するが、カウントには含めない
+                        // inStreakは変更しない
+                    } else if (record.notAchieved) {
+                        // 未達成で連続が切れる
+                        if (tempStreak > 0) {
+                            allStreaks.push(tempStreak);
+                        }
                         tempStreak = 0;
+                        inStreak = false;
+                    }
+                } else {
+                    // 記録がない日
+                    if (inStreak) {
+                        // 連続中に記録がない日があったら連続が切れる
+                        if (tempStreak > 0) {
+                            allStreaks.push(tempStreak);
+                        }
+                        tempStreak = 0;
+                        inStreak = false;
                     }
                 }
-            }
-            
-            if (record.achieved) {
-                tempStreak++;
-                lastDate = currentDate;
-            } else if (record.passed) {
-                // パスは継続を維持するが、カウントには含めない
-                lastDate = currentDate;
-            } else if (record.notAchieved) {
-                // 未達成で連続が切れる
-                if (tempStreak > 0) {
-                    allStreaks.push(tempStreak);
-                    tempStreak = 0;
-                }
-                lastDate = null;
+                
+                currentDate.setDate(currentDate.getDate() + 1);
             }
         }
         
         // 最後の連続期間を追加
         if (tempStreak > 0) {
             allStreaks.push(tempStreak);
+        }
+        
+        // 現在の継続も含める
+        if (consecutiveDays > 0) {
+            allStreaks.push(consecutiveDays);
         }
 
         // 最大継続日数を更新
