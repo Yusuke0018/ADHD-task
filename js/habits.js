@@ -34,6 +34,8 @@ const habitManager = {
                     if (habit.maxContinuousDays === undefined) {
                         habit.maxContinuousDays = habit.continuousDays || 0;
                     }
+                    // 継続日数を再計算
+                    this.updateContinuousDays(habit);
                 });
                 
                 console.log('Loaded habits:', {

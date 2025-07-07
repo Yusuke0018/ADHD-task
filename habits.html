@@ -295,11 +295,11 @@
             console.log('Before init - localStorage:', localStorage.getItem('habit_tasks'));
             
             habitManager.init();
-            seasonalChallengeManager.init();
+            // seasonalChallengeManager.init(); // 未定義のため一旦コメントアウト
             
             // デバッグ用：グローバルに公開
             window.habitManager = habitManager;
-            window.seasonalChallengeManager = seasonalChallengeManager;
+            // window.seasonalChallengeManager = seasonalChallengeManager;
             window.debugHabits = () => {
                 console.log('Current localStorage:', localStorage.getItem('habit_tasks'));
                 console.log('Current habitManager state:', {
