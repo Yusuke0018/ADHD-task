@@ -526,7 +526,7 @@ const habitManager = {
         }
         
         // 記録がある場合
-        if (todayRecord.notAchieved) {
+        if (todayRecord && todayRecord.notAchieved) {
             // 未達成の場合は解除ボタンを表示
             return `
                 <div class="flex flex-col gap-1">
