@@ -329,59 +329,60 @@ const habitManager = {
     
     // 継続日数を更新
     updateContinuousDays(habit) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        if (!habit.history || habit.history.length === 0) {
+            habit.continuousDays = 0;
+            habit.maxContinuousDays = habit.maxContinuousDays || 0;
+            return;
+        }
 
-        let continuousDays = 0;
-        let lastAchievedDate = null;
-        
         // 履歴を日付順にソート
-        const sortedHistory = habit.history.sort((a, b) => new Date(a.date) - new Date(b.date));
+        const sortedHistory = habit.history
+            .map(r => ({ ...r, dateObj: new Date(r.date.split('T')[0]) }))
+            .sort((a, b) => a.dateObj - b.dateObj);
+
+        let currentStreak = 0;
+        let maxStreak = 0;
+        let lastCompletionDate = null;
 
         for (const record of sortedHistory) {
-            const recordDate = new Date(record.date);
-            recordDate.setHours(0, 0, 0, 0);
-            
             if (record.achieved) {
-                if (lastAchievedDate) {
-                    // 最後の達成日との差を計算
-                    const diffDays = (recordDate - lastAchievedDate) / (1000 * 60 * 60 * 24);
-                    if (diffDays === 1) {
-                        continuousDays++;
-                    } else if (diffDays > 1) {
-                        // 途切れた場合はリセット
-                        continuousDays = 1;
+                if (lastCompletionDate) {
+                    const diff = (record.dateObj - lastCompletionDate) / (1000 * 60 * 60 * 24);
+                    if (diff === 1) {
+                        currentStreak++;
+                    } else if (diff > 1) {
+                        // 連続が途切れたか、間にパスがあったかチェック
+                        const daysBetween = diff - 1;
+                        const passedDays = sortedHistory.filter(h =>
+                            h.passed &&
+                            new Date(h.date.split('T')[0]) > lastCompletionDate &&
+                            new Date(h.date.split('T')[0]) < record.dateObj
+                        ).length;
+
+                        if (daysBetween === passedDays) {
+                            // 間の日がすべてパスなら継続
+                            currentStreak++;
+                        } else {
+                            // 途切れた
+                            maxStreak = Math.max(maxStreak, currentStreak);
+                            currentStreak = 1;
+                        }
                     }
-                    // 同じ日の達成はカウントしない
                 } else {
-                    continuousDays = 1;
+                    currentStreak = 1;
                 }
-                lastAchievedDate = recordDate;
-            } else if (record.passed) {
-                if (lastAchievedDate) {
-                    const diffDays = (recordDate - lastAchievedDate) / (1000 * 60 * 60 * 24);
-                    if (diffDays > 1) {
-                        // パスの前が未達成ならリセット
-                        continuousDays = 0;
-                        lastAchievedDate = null;
-                    }
-                    // パスした日は `lastAchievedDate` を更新しない
-                }
-            } else {
-                // 未達成の場合はリセット
-                continuousDays = 0;
-                lastAchievedDate = null;
+                lastCompletionDate = record.dateObj;
+            } else if (!record.passed) { // notAchieved or other states
+                maxStreak = Math.max(maxStreak, currentStreak);
+                currentStreak = 0;
+                lastCompletionDate = null;
             }
+            // `passed` の場合は何もしない（ストリークは維持されるが、lastCompletionDateは更新されない）
         }
 
-        habit.continuousDays = continuousDays;
-        
-        // 最大連続日数を更新
-        if (!habit.maxContinuousDays || continuousDays > habit.maxContinuousDays) {
-            habit.maxContinuousDays = continuousDays;
-        }
-        
-        habit.lastCompletedDate = new Date().toISOString();
+        maxStreak = Math.max(maxStreak, currentStreak);
+        habit.continuousDays = currentStreak;
+        habit.maxContinuousDays = maxStreak;
     },
 
     // 削除確認モーダル表示
