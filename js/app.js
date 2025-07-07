@@ -743,12 +743,15 @@ const app = {
         const task = this.tasks.find(t => t.id === taskId);
         if (!task) return;
         
-        // 既に完了している場合はpendingに戻す
+        // 既に完了または未達成の場合はpendingに戻す
         if (task.status !== 'pending') {
+            const statusText = task.status === 'achieved' ? '達成' : '未達成';
+            const message = `「${task.text}」の${statusText}を取り消しますか？` + (task.points > 0 ? `\n獲得した${task.points}ポイントも取り消されます。` : '');
+            
             // 確認ダイアログを表示
             this.showConfirmationDialog(
-                '達成を取り消しますか？',
-                `「${task.text}」の達成を取り消します。${task.points > 0 ? `${task.points}ポイントも取り消されます。` : ''}`,
+                `${statusText}の取り消し`,
+                message,
                 () => {
                     if (task.type === 'urgent' && task.points > 0) {
                         this.totalPoints -= task.points;
