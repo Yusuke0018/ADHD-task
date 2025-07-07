@@ -270,6 +270,32 @@ const habitManager = {
         this.render();
     },
     
+    // 未達成を解除する
+    cancelNotAchieved(habitId) {
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
+        const habitIndex = this.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+        
+        const habit = this.habits[habitIndex];
+        
+        // 今日の記録を探す
+        if (habit.history) {
+            const recordIndex = habit.history.findIndex(h => h.date === dateStr);
+            if (recordIndex !== -1) {
+                // 記録を削除
+                habit.history.splice(recordIndex, 1);
+                
+                // 継続日数を更新
+                this.updateContinuousDays(habit);
+            }
+        }
+        
+        this.saveData();
+        this.render();
+    },
+    
     // 継続日数を更新
     updateContinuousDays(habit) {
         const today = new Date();
@@ -468,7 +494,25 @@ const habitManager = {
             `;
         }
         
-        // 記録がある場合は空を返す
+        // 記録がある場合
+        if (todayRecord.notAchieved) {
+            // 未達成の場合は解除ボタンを表示
+            return `
+                <div class="flex flex-col gap-1">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+                        <div class="text-xs text-gray-600 mb-1 text-center">未達成を解除</div>
+                        <button onclick="habitManager.cancelNotAchieved('${habit.id}')" class="w-full p-2 text-red-600 hover:bg-red-50 rounded text-xs font-medium transition-colors">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            取り消し
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // その他の記録がある場合は空を返す
         return '';
     },
 
