@@ -395,41 +395,48 @@ const habitManager = {
         // 全ての連続期間を計算（最大継続日数の計算用）
         const allStreaks = [];
         let tempStreak = 0;
+        let lastDate = null;
         
         // 古い順にして計算
         const historyAsc = [...sortedHistory].reverse();
         
         for (let i = 0; i < historyAsc.length; i++) {
             const record = historyAsc[i];
+            const currentDate = new Date(record.date.split('T')[0]);
+            currentDate.setHours(0, 0, 0, 0);
             
-            if (record.achieved) {
-                tempStreak++;
+            // 前の記録との日数差をチェック
+            if (lastDate) {
+                const dayDiff = (currentDate - lastDate) / (1000 * 60 * 60 * 24);
                 
-                // 次の記録をチェック
-                if (i < historyAsc.length - 1) {
-                    const currentDate = new Date(record.date.split('T')[0]);
-                    const nextDate = new Date(historyAsc[i + 1].date.split('T')[0]);
-                    const dayDiff = (nextDate - currentDate) / (1000 * 60 * 60 * 24);
-                    
-                    // 次の記録が連続していない、または未達成の場合
-                    if (dayDiff > 1 || historyAsc[i + 1].notAchieved) {
+                // 1日より離れていたら（パスの日も含めて間が空いたら）連続が切れる
+                if (dayDiff > 1) {
+                    if (tempStreak > 0) {
                         allStreaks.push(tempStreak);
                         tempStreak = 0;
                     }
-                } else {
-                    // 最後の記録
-                    allStreaks.push(tempStreak);
                 }
+            }
+            
+            if (record.achieved) {
+                tempStreak++;
+                lastDate = currentDate;
             } else if (record.passed) {
                 // パスは継続を維持するが、カウントには含めない
-                continue;
+                lastDate = currentDate;
             } else if (record.notAchieved) {
                 // 未達成で連続が切れる
                 if (tempStreak > 0) {
                     allStreaks.push(tempStreak);
                     tempStreak = 0;
                 }
+                lastDate = null;
             }
+        }
+        
+        // 最後の連続期間を追加
+        if (tempStreak > 0) {
+            allStreaks.push(tempStreak);
         }
 
         // 最大継続日数を更新
