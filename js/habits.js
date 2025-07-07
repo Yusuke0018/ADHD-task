@@ -221,6 +221,9 @@ const habitManager = {
             });
         }
         
+        // 継続日数を更新
+        this.updateContinuousDays(habit);
+        
         this.saveData();
         this.render();
     },
@@ -260,6 +263,9 @@ const habitManager = {
             });
         }
         
+        // 継続日数を更新
+        this.updateContinuousDays(habit);
+        
         this.saveData();
         this.render();
     },
@@ -268,25 +274,49 @@ const habitManager = {
     updateContinuousDays(habit) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         let continuousDays = 0;
-        let checkDate = new Date(today);
+        let lastAchievedDate = null;
         
-        // 今日から遡って連続達成日数をカウント（パスも継続とみなす）
-        while (true) {
-            const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
-            const record = habit.history.find(h => h.date === dateStr);
+        // 履歴を日付順にソート
+        const sortedHistory = habit.history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        for (const record of sortedHistory) {
+            const recordDate = new Date(record.date);
+            recordDate.setHours(0, 0, 0, 0);
             
-            if (record && (record.achieved || record.passed)) {
-                if (record.achieved) {
-                    continuousDays++;
+            if (record.achieved) {
+                if (lastAchievedDate) {
+                    // 最後の達成日との差を計算
+                    const diffDays = (recordDate - lastAchievedDate) / (1000 * 60 * 60 * 24);
+                    if (diffDays === 1) {
+                        continuousDays++;
+                    } else if (diffDays > 1) {
+                        // 途切れた場合はリセット
+                        continuousDays = 1;
+                    }
+                    // 同じ日の達成はカウントしない
+                } else {
+                    continuousDays = 1;
                 }
-                checkDate.setDate(checkDate.getDate() - 1);
+                lastAchievedDate = recordDate;
+            } else if (record.passed) {
+                if (lastAchievedDate) {
+                    const diffDays = (recordDate - lastAchievedDate) / (1000 * 60 * 60 * 24);
+                    if (diffDays > 1) {
+                        // パスの前が未達成ならリセット
+                        continuousDays = 0;
+                        lastAchievedDate = null;
+                    }
+                    // パスした日は `lastAchievedDate` を更新しない
+                }
             } else {
-                break;
+                // 未達成の場合はリセット
+                continuousDays = 0;
+                lastAchievedDate = null;
             }
         }
-        
+
         habit.continuousDays = continuousDays;
         
         // 最大連続日数を更新
@@ -294,7 +324,7 @@ const habitManager = {
             habit.maxContinuousDays = continuousDays;
         }
         
-        habit.lastCompletedDate = today.toISOString();
+        habit.lastCompletedDate = new Date().toISOString();
     },
 
     // 削除確認モーダル表示
