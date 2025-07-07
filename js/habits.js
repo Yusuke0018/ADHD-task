@@ -4,6 +4,7 @@ const habitManager = {
     hallOfFameHabits: [],
     editingHabitId: null,
     deletingHabitId: null,
+    isProcessing: false,
 
     // 初期化
     init() {
@@ -150,11 +151,18 @@ const habitManager = {
     
     // 習慣を完了する
     completeHabit(habitId, level) {
+        // ダブルクリック防止
+        if (this.isProcessing) return;
+        this.isProcessing = true;
+        
         const today = new Date();
         const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         
         const habitIndex = this.habits.findIndex(h => h.id === habitId);
-        if (habitIndex === -1) return;
+        if (habitIndex === -1) {
+            this.isProcessing = false;
+            return;
+        }
         
         const habit = this.habits[habitIndex];
         
@@ -186,10 +194,19 @@ const habitManager = {
         
         this.saveData();
         this.render();
+        
+        // 処理完了後にフラグをリセット
+        setTimeout(() => {
+            this.isProcessing = false;
+        }, 500);
     },
     
     // 習慣をパスする
     passHabit(habitId) {
+        // ダブルクリック防止
+        if (this.isProcessing) return;
+        this.isProcessing = true;
+        
         const today = new Date();
         const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         
@@ -226,10 +243,19 @@ const habitManager = {
         
         this.saveData();
         this.render();
+        
+        // 処理完了後にフラグをリセット
+        setTimeout(() => {
+            this.isProcessing = false;
+        }, 500);
     },
     
     // 習慣を未達成にする
     notAchieveHabit(habitId) {
+        // ダブルクリック防止
+        if (this.isProcessing) return;
+        this.isProcessing = true;
+        
         const today = new Date();
         const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         
@@ -268,6 +294,11 @@ const habitManager = {
         
         this.saveData();
         this.render();
+        
+        // 処理完了後にフラグをリセット
+        setTimeout(() => {
+            this.isProcessing = false;
+        }, 500);
     },
     
     // 未達成を解除する
@@ -471,21 +502,21 @@ const habitManager = {
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
                         <div class="text-xs text-gray-600 mb-1 text-center">今日の達成</div>
                         <div class="flex gap-1">
-                            <button onclick="habitManager.completeHabit('${habit.id}', 1)" class="flex-1 p-2 bg-green-100 hover:bg-green-200 text-green-700 rounded text-xs font-medium transition-colors">
+                            <button onclick="habitManager.completeHabit('${habit.id}', 1)" class="flex-1 py-3 px-2 bg-green-100 hover:bg-green-200 active:bg-green-300 text-green-700 rounded text-sm font-medium transition-all duration-150 transform hover:scale-105 active:scale-95">
                                 Lv.1
                             </button>
-                            <button onclick="habitManager.completeHabit('${habit.id}', 2)" class="flex-1 p-2 bg-green-200 hover:bg-green-300 text-green-700 rounded text-xs font-medium transition-colors">
+                            <button onclick="habitManager.completeHabit('${habit.id}', 2)" class="flex-1 py-3 px-2 bg-green-200 hover:bg-green-300 active:bg-green-400 text-green-700 rounded text-sm font-medium transition-all duration-150 transform hover:scale-105 active:scale-95">
                                 Lv.2
                             </button>
-                            <button onclick="habitManager.completeHabit('${habit.id}', 3)" class="flex-1 p-2 bg-green-300 hover:bg-green-400 text-green-700 rounded text-xs font-medium transition-colors">
+                            <button onclick="habitManager.completeHabit('${habit.id}', 3)" class="flex-1 py-3 px-2 bg-green-300 hover:bg-green-400 active:bg-green-500 text-green-700 rounded text-sm font-medium transition-all duration-150 transform hover:scale-105 active:scale-95">
                                 Lv.3
                             </button>
                         </div>
                         <div class="flex gap-1 mt-1">
-                            <button onclick="habitManager.passHabit('${habit.id}')" class="flex-1 p-2 text-amber-600 hover:bg-amber-50 rounded text-xs font-medium transition-colors">
+                            <button onclick="habitManager.passHabit('${habit.id}')" class="flex-1 py-2 px-2 text-amber-600 hover:bg-amber-50 active:bg-amber-100 rounded text-sm font-medium transition-all duration-150 transform hover:scale-105 active:scale-95">
                                 パス
                             </button>
-                            <button onclick="habitManager.notAchieveHabit('${habit.id}')" class="flex-1 p-2 text-blue-600 hover:bg-blue-50 rounded text-xs font-medium transition-colors">
+                            <button onclick="habitManager.notAchieveHabit('${habit.id}')" class="flex-1 py-2 px-2 text-blue-600 hover:bg-blue-50 active:bg-blue-100 rounded text-sm font-medium transition-all duration-150 transform hover:scale-105 active:scale-95">
                                 未達成
                             </button>
                         </div>
