@@ -743,12 +743,15 @@ const app = {
         const task = this.tasks.find(t => t.id === taskId);
         if (!task) return;
         
-        // 既に完了している場合はpendingに戻す
+        // 既に完了または未達成の場合はpendingに戻す
         if (task.status !== 'pending') {
+            const statusText = task.status === 'achieved' ? '達成' : '未達成';
+            const message = `「${task.text}」の${statusText}を取り消しますか？` + (task.points > 0 ? `\n獲得した${task.points}ポイントも取り消されます。` : '');
+            
             // 確認ダイアログを表示
             this.showConfirmationDialog(
-                '達成を取り消しますか？',
-                `「${task.text}」の達成を取り消します。${task.points > 0 ? `${task.points}ポイントも取り消されます。` : ''}`,
+                `${statusText}の取り消し`,
+                message,
                 () => {
                     if (task.type === 'urgent' && task.points > 0) {
                         this.totalPoints -= task.points;
@@ -1812,12 +1815,6 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                 if (todayHistory && todayHistory.notAchieved) {
                     isNotAchievedToday = true;
                 }
-                
-                // デバッグログ
-                if (todayHistory) {
-                    console.log('Today history for habit', habit.name, ':', todayHistory);
-                    console.log('isNotAchievedToday:', isNotAchievedToday);
-                }
             }
             
             let cardClass = 'task-normal-active';
@@ -1973,6 +1970,8 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                                         todayStatus = 'completed';
                                     } else if (todayHistory.passed) {
                                         todayStatus = 'passed';
+                                    } else if (todayHistory.notAchieved) {
+                                        todayStatus = 'notAchieved';
                                     }
                                 }
                             }
@@ -1983,6 +1982,9 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                             } else if (todayStatus === 'passed') {
                                 // パス状態の場合は履歴から削除
                                 this.cancelHabitPass(habitId);
+                            } else if (todayStatus === 'notAchieved') {
+                                // 未達成状態の場合は取り消し
+                                this.cancelHabitNotAchieved(habitId);
                             } else {
                                 // 未記録の場合はレベル選択を表示
                                 this.toggleHabitLevels(habitId);
@@ -2210,6 +2212,44 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
                     data.habits[habitIndex].history = habit.history.filter(h => {
                         const historyDate = h.date.split('T')[0];
                         return !(historyDate === todayYmd && h.passed);
+                    });
+                }
+                
+                localStorage.setItem('habit_tasks', JSON.stringify(data));
+                this.renderHabits();
+            }
+        );
+    },
+    
+    // 習慣の「未達成」を取り消す
+    cancelHabitNotAchieved(habitId) {
+        const habitData = localStorage.getItem('habit_tasks');
+        if (!habitData) return;
+
+        let data;
+        try {
+            data = JSON.parse(habitData);
+        } catch (e) {
+            console.error('Error parsing habit data:', e);
+            return;
+        }
+
+        const habitIndex = data.habits.findIndex(h => h.id === habitId);
+        if (habitIndex === -1) return;
+
+        const habit = data.habits[habitIndex];
+
+        this.showConfirmationDialog(
+            '「未達成」を取り消しますか？',
+            `「${habit.name}」の「未達成」状態を取り消して、再度選択できるようにします。`,
+            () => {
+                const todayYmd = `${this.selectedDate.getFullYear()}-${String(this.selectedDate.getMonth() + 1).padStart(2, '0')}-${String(this.selectedDate.getDate()).padStart(2, '0')}`;
+                
+                if (habit.history) {
+                    // 今日の未達成記録を履歴から削除
+                    data.habits[habitIndex].history = habit.history.filter(h => {
+                        const recordDate = h.date.split('T')[0];
+                        return !(recordDate === todayYmd && h.notAchieved);
                     });
                 }
                 
@@ -3202,6 +3242,12 @@ Write in warm, supportive Japanese. Your response MUST be between ${Math.floor(c
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    },
+    
+    // 日付をYYYY-MM-DD形式にフォーマット
+    formatDateToYmd(date) {
+        const d = new Date(date);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     },
     
     calendarMonth: new Date(),
