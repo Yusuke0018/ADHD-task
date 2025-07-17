@@ -25,59 +25,6 @@
     <link rel="stylesheet" href="styles/components.css?v=3">
 </head>
 <body>
-    <!-- スワイプメニュー -->
-    <div id="swipeMenu" class="fixed left-0 top-0 bottom-0 w-8 z-50">
-        <!-- メニューオープンエリア -->
-        <div id="menuHandle" class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-32 cursor-pointer">
-            <div class="w-full h-full bg-gradient-to-r from-gray-800 to-transparent opacity-30 rounded-r-full"></div>
-        </div>
-        
-        <!-- メニューアイテム -->
-        <div id="menuItems" class="fixed left-0 top-1/2 transform -translate-y-1/2 -translate-x-full transition-transform duration-300">
-            <div class="bg-gray-800 rounded-r-2xl shadow-2xl p-2 space-y-2">
-                <a href="index.html" class="menu-item block w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center transition-all hover:bg-blue-500" title="ホーム">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                    </svg>
-                </a>
-                <a href="statistics.html" class="menu-item block w-12 h-12 bg-green-600 rounded-full flex items-center justify-center transition-all hover:bg-green-500" title="統計">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                </a>
-                <a href="ai-comments.html" class="menu-item block w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center transition-all hover:bg-indigo-500" title="AIコメント">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                    </svg>
-                </a>
-                <button data-action="toggle-calendar" class="menu-item block w-12 h-12 bg-amber-600 rounded-full flex items-center justify-center transition-all hover:bg-amber-500" title="カレンダー">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </button>
-                <a href="projects.html" class="menu-item block w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center transition-all hover:bg-orange-500" title="プロジェクト">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 22v-8h6v8"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01"></path>
-                        <circle cx="12" cy="16" r="1" fill="currentColor"></circle>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4"></path>
-                    </svg>
-                </a>
-                <a href="habits.html" class="menu-item block w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center transition-all hover:bg-purple-500" title="習慣">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </a>
-                <a href="settings.html" class="menu-item block w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center transition-all hover:bg-gray-500" title="設定">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                </a>
-            </div>
-        </div>
-    </div>
     <div id="backgroundSeason" class="min-h-screen bg-summer gradient-animation transition-all duration-1000 relative">
         <!-- 季節のアニメーション -->
         <div id="seasonAnimation" class="season-animation"></div>
@@ -112,9 +59,6 @@
                     </div>
                 </div>
                 
-                <div class="mb-3">
-                    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 text-center">本日の予定</h2>
-                </div>
                 
                 <!-- 日付選択 -->
                 <div class="flex flex-col gap-3">
@@ -126,43 +70,10 @@
                                 </svg>
                             </button>
                             
-                            <button id="calendarToggle" class="flex flex-col items-center px-3 sm:px-6 py-2 rounded-2xl border-2 border-gray-300 hover:bg-gray-50 transition-all">
+                                    <button id="calendarToggle" class="flex flex-col items-center px-3 sm:px-6 py-2 rounded-2xl border-2 border-gray-300 hover:bg-gray-50 transition-all">
                                 <span id="currentDateYear" class="text-xs text-gray-600"></span>
                                 <span id="currentDate" class="text-lg sm:text-xl font-bold text-gray-800"></span>
                                 <span id="currentDateDay" class="text-xs text-gray-600"></span>
-                                
-                                <!-- Daily Status Indicators -->
-                                <div id="dailyStatusIndicators" class="flex items-center gap-1 mt-1">
-                                    <!-- Task completion rate -->
-                                    <div id="completionRateBadge" class="daily-status-badge hidden" title="完了率">
-                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        <span id="completionRateText" class="text-xs font-medium"></span>
-                                    </div>
-                                    
-                                    <!-- Daily points -->
-                                    <div id="dailyPointsBadge" class="daily-status-badge badge-points hidden" title="獲得ポイント">
-                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                        </svg>
-                                        <span id="dailyPointsText" class="text-xs font-medium"></span>
-                                    </div>
-                                    
-                                    <!-- AI comment indicator -->
-                                    <div id="aiCommentBadge" class="daily-status-badge badge-ai hidden" title="AIコメントあり">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                                        </svg>
-                                    </div>
-                                    
-                                    <!-- Reflection indicator -->
-                                    <div id="reflectionBadge" class="daily-status-badge badge-reflection hidden" title="振り返りあり">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                                        </svg>
-                                    </div>
-                                </div>
                             </button>
                             
                             <button id="nextDay" class="p-3 hover:bg-gray-100 rounded-full transition-all">
@@ -172,20 +83,6 @@
                             </button>
                         </div>
                         
-                        <div class="flex items-center gap-3 point-display-mobile">
-                            <div class="flex items-center gap-2 bg-gray-50 px-3 sm:px-4 py-2 rounded-full">
-                                <span id="completedCount" class="text-xl sm:text-3xl font-bold text-gray-800">0</span>
-                                <span class="text-base sm:text-xl text-gray-500">／</span>
-                                <span id="totalCount" class="text-lg sm:text-2xl text-gray-700">0</span>
-                            </div>
-                            <div class="flex items-center gap-2 bg-amber-50 px-3 sm:px-4 py-2 rounded-full">
-                                <svg class="w-4 sm:w-5 h-4 sm:h-5 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                                </svg>
-                                <span id="totalPointsDisplay" class="text-base sm:text-xl font-bold text-amber-700">0</span>
-                                <span class="text-sm text-amber-600">pt</span>
-                            </div>
-                        </div>
                     </div>
                     
                     <button id="todayButton" class="hidden w-full py-3 text-base font-medium text-white bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 rounded-full transition-all button-large">
@@ -200,121 +97,6 @@
                 </div>
             </div>
 
-            <!-- エラーメッセージ -->
-            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 animate-fadeInUp"></div>
-
-
-
-            <!-- 今日の習慣 -->
-            <div id="habitSection" class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp" style="animation-delay: 0.15s">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">今日の習慣</h3>
-                    <a href="habits.html" class="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1">
-                        <span>管理</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
-                </div>
-                <div id="habitList" class="space-y-3">
-                    <!-- 習慣タスクがここに動的に追加される -->
-                </div>
-                <p id="noHabits" class="hidden text-center py-4 text-gray-500 text-sm">習慣を設定するには管理ページへ</p>
-            </div>
-
-            <!-- タスク入力 -->
-            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp" style="animation-delay: 0.2s">
-                <div class="flex gap-2 mb-3">
-                    <button id="normalType" class="flex-1 px-4 py-2 rounded-full font-medium transition-all bg-gray-800 text-white button-large">
-                        通常
-                    </button>
-                    <button id="urgentType" class="flex-1 px-4 py-2 rounded-full font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 button-large">
-                        目標
-                    </button>
-                </div>
-                
-                <div class="flex flex-col gap-2">
-                    <input type="text" id="taskInput" placeholder="本日の予定を入力..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
-                    <button id="addTask" class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all font-medium button-large">
-                        <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- タスクリスト -->
-            <div id="taskList" class="space-y-3 mb-4"></div>
-            <p id="noTasks" class="hidden text-center py-8 text-gray-500">本日の予定はありません</p>
-
-            <!-- 日々の振り返り -->
-            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">今日の振り返り</h3>
-                    <button id="reflectionToggle" data-action="toggle-reflection" class="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                        </svg>
-                    </button>
-                </div>
-                
-                <div id="reflectionForm" class="hidden space-y-3">
-                    <textarea id="reflectionInput" placeholder="今日はどんな一日でしたか？短くても大丈夫です..." 
-                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base resize-none" 
-                              rows="3"></textarea>
-                    <div class="flex gap-2">
-                        <button id="saveReflection" class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all">保存</button>
-                        <button id="cancelReflection" class="px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-all">キャンセル</button>
-                    </div>
-                </div>
-                
-                <div id="reflectionDisplay" class="text-sm sm:text-base text-gray-700 leading-relaxed"></div>
-                <p id="noReflection" class="text-center py-4 text-gray-500 text-sm">まだ振り返りが書かれていません</p>
-            </div>
-
-            
-            <!-- アイデア置き場 -->
-            <!-- AIコメントプレビュー -->
-            <div id="aiCommentSection" class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-base sm:text-lg font-semibold text-gray-800">AIからのメッセージ</h3>
-                    <a href="ai-comments.html" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-lg hover:from-purple-600 hover:to-indigo-700 transition-all text-sm font-medium">
-                        AIコメントを見る
-                    </a>
-                </div>
-                
-                <!-- デイリーAIコメント表示 -->
-                <div id="dailyAIComment" class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4">
-                    <div id="dailyAILoading" class="hidden text-center py-4">
-                        <div class="inline-flex items-center gap-2 text-gray-600">
-                            <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span>AIがコメントを作成中...</span>
-                        </div>
-                    </div>
-                    
-                    <div id="dailyAIContent" class="hidden">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-purple-600 font-medium">デイリーコメント</span>
-                            <button onclick="app.deleteDailyAIComment()" class="text-gray-400 hover:text-gray-600 transition-all" title="削除">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <p id="dailyAIText" class="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap"></p>
-                    </div>
-                    
-                    <div id="dailyAIEmpty" class="text-center">
-                        <p class="text-gray-600 text-sm mb-3">今日のタスクに対するAIからのアドバイス</p>
-                        <button onclick="app.generateDailyAIComment()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all text-sm font-medium">
-                            デイリーコメントを生成
-                        </button>
-                    </div>
-                </div>
-            </div>
             
             <!-- 節気の説明 -->
             <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
@@ -331,102 +113,8 @@
             </div>
         </div>
 
-        <!-- セレブレーション -->
-        <div id="celebration" class="hidden fixed inset-0 pointer-events-none flex items-center justify-center z-50">
-            <div class="relative">
-                <div class="absolute inset-0 bg-amber-500 rounded-full animate-ping"></div>
-                <div class="relative washi-card rounded-2xl p-8 sm:p-10 animate-fadeInUp">
-                    <div class="text-center">
-                        <div class="text-3xl sm:text-4xl mb-2 sekki-title">完了</div>
-                        <p class="text-lg sm:text-xl text-gray-700">タスク完了</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 先送りエフェクト -->
-        <div id="postponeEffect" class="hidden fixed bottom-4 right-4 washi-card rounded-xl p-4 animate-fadeInUp flex items-center gap-2">
-            <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-            </svg>
-            <span class="text-base font-medium text-gray-700">明日へ</span>
-        </div>
     </div>
     
-    <!-- タスク完了モーダル -->
-    <div id="taskCompletionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden pointer-events-none flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full pointer-events-auto">
-            <h3 class="text-xl font-bold mb-4 text-center">タスクの完了</h3>
-            <p id="taskCompletionText" class="text-center mb-6 text-gray-700"></p>
-            
-            <!-- 目標タスクの場合のポイント選択 -->
-            <div id="completionPointSelector" class="hidden mb-6">
-                <p class="text-sm font-medium text-gray-700 mb-3 text-center">達成度に応じてポイントを選択してください</p>
-                <div class="grid grid-cols-3 gap-2">
-                    <button type="button" class="completion-point-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all" data-points="1">
-                        <div class="text-lg font-bold">1pt</div>
-                        <div class="text-xs text-gray-600">基本</div>
-                    </button>
-                    <button type="button" class="completion-point-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all" data-points="2">
-                        <div class="text-lg font-bold">2pt</div>
-                        <div class="text-xs text-gray-600">標準</div>
-                    </button>
-                    <button type="button" class="completion-point-button px-4 py-3 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-all" data-points="3">
-                        <div class="text-lg font-bold">3pt</div>
-                        <div class="text-xs text-gray-600">優秀</div>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- プロジェクトへのポイント付与 -->
-            <div id="projectPointAssignment" class="hidden mb-6 bg-gray-50 p-4 rounded-lg">
-                <div class="flex items-center mb-3">
-                    <input type="checkbox" id="assignToProject" class="mr-2">
-                    <label for="assignToProject" class="text-sm font-medium text-gray-700">プロジェクトに進捗あり</label>
-                </div>
-                <div id="projectSelectionArea" class="hidden">
-                    <select id="projectSelector" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3">
-                        <option value="">プロジェクトを選択</option>
-                    </select>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button type="button" class="project-point-button px-3 py-2 rounded-lg border-2 border-gray-300 hover:border-blue-400 transition-all text-sm" data-project-points="10">
-                            <div class="font-bold">10pt</div>
-                        </button>
-                        <button type="button" class="project-point-button px-3 py-2 rounded-lg border-2 border-gray-300 hover:border-blue-400 transition-all text-sm" data-project-points="25">
-                            <div class="font-bold">25pt</div>
-                        </button>
-                        <button type="button" class="project-point-button px-3 py-2 rounded-lg border-2 border-gray-300 hover:border-blue-400 transition-all text-sm" data-project-points="50">
-                            <div class="font-bold">50pt</div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="completionButtons" class="flex gap-3">
-                <button id="taskAchievedBtn" class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    達成
-                </button>
-                <button id="taskPassBtn" class="hidden px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all font-medium">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                    </svg>
-                    パス
-                </button>
-                <button id="taskNotAchievedBtn" class="flex-1 px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all font-medium">
-                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                    未達成
-                </button>
-            </div>
-            <button id="taskCompletionCancelBtn" class="w-full mt-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-all">
-                キャンセル
-            </button>
-        </div>
-    </div>
     
     <!-- カスタムカレンダーポップアップ -->
     <div id="customCalendarPopup" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden pointer-events-none flex items-center justify-center p-4">
@@ -465,60 +153,17 @@
         </div>
     </div>
 
-    <!-- 確認ダイアログモーダル -->
-    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden pointer-events-none flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full pointer-events-auto">
-            <h3 id="confirmationTitle" class="text-xl font-bold text-gray-800 mb-4">確認</h3>
-            <p id="confirmationMessage" class="text-gray-600 mb-6">本当に実行しますか？</p>
-            <div class="flex gap-2">
-                <button id="confirmationYes" class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors font-medium">
-                    はい
-                </button>
-                <button id="confirmationNo" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors font-medium">
-                    キャンセル
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- JavaScript Files with cache busting -->
     <script src="js/data/sekki-data.js?v=3"></script>
     <script src="js/animations/seasonal-animations.js?v=3"></script>
-    <script src="js/projects.js"></script>
-    <script src="js/swipe-menu.js"></script>
-    <!-- <script src="js/touch-debug.js"></script> -->
-    <script type="module" src="js/app.js?v=7"></script>
+    <script type="module" src="js/app-simple.js?v=1"></script>
     
     <script>
         // アプリケーションの初期化
         document.addEventListener('DOMContentLoaded', function() {
-            // console.log('DOM loaded, initializing app...');
             app.init();
-            
-            // デバッグ用：グローバルに公開
             window.app = app;
-            window.debugApp = () => {
-                console.log('Habit data:', localStorage.getItem('habit_tasks'));
-                console.log('App state:', {
-                    tasks: app.tasks,
-                    totalPoints: app.totalPoints
-                });
-            };
-        });
-        
-        // スワイプメニューの制御
-        const menuHandle = document.getElementById('menuHandle');
-        const menuItems = document.getElementById('menuItems');
-        
-        menuHandle.addEventListener('click', () => {
-            menuItems.classList.toggle('open');
-        });
-        
-        // メニュー外クリックで閉じる
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('#swipeMenu')) {
-                menuItems.classList.remove('open');
-            }
         });
     </script>
 </body>
