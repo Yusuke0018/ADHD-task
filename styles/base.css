@@ -59,6 +59,15 @@ button svg {
     opacity: 0.6; /* 非テキスト要素（アイコン）を半透明に */
 }
 
+/* モバイルでUIを隠してアニメを強調 */
+body.ui-hidden #contentContainer {
+    opacity: 0;
+    pointer-events: none;
+}
+body.ui-hidden #uiVisibilityToggle {
+    background: rgba(255,255,255,0.4);
+}
+
 /* 和紙風カード */
 .washi-card {
     /* ほぼ透明のガラス調。背景アニメを最大限見せる */

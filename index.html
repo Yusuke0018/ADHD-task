@@ -29,7 +29,12 @@
         <!-- 季節のアニメーション -->
         <div id="seasonAnimation" class="season-animation"></div>
         
-        <div class="max-w-2xl mx-auto px-4 py-4 relative z-10">
+        <!-- スマホ用 UI 表示トグル（常に前面） -->
+        <button id="uiVisibilityToggle" class="fixed top-3 right-3 z-20 px-3 py-2 rounded-full text-xs font-medium bg-white/30 text-gray-800 backdrop-blur shadow hover:bg-white/40 transition sm:hidden" aria-label="UI表示切替">
+            全画面
+        </button>
+
+        <div id="contentContainer" class="max-w-2xl mx-auto px-4 py-4 relative z-10 transition-opacity duration-500">
             <!-- 節気ヘッダー -->
             <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
                 <div class="text-center mb-4">

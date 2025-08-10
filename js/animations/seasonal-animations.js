@@ -89,7 +89,8 @@ class SeasonAnimator {
         this.type = type;
         this.colors = colors && colors.length ? colors : ['#fff'];
         const isMobile = window.innerWidth <= 768;
-        const baseCount = isMobile ? Math.floor(count * 0.8) : count;
+        const baseCount = isMobile ? Math.min(Math.floor(count * 1.2), 80) : count;
+        this.sizeMultiplier = isMobile ? 1.25 : 1.0;
 
         // レイヤー別のパーティクルを生成（奥行きを表現）
         const layers = [
@@ -116,7 +117,7 @@ class SeasonAnimator {
     makeParticle(layer) {
         const w = this.canvas.clientWidth || this.container.clientWidth;
         const h = this.canvas.clientHeight || this.container.clientHeight;
-        const size = this.rand(typeSize[this.type].min, typeSize[this.type].max) * layer.depth;
+        const size = this.rand(typeSize[this.type].min, typeSize[this.type].max) * layer.depth * (this.sizeMultiplier || 1);
         const speed = this.rand(typeSpeed[this.type].min, typeSpeed[this.type].max) * layer.depth;
         const angle = Math.random() * Math.PI * 2;
         return {
