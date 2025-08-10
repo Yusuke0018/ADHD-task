@@ -56,7 +56,7 @@ body {
 /* ボタン内SVGのクリックイベントを無効化 */
 button svg {
     pointer-events: none;
-    opacity: 0.6; /* 非テキスト要素（アイコン）を半透明に */
+    opacity: 0; /* 非テキスト要素（アイコン）は完全透過 */
 }
 
 /* モバイルでUIを隠してアニメを強調 */
@@ -70,17 +70,27 @@ body.ui-hidden #uiVisibilityToggle {
 
 /* 和紙風カード */
 .washi-card {
-    /* ほぼ透明のガラス調。背景アニメを最大限見せる */
-    background: repeating-linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0.14),
-        rgba(255, 255, 255, 0.14) 1px,
-        rgba(255, 255, 255, 0.18) 1px,
-        rgba(255, 255, 255, 0.18) 3px
-    ), rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.28);
-    border: 1px solid rgba(0, 0, 0, 0.03);
+    /* 文字以外を完全透過（背景・枠・影を除去） */
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* コンテンツ領域内の非テキスト装飾を一括透過 */
+#contentContainer, #contentContainer * {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+#contentContainer * {
+    border-color: transparent !important;
+}
+
+/* トグルボタンもテキストのみの見た目に */
+#uiVisibilityToggle {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
 /* スマホ用調整 */
