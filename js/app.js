@@ -296,24 +296,7 @@ const app = {
         }
         this.eventsAlreadyBound = true;
         
-        // 既存のイベントリスナーを削除してから追加
-        const prevDayBtn = document.getElementById('prevDay');
-        const nextDayBtn = document.getElementById('nextDay');
-        
-        // クローンを作成して既存のイベントリスナーを削除
-        const newPrevBtn = prevDayBtn.cloneNode(true);
-        const newNextBtn = nextDayBtn.cloneNode(true);
-        prevDayBtn.parentNode.replaceChild(newPrevBtn, prevDayBtn);
-        nextDayBtn.parentNode.replaceChild(newNextBtn, nextDayBtn);
-        
-        // 新しいイベントリスナーを追加
-        document.getElementById('prevDay').addEventListener('click', () => this.navigateDate(-1));
-        document.getElementById('nextDay').addEventListener('click', () => this.navigateDate(1));
-        document.getElementById('todayButton').addEventListener('click', () => this.goToToday());
-        // Calendar is always visible, no toggle needed
-        const dateInputElement = document.getElementById('dateInput');
-        dateInputElement.addEventListener('change', (e) => this.selectDate(e.target.value));
-        dateInputElement.addEventListener('input', () => this.updateCalendarSekkiInfo()); 
+        // 日付選択・カレンダー機能は廃止（関連イベントは登録しない）
         document.getElementById('normalType').addEventListener('click', () => this.setTaskType('normal'));
         document.getElementById('urgentType').addEventListener('click', () => this.setTaskType('urgent'));
         document.getElementById('addTask').addEventListener('click', () => this.addTask());
@@ -335,8 +318,8 @@ const app = {
             });
         });
         
-        // スクロール検知の設定
-        this.setupScrollDetection();
+        // スクロール検知の設定（UIの誤タップ防止のみ継続）
+        if (this.setupScrollDetection) this.setupScrollDetection();
         
         // プロジェクトポイント付与のイベント
         document.getElementById('assignToProject').addEventListener('change', (e) => {

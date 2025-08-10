@@ -60,41 +60,7 @@
                 </div>
                 
                 
-                <!-- 日付選択 -->
-                <div class="flex flex-col gap-3">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-1">
-                            <button id="prevDay" class="p-3 hover:bg-gray-100 rounded-full transition-all">
-                                <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                </svg>
-                            </button>
-                            
-                                    <button id="calendarToggle" class="flex flex-col items-center px-3 sm:px-6 py-2 rounded-2xl border-2 border-gray-300 hover:bg-gray-50 transition-all">
-                                <span id="currentDateYear" class="text-xs text-gray-600"></span>
-                                <span id="currentDate" class="text-lg sm:text-xl font-bold text-gray-800"></span>
-                                <span id="currentDateDay" class="text-xs text-gray-600"></span>
-                            </button>
-                            
-                            <button id="nextDay" class="p-3 hover:bg-gray-100 rounded-full transition-all">
-                                <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        
-                    </div>
-                    
-                    <button id="todayButton" class="hidden w-full py-3 text-base font-medium text-white bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 rounded-full transition-all button-large">
-                        本日へ戻る
-                    </button>
-                </div>
-                
-                <!-- カレンダー -->
-                <div id="calendarInput" class="mt-4 animate-fadeInUp">
-                    <input type="date" id="dateInput" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-base">
-                    <div id="calendarSekkiInfo" class="mt-3 p-3 bg-gray-50 rounded-lg text-sm text-gray-600"></div>
-                </div>
+                <!-- 日付選択・カレンダーは廃止 -->
             </div>
 
             
@@ -116,42 +82,7 @@
     </div>
     
     
-    <!-- カスタムカレンダーポップアップ -->
-    <div id="customCalendarPopup" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden pointer-events-none flex items-center justify-center p-4">
-        <div id="customCalendar" class="bg-white rounded-2xl shadow-2xl p-4 max-w-md w-full max-h-[90vh] overflow-y-auto pointer-events-auto">
-            <div class="flex items-center justify-between mb-4">
-                <button id="calPrevMonth" class="p-2 hover:bg-gray-100 rounded-lg transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </button>
-                <h3 id="calendarMonth" class="text-lg font-bold text-gray-800"></h3>
-                <button id="calNextMonth" class="p-2 hover:bg-gray-100 rounded-lg transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-                <div class="text-red-500 font-medium">日</div>
-                <div class="text-gray-600 font-medium">月</div>
-                <div class="text-gray-600 font-medium">火</div>
-                <div class="text-gray-600 font-medium">水</div>
-                <div class="text-gray-600 font-medium">木</div>
-                <div class="text-gray-600 font-medium">金</div>
-                <div class="text-blue-500 font-medium">土</div>
-            </div>
-            
-            <div id="calendarGrid" class="grid grid-cols-7 gap-1">
-                <!-- カレンダーの日付がここに動的に生成されます -->
-            </div>
-            
-            <button data-action="close-calendar" class="mt-4 w-full py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-all font-medium">
-                閉じる
-            </button>
-        </div>
-    </div>
+    <!-- カスタムカレンダーは廃止 -->
 
 
     <!-- JavaScript Files with cache busting -->

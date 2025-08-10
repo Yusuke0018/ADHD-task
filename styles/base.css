@@ -56,14 +56,15 @@ body {
 /* ボタン内SVGのクリックイベントを無効化 */
 button svg {
     pointer-events: none;
+    opacity: 0.6; /* 非テキスト要素（アイコン）を半透明に */
 }
 
 /* 和紙風カード */
 .washi-card {
-    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0.9) 1px, rgba(255,255,255,0.95) 1px, rgba(255,255,255,0.95) 3px), rgba(255,255,255,0.92);
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,0.5), rgba(255,255,255,0.5) 1px, rgba(255,255,255,0.6) 1px, rgba(255,255,255,0.6) 3px), rgba(255,255,255,0.4);
     backdrop-filter: blur(8px);
-    box-shadow: 0 3px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5);  
-    border: 1px solid rgba(0,0,0,0.08);  
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.4);  
+    border: 1px solid rgba(0,0,0,0.06);  
 }
 
 /* スマホ用調整 */
@@ -192,9 +193,9 @@ button svg {
 
 /* 未完了の通常タスク */
 .task-normal-active {
-    background-color: #FEFBF3; /* 温かみのあるクリーム色 */
-    border: 1px solid #D4C2AD; /* やや濃いめの枠線 */
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+    background-color: rgba(254, 251, 243, 0.6); /* 温かみのあるクリーム色を半透明に */
+    border: 1px solid rgba(212, 194, 173, 0.6); /* やや透明な枠線 */
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.5);
 }
 .task-normal-active .task-text-lg {
     color: #5D4037; /* 濃い茶色の文字 */
@@ -207,8 +208,8 @@ button svg {
 
 /* 未完了の目標タスク */
 .task-urgent-active {
-    background-color: rgba(255, 235, 224, 0.98); /* 薄いオレンジ */
-    border: 2px solid #FF8C69; /* やや濃いオレンジの枠線 */
+    background-color: rgba(255, 235, 224, 0.6); /* 薄いオレンジを半透明に */
+    border: 2px solid rgba(255, 140, 105, 0.7); /* 透明度を少し下げる */
 }
  .task-urgent-active .task-text-lg {
     color: #BF360C; /* 深いオレンジ/茶色の文字 */
@@ -221,25 +222,25 @@ button svg {
 
 /* 完了済みタスク */
 .task-completed {
-    background-color: rgba(236, 253, 245, 0.95);  
-    border: 2px solid #10b981;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+    background-color: rgba(236, 253, 245, 0.6);  
+    border: 2px solid rgba(16, 185, 129, 0.7);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12);
     position: relative;
     overflow: visible;
 }
 
 /* 目標タスク完了 */
 .task-completed.task-goal {
-    background-color: rgba(254, 243, 199, 0.95);
-    border: 2px solid #f59e0b;
-    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+    background-color: rgba(254, 243, 199, 0.6);
+    border: 2px solid rgba(245, 158, 11, 0.7);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.12);
 }
 
 /* 習慣タスク完了 */
 .task-completed.task-habit {
-    background-color: rgba(237, 233, 254, 0.95);
-    border: 2px solid #8b5cf6;
-    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+    background-color: rgba(237, 233, 254, 0.6);
+    border: 2px solid rgba(139, 92, 246, 0.7);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.12);
 }
 
 /* 完了ハンコエフェクト */
@@ -309,9 +310,9 @@ button svg {
 
 /* 未達成タスク */
 .task-notachieved {
-    background-color: rgba(243, 244, 246, 0.95);
-    border: 2px solid #6b7280;
-    box-shadow: 0 2px 8px rgba(107, 114, 128, 0.15);
+    background-color: rgba(243, 244, 246, 0.6);
+    border: 2px solid rgba(107, 114, 128, 0.7);
+    box-shadow: 0 2px 8px rgba(107, 114, 128, 0.12);
     position: relative;
     overflow: visible;
 }
@@ -427,9 +428,9 @@ button svg {
 
 /* パスしたタスクのスタイル */
 .task-skipped {
-    background-color: rgba(254, 251, 235, 0.95);
-    border: 2px solid #fbbf24;
-    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
+    background-color: rgba(254, 251, 235, 0.6);
+    border: 2px solid rgba(251, 191, 36, 0.7);
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.12);
     position: relative;
     overflow: visible;
 }
