@@ -1,14 +1,14 @@
-const CACHE_NAME = 'sekki-task-v3'; // バージョンを更新
+const CACHE_NAME = 'sekki-task-v4';
 const urlsToCache = [
   './',
   './index.html',
   './manifest.json',
-  './statistics.html',
   './styles/base.css',
   './styles/sekki-backgrounds.css',
   './styles/animations.css',
   './styles/components.css',
-  './js/app.js',
+  './js/app-simple.js',
+  './js/sunTimeAPI.js',
   './js/data/sekki-data.js',
   './js/animations/seasonal-animations.js'
 ];
