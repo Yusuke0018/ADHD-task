@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="styles/sekki-backgrounds.css?v=3">
     <link rel="stylesheet" href="styles/animations.css?v=3">
     <link rel="stylesheet" href="styles/components.css?v=3">
-    <link rel="stylesheet" href="styles/fitness.css?v=9">
+    <link rel="stylesheet" href="styles/fitness.css?v=10">
     <link rel="stylesheet" href="styles/fitness-calendar.css?v=5">
 </head>
 <body>
@@ -98,16 +98,19 @@
                         </div>
                         <h3 class="text-lg sm:text-xl font-bold text-white">FITNESS TRACKER</h3>
                     </div>
-                    <button id="wToggle" class="fitness-toggle-btn" aria-label="入力を表示" title="入力を表示">
-                        <!-- プラス（閉） -->
-                        <svg class="w-5 h-5 icon-plus" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12M6 12h12"></path>
-                        </svg>
-                        <!-- マイナス（開） -->
-                        <svg class="w-5 h-5 icon-minus hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
-                        </svg>
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <a href="fitness.html" id="wOpen" class="fitness-link-btn" aria-label="フィットネス専用ページ" title="フィットネス専用ページ">専用</a>
+                        <button id="wToggle" class="fitness-toggle-btn" aria-label="入力を表示" title="入力を表示">
+                            <!-- プラス（閉） -->
+                            <svg class="w-5 h-5 icon-plus" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12M6 12h12"></path>
+                            </svg>
+                            <!-- マイナス（開） -->
+                            <svg class="w-5 h-5 icon-minus hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 種目選択部分（常に表示） -->
