@@ -4,7 +4,8 @@ const FX_KEYS = {
   activities: 'fitness_activities',
   profile: 'fitness_profile',
   totals: 'fitness_totals',
-  unlocked: 'fitness_unlocked'
+  unlocked: 'fitness_unlocked',
+  goals: 'fitness_weekly_goals'
 };
 
 const FX_DEFAULT_PROFILE = {
@@ -286,10 +287,12 @@ document.addEventListener('DOMContentLoaded', () => {
   let profile = loadJSON(FX_KEYS.profile, FX_DEFAULT_PROFILE);
   let unlocked = loadJSON(FX_KEYS.unlocked, {});
   let totals = recomputeTotals(activities);
+  let goals = loadJSON(FX_KEYS.goals, { run:15, walk:20, cycle:60 });
 
   renderDashboard(totals, profile);
   renderHistory(activities);
   renderTitles(unlocked, totals);
+  renderGoals(activities, goals);
 
   document.getElementById('fxSave').addEventListener('click', () => {
     const type = document.getElementById('fxType').value;
@@ -337,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDashboard(totals, profile);
     renderHistory(activities);
     renderTitles(unlocked, totals);
+    renderGoals(activities, goals);
 
     // 結果表示
     document.getElementById('fxResult').textContent = `+${gained} XP を獲得しました。` + (newly.length? ` 新たな称号を ${newly.length} 件解放！` : '');
@@ -403,4 +407,54 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // 週間目標
+  function currentWeekKey(){ return weekKey(todayStr()); }
+  function weekStats(acts){
+    const wk = currentWeekKey();
+    const agg = { run:0, walk:0, cycle:0 };
+    for(const a of acts){ if(weekKey(a.date)===wk){ agg[a.type]+=a.distanceKm; } }
+    return agg;
+  }
+  function renderGoals(acts, goals){
+    const v = document.getElementById('fxGoalsView');
+    const s = weekStats(acts);
+    const items = [ ['ラン', 'run', '#ef4444'], ['ウォーク','walk','#10b981'], ['サイクル','cycle','#3b82f6'] ];
+    v.innerHTML = items.map(([label,key,color])=>{
+      const target = Math.max(0, goals[key]||0);
+      const val = s[key]||0;
+      const pct = target>0? Math.min(100, Math.floor((val/target)*100)) : 0;
+      const done = target>0 && val>=target;
+      return `<div>
+        <div class="flex items-center justify-between text-sm mb-1">
+          <div class="text-gray-700">${label}</div>
+          <div class="text-gray-600">${val.toFixed(1)} / ${target} km ${done?'<span class=\'ml-2 text-green-600\'>達成</span>':''}</div>
+        </div>
+        <div class="h-2 bg-gray-200 rounded"><div class="h-2 rounded" style="width:${pct}%; background:${color}"></div></div>
+      </div>`;
+    }).join('');
+
+    // 編集フォームの値反映
+    document.getElementById('fxGoalRun').value = goals.run;
+    document.getElementById('fxGoalWalk').value = goals.walk;
+    document.getElementById('fxGoalCycle').value = goals.cycle;
+  }
+
+  const goalsBtn = document.getElementById('fxGoalsEdit');
+  const goalsForm = document.getElementById('fxGoalsEditForm');
+  goalsBtn.addEventListener('click', ()=>{
+    goalsForm.classList.toggle('hidden');
+  });
+  document.getElementById('fxGoalsCancel').addEventListener('click', ()=>{
+    goalsForm.classList.add('hidden');
+  });
+  document.getElementById('fxGoalsSave').addEventListener('click', ()=>{
+    const run = Math.max(0, parseFloat(document.getElementById('fxGoalRun').value||'0'));
+    const walk = Math.max(0, parseFloat(document.getElementById('fxGoalWalk').value||'0'));
+    const cycle = Math.max(0, parseFloat(document.getElementById('fxGoalCycle').value||'0'));
+    goals = { run, walk, cycle };
+    saveJSON(FX_KEYS.goals, goals);
+    goalsForm.classList.add('hidden');
+    renderGoals(activities, goals);
+  });
 });

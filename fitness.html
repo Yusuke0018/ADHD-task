@@ -134,6 +134,33 @@
       <div id="fxEquipped" class="flex flex-wrap gap-2 mb-2"></div>
       <div id="fxEquipList" class="hidden max-h-64 overflow-y-auto border rounded-lg p-2 bg-white/60"></div>
     </section>
+
+    <!-- 週間目標 -->
+    <section class="washi-card p-4 rounded-2xl mt-4">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-lg font-semibold text-gray-800">週間目標</h2>
+        <button id="fxGoalsEdit" class="text-sm text-blue-600 hover:underline">編集</button>
+      </div>
+      <div id="fxGoalsView" class="space-y-2"></div>
+      <div id="fxGoalsEditForm" class="hidden grid grid-cols-3 gap-2 mt-2">
+        <div>
+          <label class="block text-xs text-gray-600 mb-1">ラン目標(km)</label>
+          <input id="fxGoalRun" type="number" step="1" min="0" class="form-input" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-600 mb-1">ウォーク目標(km)</label>
+          <input id="fxGoalWalk" type="number" step="1" min="0" class="form-input" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-600 mb-1">サイクル目標(km)</label>
+          <input id="fxGoalCycle" type="number" step="1" min="0" class="form-input" />
+        </div>
+        <div class="col-span-3 flex justify-end gap-2">
+          <button id="fxGoalsCancel" class="px-3 py-2 rounded-lg bg-gray-200 text-gray-800">キャンセル</button>
+          <button id="fxGoalsSave" class="save-button">保存</button>
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- レベルアップ演出 -->
