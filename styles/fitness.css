@@ -1,9 +1,10 @@
 /* シンプルなカードと演出 */
-.form-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; background: #ffffff !important; border: 1px solid #e5e7eb !important; color: #0f172a; }
-.form-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,0.25) !important; border-color: #2563eb !important; }
-.save-button { padding: 0.5rem 1rem; border-radius: 0.5rem; background: #2563eb; color: #fff; font-weight: 600; transition: background .2s ease; box-shadow: 0 6px 16px rgba(37,99,235,0.25); }
+.form-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; background: #111827 !important; border: 1px solid #1f2937 !important; color: #e5e7eb; }
+.form-input::placeholder { color: #94a3b8; }
+.form-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.35) !important; border-color: #3b82f6 !important; }
+.save-button { padding: 0.5rem 1rem; border-radius: 0.5rem; background: #3b82f6; color: #fff; font-weight: 700; letter-spacing: .2px; transition: background .2s ease; box-shadow: 0 8px 22px rgba(59,130,246,0.35); }
 .save-button:hover { background: #1d4ed8; }
-.mini-card { border-radius: 0.5rem; background: #f8fafc !important; border: 1px solid #e5e7eb !important; padding: 0.4rem 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.04); }
+.mini-card { border-radius: 0.5rem; background: #0f172a !important; border: 1px solid #1f2937 !important; padding: 0.4rem 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.3); color:#e2e8f0; }
 
 .levelup-overlay {
   position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -39,23 +40,23 @@
 
 /* --- ホーム用フィットネスウィジェットの視認性強化 --- */
 #fitnessWidget.washi-card { 
-  background: #ffffff !important; 
-  border: 1px solid #e5e7eb !important; 
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12) !important; 
+  background: #0b1220 !important; 
+  border: 1px solid #1f2937 !important; 
+  box-shadow: 0 20px 44px rgba(0,0,0,0.45) !important; 
 }
 #fitnessWidget * { 
   box-shadow: initial !important; 
 }
-#fitnessWidget h3 { color: #0f172a; letter-spacing: .2px; }
-#fitnessWidget #wForm { background: #ffffff !important; border-radius: 12px; }
+#fitnessWidget h3 { color: #f8fafc; letter-spacing: .2px; }
+#fitnessWidget #wForm { background: transparent !important; border-radius: 12px; }
 #fitnessWidget #wCalendarGrid button { 
-  background: #ffffff !important; 
-  border: 1px solid #e5e7eb !important; 
+  background: #0f172a !important; 
+  border: 1px solid #1f2937 !important; 
   transition: transform .12s ease, background .12s ease;
 }
-#fitnessWidget #wCalendarGrid button:hover { transform: translateY(-1px); background: #f8fafc !important; }
-#fitnessWidget #wCalSummary { background: #f8fafc !important; border: 1px solid #e5e7eb !important; border-radius: 8px; padding: 8px; }
-#fitnessWidget #wDayDetail > div { background: #ffffff !important; }
-#fitnessWidget .text-gray-600 { color: #475569 !important; }
-#fitnessWidget .text-gray-700 { color: #334155 !important; }
-#fitnessWidget .text-gray-800 { color: #0f172a !important; }
+#fitnessWidget #wCalendarGrid button:hover { transform: translateY(-1px); background: #111827 !important; }
+#fitnessWidget #wCalSummary { background: #0f172a !important; border: 1px solid #1f2937 !important; border-radius: 8px; padding: 8px; color:#e2e8f0; }
+#fitnessWidget #wDayDetail > div { background: #0f172a !important; border: 1px solid #1f2937 !important; }
+#fitnessWidget .text-gray-600 { color: #cbd5e1 !important; }
+#fitnessWidget .text-gray-700 { color: #e2e8f0 !important; }
+#fitnessWidget .text-gray-800 { color: #f1f5f9 !important; }
