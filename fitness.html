@@ -302,7 +302,18 @@
       const fmtKm = v => (Math.max(0, Math.min(200, v))).toFixed(1);
       const clampMin = v => Math.max(0, Math.min(600, Math.round(v)));
 
-      function setType(t){ txType=t; ['#txTypeRun','#txTypeWalk','#txTypeCycle'].forEach(sel=>{ const b=$(sel); if(!b) return; const on = sel.endsWith(t.charAt(0).toUpperCase()+t.slice(1)); b.setAttribute('aria-selected', on?'true':'false'); b.classList.toggle('active', on); }); updatePreview(); }
+      function setType(t){
+        txType = t;
+        const targetId = t === 'run' ? 'txTypeRun' : t === 'walk' ? 'txTypeWalk' : 'txTypeCycle';
+        ['txTypeRun','txTypeWalk','txTypeCycle'].forEach(id => {
+          const b = document.getElementById(id);
+          if(!b) return;
+          const on = (id === targetId);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+          b.classList.toggle('active', on);
+        });
+        updatePreview();
+      }
       function setKm(v){ txKm = parseFloat(fmtKm(v)); $('#txDistanceView').textContent = txKm.toFixed(1); updatePreview(); }
       function setMin(v){ txMin = clampMin(v); $('#txMinutesView').textContent = txMin; updatePreview(); }
       function setDateStr(str){ txDate = str; updatePreview(); }
