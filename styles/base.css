@@ -53,9 +53,12 @@ body {
     animation: ripple 1s ease-out;
 }
 
-/* ボタン内SVGのクリックイベントを無効化 */
+/* ボタン内SVGのクリックイベントを無効化（表示は維持） */
 button svg {
     pointer-events: none;
+}
+/* 和紙カード内のみアイコンを不可視化（他コンポーネントは影響なし） */
+.washi-card button svg {
     opacity: 0; /* 非テキスト要素（アイコン）は完全透過 */
 }
 
@@ -77,12 +80,15 @@ body.ui-hidden #uiVisibilityToggle {
     border: none !important;
 }
 
-/* コンテンツ領域内の非テキスト装飾を一括透過 */
-#contentContainer, #contentContainer * {
+/* コンテンツ領域内の非テキスト装飾を一括透過
+   NOTE: 過剰指定だとフィットネスカード等の背景まで透過してしまうため、
+   .washi-card 配下にスコープを限定します。 */
+#contentContainer .washi-card,
+#contentContainer .washi-card * {
     background: transparent !important;
     box-shadow: none !important;
 }
-#contentContainer * {
+#contentContainer .washi-card * {
     border-color: transparent !important;
 }
 
