@@ -1,0 +1,29 @@
+/* シンプルなカードと演出 */
+.form-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; background: rgba(255,255,255,0.7); border: 1px solid #d1d5db; color: #1f2937; }
+.form-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(96,165,250,0.7); }
+.save-button { padding: 0.5rem 1rem; border-radius: 0.5rem; background: #2563eb; color: #fff; font-weight: 600; transition: background .2s ease; }
+.save-button:hover { background: #1d4ed8; }
+.mini-card { border-radius: 0.5rem; background: rgba(255,255,255,0.6); padding: 0.25rem 0.5rem; }
+
+.levelup-overlay {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.25); z-index: 50;
+}
+.levelup-modal {
+  position: relative; background: white; padding: 24px 32px; border-radius: 16px; text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  animation: pop 400ms ease-out;
+}
+.levelup-confetti::before, .levelup-confetti::after {
+  content: ""; position: absolute; inset: -40px; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,0,0,.7) 20%, transparent 21%) 0 0/16px 16px,
+              radial-gradient(circle, rgba(0,150,255,.7) 20%, transparent 21%) 8px 8px/16px 16px,
+              radial-gradient(circle, rgba(255,200,0,.7) 20%, transparent 21%) 0 8px/16px 16px,
+              radial-gradient(circle, rgba(0,200,120,.7) 20%, transparent 21%) 8px 0/16px 16px;
+  opacity: .7;
+  animation: confetti 1200ms ease-out both;
+}
+@keyframes pop { from { transform: scale(.9); opacity:.0 } to { transform: scale(1); opacity:1 } }
+@keyframes confetti { from { transform: translateY(-20px); opacity:0 } to { transform: translateY(0); opacity:.9 } }
+
+.hidden { display: none; }

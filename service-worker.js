@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sekki-task-v4';
+const CACHE_NAME = 'sekki-task-v5';
 const urlsToCache = [
   './',
   './index.html',
@@ -10,7 +10,11 @@ const urlsToCache = [
   './js/app-simple.js',
   './js/sunTimeAPI.js',
   './js/data/sekki-data.js',
-  './js/animations/seasonal-animations.js'
+  './js/animations/seasonal-animations.js',
+  './fitness.html',
+  './styles/fitness.css',
+  './js/fitness-data.js',
+  './js/fitness-app.js'
 ];
 
 // インストール時にキャッシュ
