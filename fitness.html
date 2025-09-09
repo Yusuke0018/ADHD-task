@@ -32,7 +32,7 @@
               <option value="cycle">サイクリング</option>
             </select>
           </div>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-3 gap-3">
             <div>
               <label class="block text-sm text-gray-700 mb-1">距離 (km)</label>
               <input id="fxDistance" type="number" step="0.01" min="0" placeholder="例: 5.0" class="form-input" />
@@ -40,6 +40,10 @@
             <div>
               <label class="block text-sm text-gray-700 mb-1">分 (min)</label>
               <input id="fxMinutes" type="number" step="1" min="1" placeholder="例: 30" class="form-input" />
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1">開始時刻（任意）</label>
+              <input id="fxTime" type="time" class="form-input" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-3">
@@ -53,6 +57,7 @@
             </div>
           </div>
           <button id="fxSave" class="save-button w-full">保存してXP/称号を更新</button>
+          <p class="text-xs text-gray-500">※ 開始時刻は一部のコンボ称号（例: 朝6時までの合計分）判定にのみ使用します。</p>
 
           <div id="fxResult" class="text-sm text-gray-700"></div>
         </div>
@@ -119,6 +124,16 @@
       <div id="fxTitlesSummary" class="text-sm text-gray-700 mb-2"></div>
       <div id="fxNextTargets" class="text-sm text-gray-700"></div>
     </section>
+
+    <!-- 装備バッジ -->
+    <section class="washi-card p-4 rounded-2xl mt-4">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-lg font-semibold text-gray-800">装備バッジ（最大5つ）</h2>
+        <button id="fxToggleEquip" class="text-sm text-blue-600 hover:underline">選択</button>
+      </div>
+      <div id="fxEquipped" class="flex flex-wrap gap-2 mb-2"></div>
+      <div id="fxEquipList" class="hidden max-h-64 overflow-y-auto border rounded-lg p-2 bg-white/60"></div>
+    </section>
   </div>
 
   <!-- レベルアップ演出 -->
@@ -126,6 +141,14 @@
     <div class="levelup-modal">
       <div class="levelup-confetti" aria-hidden="true"></div>
       <div id="levelUpText" class="text-2xl font-bold">Level Up!</div>
+    </div>
+  </div>
+
+  <div id="levelUpOverlayLarge" class="levelup-overlay hidden">
+    <div class="levelup-modal levelup-modal-large">
+      <div class="levelup-confetti levelup-confetti-large" aria-hidden="true"></div>
+      <div id="levelUpTextLarge" class="text-3xl font-extrabold">Milestone!</div>
+      <div class="text-sm text-gray-600 mt-1">節目レベル到達おめでとうございます</div>
     </div>
   </div>
 
@@ -141,4 +164,3 @@
   </script>
 </body>
 </html>
-

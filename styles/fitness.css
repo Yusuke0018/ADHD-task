@@ -14,6 +14,7 @@
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   animation: pop 400ms ease-out;
 }
+.levelup-modal-large { padding: 32px 40px; border: 3px solid #2563eb; }
 .levelup-confetti::before, .levelup-confetti::after {
   content: ""; position: absolute; inset: -40px; pointer-events: none;
   background: radial-gradient(circle, rgba(255,0,0,.7) 20%, transparent 21%) 0 0/16px 16px,
@@ -23,6 +24,7 @@
   opacity: .7;
   animation: confetti 1200ms ease-out both;
 }
+.levelup-confetti-large::before, .levelup-confetti-large::after { inset: -60px; animation-duration: 1800ms; }
 @keyframes pop { from { transform: scale(.9); opacity:.0 } to { transform: scale(1); opacity:1 } }
 @keyframes confetti { from { transform: translateY(-20px); opacity:0 } to { transform: translateY(0); opacity:.9 } }
 

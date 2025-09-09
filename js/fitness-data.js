@@ -55,19 +55,19 @@
     ["二百六十日の構造",260],["三百日の記憶箱",300],["三百六十五日の環",365],["五百日の航跡",500]
   ].map((x,i)=>({id:`days_${String(i+1).padStart(4,'0')}`,category:'days',name:x[0],threshold:x[1],unit:'day',scope:'cumulative'}));
 
-  const combo = [
-    ["三相運動の祈り","同一日に3種目すべて記録"],
-    ["夜明六時の盟約","同一日に朝6時まで合計60分以上"],
-    ["街を横断する定義","単日合計30km以上"],
-    ["斜面と平地の協定","同一週：ラン≥20km＋ウォーク≥20km"],
-    ["長日輪舞","単日合計6時間以上"],
-    ["二輪一走の交差点","同一日：任意の2種目で各10km以上"],
-    ["静動アンサンブル","同一週：ウォーク≥40km＋ラン≥30km"],
-    ["三時間の宣言","単日合計180分以上"],
-    ["複章コレクター","総合称号10個以上解放"],
-    ["路譜の統合者","各カテゴリ最上位称号を1つ以上解放"]
-  ].map((x,i)=>({id:`combo_${String(i+1).padStart(4,'0')}`,category:'combo',name:x[0],threshold:0,unit:'rule',scope:'rule',rule:x[1]}));
+  const comboRaw = [
+    ["三相運動の祈り","daily_all_three","同一日に3種目すべて記録"],
+    ["夜明六時の盟約","daily_before6_60min","同一日に朝6時まで合計60分以上"],
+    ["街を横断する定義","daily_30km","単日合計30km以上"],
+    ["斜面と平地の協定","weekly_run20_walk20","同一週：ラン≥20km＋ウォーク≥20km"],
+    ["長日輪舞","daily_6h","単日合計6時間以上"],
+    ["二輪一走の交差点","daily_two_types_10km","同一日：任意の2種目で各10km以上"],
+    ["静動アンサンブル","weekly_walk40_run30","同一週：ウォーク≥40km＋ラン≥30km"],
+    ["三時間の宣言","daily_180min","単日合計180分以上"],
+    ["複章コレクター","sum_titles_10","総合称号10個以上解放"],
+    ["路譜の統合者","top_any_category_completed","各カテゴリ最上位称号を1つ以上解放"]
+  ];
+  const combo = comboRaw.map((x,i)=>({id:`combo_${String(i+1).padStart(4,'0')}`,category:'combo',name:x[0],code:x[1],threshold:0,unit:'rule',scope:'rule',rule:x[2]}));
 
   window.FitnessAchievements = { sum, run, walk, cycle, time, days, combo };
 })();
-

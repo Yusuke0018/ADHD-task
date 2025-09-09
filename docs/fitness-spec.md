@@ -36,6 +36,7 @@ Activity = {
   type: 'run' | 'walk' | 'cycle',
   distanceKm: number,            // 0.00〜200.00
   minutes: number,               // 1〜600
+  time?: string,                 // 任意 'HH:MM'（コンボ判定用: 朝6時まで 等）
   note?: string
 }
 ```
@@ -341,16 +342,16 @@ Achievement = {
 20. 五百日の航跡（500日）
 
 ### 7) 特殊コンボ 10個（v1.1）
-1. 三相運動の祈り（同一日に3種目すべて記録）
-2. 夜明六時の盟約（同一日に朝6時まで合計60分以上）
-3. 街を横断する定義（単日合計30km以上）
-4. 斜面と平地の協定（同一週：ラン≥20km＋ウォーク≥20km）
-5. 長日輪舞（単日合計6時間以上）
-6. 二輪一走の交差点（同一日：任意の2種目で各10km以上）
-7. 静動アンサンブル（同一週：ウォーク≥40km＋ラン≥30km）
-8. 三時間の宣言（単日合計180分以上）
-9. 複章コレクター（総合称号10個以上解放）
-10. 路譜の統合者（各カテゴリ最上位称号を1つ以上解放）
+1. 三相運動の祈り（同一日に3種目すべて記録）code=daily_all_three
+2. 夜明六時の盟約（同一日に朝6時まで合計60分以上）code=daily_before6_60min（timeが未入力の場合は対象外）
+3. 街を横断する定義（単日合計30km以上）code=daily_30km
+4. 斜面と平地の協定（同一週：ラン≥20km＋ウォーク≥20km）code=weekly_run20_walk20（週開始: 月曜）
+5. 長日輪舞（単日合計6時間以上）code=daily_6h
+6. 二輪一走の交差点（同一日：任意の2種目で各10km以上）code=daily_two_types_10km
+7. 静動アンサンブル（同一週：ウォーク≥40km＋ラン≥30km）code=weekly_walk40_run30
+8. 三時間の宣言（単日合計180分以上）code=daily_180min
+9. 複章コレクター（総合称号10個以上解放）code=sum_titles_10
+10. 路譜の統合者（各カテゴリ最上位称号を1つ以上解放）code=top_any_category_completed
 
 ---
 
@@ -372,8 +373,7 @@ onSave(activity):
   newlyUnlocked = []
   for each category in [sum, run, walk, cycle, time, days]:
     newlyUnlocked += unlockIfReached(category, totals, activity)
-  if (v1_1_enabled):
-    newlyUnlocked += evalCombos(activity, totals, weekly)
+  newlyUnlocked += evalCombos(activities, totals, unlocked)
 
   enqueueEffect('achievements', newlyUnlocked)
   playEffectsInOrder()
@@ -385,4 +385,3 @@ onSave(activity):
 - v1.3: 簡易バックアップ/リストア、CSVインポート。
 
 以上です。数値（係数・しきい値）は実走テストで後日微調整可能なよう、Profile.settingsで外部化します。
-
