@@ -197,18 +197,24 @@ document.addEventListener('DOMContentLoaded', () => {
     $$('#wResult').textContent='直近の入力を反映しました';
   });
 
-  // 種目セグメント
+  // 種目セレクタ（プルダウン式）
   function setType(val){
     const map = { run: '#wTypeRun', walk: '#wTypeWalk', cycle: '#wTypeCycle' };
     $$('#wType').value = val;
     ['#wTypeRun','#wTypeWalk','#wTypeCycle'].forEach(sel=>{ const b=$$(sel); if(b){ b.classList.remove('active'); b.setAttribute('aria-selected','false'); }});
     const btn = $$(map[val]); if(btn){ btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
+    const lbl = $$('#wTypeLabel'); if(lbl){ lbl.textContent = val==='run'?'ラン': val==='walk'?'ウォーク':'サイクル'; }
   }
+  function openTypeMenu(){ const m=$$('#wTypeMenu'); const p=$$('#wTypePicker'); if(m&&p){ m.classList.remove('hidden'); p.setAttribute('aria-expanded','true'); } }
+  function closeTypeMenu(){ const m=$$('#wTypeMenu'); const p=$$('#wTypePicker'); if(m&&p){ m.classList.add('hidden'); p.setAttribute('aria-expanded','false'); } }
   // 初期値
   setType($$('#wType').value || 'run');
-  $$('#wTypeRun')?.addEventListener('click', ()=> setType('run'));
-  $$('#wTypeWalk')?.addEventListener('click', ()=> setType('walk'));
-  $$('#wTypeCycle')?.addEventListener('click', ()=> setType('cycle'));
+  $$('#wTypeRun')?.addEventListener('click', ()=> { setType('run'); closeTypeMenu(); });
+  $$('#wTypeWalk')?.addEventListener('click', ()=> { setType('walk'); closeTypeMenu(); });
+  $$('#wTypeCycle')?.addEventListener('click', ()=> { setType('cycle'); closeTypeMenu(); });
+  $$('#wTypePicker')?.addEventListener('click', ()=> openTypeMenu());
+  $$('#wTypeMenuBackdrop')?.addEventListener('click', ()=> closeTypeMenu());
+  $$('#wTypeMenuClose')?.addEventListener('click', ()=> closeTypeMenu());
 
   function renderCalSummary(current, acts){
     const box = $$('#wCalSummary'); if(!box) return;

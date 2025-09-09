@@ -50,9 +50,12 @@
 
 /* --- ホーム用フィットネスウィジェットの視認性強化 --- */
 #fitnessWidget.washi-card { 
-  background: #e5e7eb !important; /* しっかりした灰色 */
-  border: 1px solid #cbd5e1 !important; 
-  box-shadow: 0 16px 36px rgba(0,0,0,0.18) !important; 
+  /* 未来的なグラスモーフィズム */
+  background: linear-gradient(135deg, rgba(255,255,255,0.65), rgba(236,243,255,0.45)) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(147, 197, 253, 0.45) !important; 
+  box-shadow: 0 16px 36px rgba(30,58,138,0.16) !important; 
 }
 #fitnessWidget * { 
   box-shadow: initial !important; 
@@ -90,4 +93,30 @@
 @media (max-width: 640px) {
   #fitnessWidget .form-input { padding: 0.75rem 1rem; font-size: 16px; } /* iOSズーム抑止 */
   #fitnessWidget .quick-btn { flex: 1 1 0; }
+}
+
+/* 汎用: 未来的UIピース */
+.select-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 14px; border-radius: 14px; width: auto; min-height: 44px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(224,242,254,0.55));
+  border: 1px solid rgba(147,197,253,0.6);
+  box-shadow: 0 8px 22px rgba(59,130,246,0.25);
+  color: #0f172a; font-weight: 800; letter-spacing: .2px;
+}
+.type-menu { position: fixed; inset: 0; z-index: 60; }
+.type-menu-backdrop { position: absolute; inset: 0; background: rgba(2,6,23,0.25); }
+.type-sheet { position: absolute; left: 0; right: 0; bottom: 0; border-top-left-radius: 18px; border-top-right-radius: 18px; padding: 14px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)); border-top: 1px solid rgba(148,163,184,0.5); box-shadow: 0 -16px 30px rgba(15,23,42,0.12); }
+.type-sheet-header { font-weight: 800; color: #0f172a; margin-bottom: 8px; }
+.type-sheet-content { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.menu-item { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 14px; font-weight: 700; color:#0f172a; }
+.menu-item[aria-selected="true"], .menu-item.active { background: #e0f2fe; border-color: #60a5fa; box-shadow: 0 6px 18px rgba(59,130,246,0.25); }
+.menu-close { margin-top: 10px; width: 100%; background: #0ea5e9; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 12px; }
+
+/* ハイテンション入力カードも同系統に */
+#fxTurbo.washi-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(236,253,245,0.5)) !important;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(134,239,172,0.45) !important;
+  box-shadow: 0 16px 36px rgba(4,120,87,0.12) !important;
 }
