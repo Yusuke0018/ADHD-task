@@ -95,7 +95,8 @@
                 <!-- ミニ入力 -->
                 <div id="wForm" class="hidden mb-3">
                     <!-- 種目セグメント（スマホ優先の大きめタップ） -->
-                    <div class="segmented mb-3" role="tablist" aria-label="種目選択">
+                    <div class="section-title">■ 種目</div>
+                    <div class="segmented mb-4" role="tablist" aria-label="種目選択">
                       <button id="wTypeRun" class="seg-btn" role="tab" aria-selected="true">🏃‍♂️ ラン</button>
                       <button id="wTypeWalk" class="seg-btn" role="tab" aria-selected="false">👣 ウォーク</button>
                       <button id="wTypeCycle" class="seg-btn" role="tab" aria-selected="false">🚴‍♂️ サイクル</button>
@@ -108,9 +109,10 @@
                     </select>
 
                     <!-- 入力群（モバイルは1列、sm以上は2列） -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="section-title">■ 距離と分</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                         <div>
-                          <label class="block text-sm text-gray-600 mb-1">距離 (km)</label>
+                          <label class="block text-sm text-gray-800 mb-1">距離 (km)</label>
                           <input id="wDistance" type="number" inputmode="decimal" step="0.01" min="0" placeholder="例: 5.0" class="form-input w-full" />
                           <div class="flex gap-2 mt-2">
                             <button id="wPlus1Km" class="quick-btn">+1km</button>
@@ -118,26 +120,32 @@
                           </div>
                         </div>
                         <div>
-                          <label class="block text-sm text-gray-600 mb-1">分 (min)</label>
+                          <label class="block text-sm text-gray-800 mb-1">分 (min)</label>
                           <input id="wMinutes" type="number" inputmode="numeric" step="1" min="1" placeholder="例: 30" class="form-input w-full" />
                           <div class="flex gap-2 mt-2">
                             <button id="wPlus10Min" class="quick-btn">+10分</button>
                             <button id="wPlus5Min" class="quick-btn">+5分</button>
                           </div>
                         </div>
+                    </div>
+                    <div class="section-title">■ 日付と時刻</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-2">
                         <div>
-                          <label class="block text-sm text-gray-600 mb-1">日付</label>
+                          <label class="block text-sm text-gray-800 mb-1">日付</label>
                           <input id="wDate" type="date" class="form-input w-full" />
                         </div>
                         <div>
-                          <label class="block text-sm text-gray-600 mb-1">開始時刻</label>
+                          <label class="block text-sm text-gray-800 mb-1">開始時刻</label>
                           <input id="wTime" type="time" class="form-input w-full" />
                         </div>
-                        <div class="sm:col-span-2">
-                          <label class="block text-sm text-gray-600 mb-1">メモ（任意）</label>
+                    </div>
+                    <div class="section-title">■ メモと保存</div>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div>
+                          <label class="block text-sm text-gray-800 mb-1">メモ（任意）</label>
                           <input id="wNote" type="text" class="form-input w-full" placeholder="体感や天候、コースなど" />
                         </div>
-                        <div class="sm:col-span-2 flex gap-2">
+                        <div class="flex gap-2">
                           <button id="wRecall" class="quick-btn alt">直近を再入力</button>
                           <button id="wSave" class="save-button animate-pulse-soft flex-1">保存</button>
                         </div>
