@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sekki-task-v6';
+const CACHE_NAME = 'sekki-task-v7';
 const urlsToCache = [
   './',
   './index.html',
@@ -7,13 +7,15 @@ const urlsToCache = [
   './styles/sekki-backgrounds.css',
   './styles/animations.css',
   './styles/components.css',
+  './styles/fitness.css',
   './js/app-simple.js',
   './js/sunTimeAPI.js',
   './js/data/sekki-data.js',
   './js/animations/seasonal-animations.js',
-  './fitness.html',
-  './styles/fitness.css',
   './js/fitness-data.js',
+  './js/fitness-core.js',
+  './js/fitness-widget.js',
+  './fitness.html',
   './js/fitness-app.js'
 ];
 
