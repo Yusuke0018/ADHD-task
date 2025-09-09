@@ -1,14 +1,14 @@
-/* カレンダー用スタイル */
+/* カレンダー用スタイル - 強制的に濃い背景 */
 .future-calendar-day {
   aspect-ratio: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #374151 !important;
-  border: 1px solid #4b5563 !important;
+  background: #1f2937 !important;
+  border: 2px solid #374151 !important;
   border-radius: 8px;
-  color: #f9fafb !important;
+  color: white !important;
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -17,34 +17,34 @@
 }
 
 .future-calendar-day:hover {
-  background: #4b5563 !important;
+  background: #374151 !important;
   transform: translateY(-1px);
   color: white !important;
-  border-color: #6b7280 !important;
+  border-color: #4b5563 !important;
 }
 
 /* アクティビティがある日 */
 .future-calendar-day.has-activity {
   border-color: #3b82f6 !important;
-  background: #1f2937 !important;
+  background: #111827 !important;
 }
 
 .future-calendar-day.has-activity:hover {
-  background: #374151 !important;
+  background: #1f2937 !important;
   border-color: #60a5fa !important;
 }
 
 /* カレンダーのその他要素 */
 .future-calendar-section {
   padding-top: 1.5rem;
-  border-top: 1px solid #4b5563;
+  border-top: 2px solid #374151 !important;
 }
 
 .future-calendar-title {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #d1d5db !important;
+  color: white !important;
 }
 
 .future-nav-btn {
@@ -53,16 +53,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #374151 !important;
-  border: 1px solid #4b5563 !important;
+  background: #1f2937 !important;
+  border: 2px solid #374151 !important;
   border-radius: 6px;
-  color: #f9fafb !important;
+  color: white !important;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .future-nav-btn:hover {
-  background: #4b5563 !important;
+  background: #374151 !important;
   color: white !important;
 }
 
@@ -77,17 +77,17 @@
 .future-calendar-summary {
   margin-top: 1rem;
   padding: 0.75rem;
-  background: #374151 !important;
-  border: 1px solid #4b5563 !important;
+  background: #1f2937 !important;
+  border: 2px solid #374151 !important;
   border-radius: 8px;
   font-size: 0.75rem;
-  color: #f9fafb !important;
+  color: white !important;
 }
 
 .future-day-detail > div {
   padding: 0.75rem;
-  background: #374151 !important;
-  border: 1px solid #4b5563 !important;
+  background: #1f2937 !important;
+  border: 2px solid #374151 !important;
   border-radius: 8px;
   margin-bottom: 0.5rem;
 }
@@ -96,24 +96,32 @@
 .future-targets-section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #4b5563;
+  border-top: 2px solid #374151 !important;
 }
 
 .future-targets-title {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #d1d5db !important;
+  color: white !important;
   margin-bottom: 1rem;
 }
 
 .future-targets-list {
   font-size: 0.875rem;
-  color: #f9fafb !important;
+  color: white !important;
   line-height: 1.6;
 }
 
 .future-targets-list > div {
   padding: 0.5rem 0;
-  border-bottom: 1px solid #4b5563;
+  border-bottom: 1px solid #374151;
+  color: white !important;
+}
+
+/* すべてのテキストを強制的に白に */
+.future-calendar-section *,
+.future-targets-section *,
+.future-day-detail * {
+  color: white !important;
 }
