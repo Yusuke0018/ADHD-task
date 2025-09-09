@@ -47,24 +47,29 @@ function renderCalendar(current, acts, onDayClick){
   const actsByDate = groupByDate(acts);
   // ヘッダ
   const weekdays = ['月','火','水','木','金','土','日'];
-  for(const w of weekdays){ const h=document.createElement('div'); h.className='text-center text-gray-500 font-medium'; h.textContent=w; grid.appendChild(h); }
+  for(const w of weekdays){ 
+    const h=document.createElement('div'); 
+    h.className='text-center text-white/50 font-medium text-xs'; 
+    h.textContent=w; 
+    grid.appendChild(h); 
+  }
   // 前空白
-  for(let i=0;i<startDay;i++){ const sp = document.createElement('div'); sp.className='p-2'; grid.appendChild(sp); }
+  for(let i=0;i<startDay;i++){ const sp = document.createElement('div'); sp.className=''; grid.appendChild(sp); }
   // 日付
   for(let d=1; d<=daysInMonth; d++){
     const dateStr = todayStr(new Date(year, month, d));
     const cell = document.createElement('button');
-    cell.className = 'p-2 rounded-lg bg-white/60 hover:bg-white/80 text-center focus:outline-none';
+    cell.className = 'future-calendar-day';
     const list = actsByDate.get(dateStr) || [];
     let dots = '';
     const tset = new Set(list.map(a=>a.type));
     if(tset.size>0){
-      const dotRun = tset.has('run')? '<span class="w-2 h-2 rounded-full bg-red-500"></span>':'';
-      const dotWalk = tset.has('walk')? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>':'';
-      const dotCycle = tset.has('cycle')? '<span class="w-2 h-2 rounded-full bg-blue-500"></span>':'';
-      dots = `<div class="mt-1 flex items-center justify-center gap-1">${dotRun}${dotWalk}${dotCycle}</div>`;
+      const dotRun = tset.has('run')? '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>':'';
+      const dotWalk = tset.has('walk')? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>':'';
+      const dotCycle = tset.has('cycle')? '<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>':'';
+      dots = `<div class="flex items-center justify-center gap-0.5 mt-1">${dotRun}${dotWalk}${dotCycle}</div>`;
     }
-    cell.innerHTML = `<div class="text-sm text-gray-800">${d}</div>${dots}`;
+    cell.innerHTML = `<div class="text-sm">${d}</div>${dots}`;
     cell.addEventListener('click', ()=> onDayClick(dateStr, list));
     grid.appendChild(cell);
   }
@@ -73,18 +78,22 @@ function renderCalendar(current, acts, onDayClick){
 function renderDayDetail(dateStr, list){
   const box = $$('#wDayDetail');
   if(!box) return;
-  if(!list || list.length===0){ box.innerHTML = `<div class="text-gray-500">${dateStr} の記録はありません。</div>`; return; }
+  if(!list || list.length===0){ 
+    box.innerHTML = `<div class="text-white/50">${dateStr} の記録はありません。</div>`; 
+    return; 
+  }
   const html = list
     .sort((a,b)=> (a.time||'').localeCompare(b.time||''))
     .map(a=>{
       const spd = a.minutes>0 ? (a.distanceKm/(a.minutes/60)).toFixed(1) : '-';
       const t = labelType(a.type);
-      return `<div class="flex items-center justify-between bg-white/60 rounded-lg px-3 py-2 mb-1">
-        <div class="text-sm text-gray-700">${t} ${a.distanceKm.toFixed(2)}km / ${a.minutes}分 ${a.time?`<span class='text-gray-500 ml-1'>(${a.time})</span>`:''}</div>
-        <div class="text-xs text-gray-500">${spd} km/h</div>
+      const typeColor = a.type === 'run' ? 'text-red-400' : a.type === 'walk' ? 'text-emerald-400' : 'text-blue-400';
+      return `<div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2 mb-1">
+        <div class="text-sm"><span class="${typeColor} font-bold">${t}</span> <span class="text-white">${a.distanceKm.toFixed(2)}km / ${a.minutes}分</span> ${a.time?`<span class='text-white/50 ml-1'>(${a.time})</span>`:''}</div>
+        <div class="text-xs text-white/50">${spd} km/h</div>
       </div>`;
     }).join('');
-  box.innerHTML = `<div class="text-sm font-semibold text-gray-800 mb-1">${dateStr}</div>${html}`;
+  box.innerHTML = `<div class="text-sm font-semibold text-white mb-2">${dateStr}</div>${html}`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -197,24 +206,27 @@ document.addEventListener('DOMContentLoaded', () => {
     $$('#wResult').textContent='直近の入力を反映しました';
   });
 
-  // 種目セレクタ（プルダウン式）
+  // 新しい種目セレクター（カード式）
   function setType(val){
-    const map = { run: '#wTypeRun', walk: '#wTypeWalk', cycle: '#wTypeCycle' };
     $$('#wType').value = val;
-    ['#wTypeRun','#wTypeWalk','#wTypeCycle'].forEach(sel=>{ const b=$$(sel); if(b){ b.classList.remove('active'); b.setAttribute('aria-selected','false'); }});
-    const btn = $$(map[val]); if(btn){ btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
-    const lbl = $$('#wTypeLabel'); if(lbl){ lbl.textContent = val==='run'?'ラン': val==='walk'?'ウォーク':'サイクル'; }
+    // すべてのスポーツカードのactiveクラスをリセット
+    document.querySelectorAll('.sport-card').forEach(card => {
+      card.classList.remove('active');
+    });
+    // 選択されたカードにactiveクラスを追加
+    const selectedCard = document.querySelector(`.sport-card[data-sport="${val}"]`);
+    if(selectedCard) {
+      selectedCard.classList.add('active');
+    }
   }
-  function openTypeMenu(){ const m=$$('#wTypeMenu'); const p=$$('#wTypePicker'); if(m&&p){ m.classList.remove('hidden'); p.setAttribute('aria-expanded','true'); } }
-  function closeTypeMenu(){ const m=$$('#wTypeMenu'); const p=$$('#wTypePicker'); if(m&&p){ m.classList.add('hidden'); p.setAttribute('aria-expanded','false'); } }
-  // 初期値
+  
+  // 初期値設定
   setType($$('#wType').value || 'run');
-  $$('#wTypeRun')?.addEventListener('click', ()=> { setType('run'); closeTypeMenu(); });
-  $$('#wTypeWalk')?.addEventListener('click', ()=> { setType('walk'); closeTypeMenu(); });
-  $$('#wTypeCycle')?.addEventListener('click', ()=> { setType('cycle'); closeTypeMenu(); });
-  $$('#wTypePicker')?.addEventListener('click', ()=> openTypeMenu());
-  $$('#wTypeMenuBackdrop')?.addEventListener('click', ()=> closeTypeMenu());
-  $$('#wTypeMenuClose')?.addEventListener('click', ()=> closeTypeMenu());
+  
+  // スポーツカードのクリックイベント
+  $$('#sportRun')?.addEventListener('click', () => setType('run'));
+  $$('#sportWalk')?.addEventListener('click', () => setType('walk'));
+  $$('#sportCycle')?.addEventListener('click', () => setType('cycle'));
 
   function renderCalSummary(current, acts){
     const box = $$('#wCalSummary'); if(!box) return;
@@ -227,8 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if(da.getFullYear()===y && da.getMonth()===m){ monthAgg[a.type]+=a.distanceKm; }
       if(weekKey(a.date)===wkKey){ weekAgg[a.type]+=a.distanceKm; }
     }
-    const fmt = (agg)=>`Run ${agg.run.toFixed(1)} / Walk ${agg.walk.toFixed(1)} / Cycle ${agg.cycle.toFixed(1)} km`;
-    box.innerHTML = `<div class="text-gray-700">今週: ${fmt(weekAgg)}</div><div class="text-gray-700">今月: ${fmt(monthAgg)}</div>`;
+    const fmt = (agg)=>`<span class="text-red-400">R ${agg.run.toFixed(1)}</span> / <span class="text-emerald-400">W ${agg.walk.toFixed(1)}</span> / <span class="text-blue-400">C ${agg.cycle.toFixed(1)}</span> km`;
+    box.innerHTML = `<div class="text-white/70">今週: ${fmt(weekAgg)}</div><div class="text-white/70">今月: ${fmt(monthAgg)}</div>`;
   }
 
   function renderNextTargets(totals, unlocked){
@@ -239,8 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if(!cand) return null;
       const remain = cand.threshold - value; const unit = c==='time'?'分': c==='days'?'日':'km';
       const remStr = c==='time'||c==='days'? Math.max(0,Math.ceil(remain))+unit : Math.max(0,remain).toFixed(2)+unit;
-      return `${catLabel(c)}: 「${cand.name}」まで ${remStr}`;
+      return `<div class="flex justify-between items-center py-2 border-b border-white/5">
+        <span class="text-white/70">${catLabel(c)}</span>
+        <span class="text-white">「${cand.name}」</span>
+        <span class="text-blue-400 font-bold">${remStr}</span>
+      </div>`;
     }).filter(Boolean).slice(0,3);
-    wrap.innerHTML = rows.length? rows.map(x=>`<div class="mb-1">${x}</div>`).join('') : '<div class="text-gray-500">すべて達成済み！</div>';
+    wrap.innerHTML = rows.length? rows.join('') : '<div class="text-white/50">すべて達成済み！</div>';
   }
 });

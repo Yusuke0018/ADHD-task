@@ -1,122 +1,708 @@
-/* シンプルなカードと演出 */
-.form-input { width: 100%; padding: 0.8rem 1rem; border-radius: 12px; background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(240,249,255,0.85)) !important; border: 1px solid rgba(147,197,253,0.7) !important; color: #0f172a; font-size: 16px; backdrop-filter: blur(6px); }
-.form-input::placeholder { color: #64748b; }
-.form-input:focus { outline: none; box-shadow: 0 0 0 4px rgba(59,130,246,0.25) !important; border-color: #3b82f6 !important; }
-.save-button { padding: 0.9rem 1rem; border-radius: 14px; background: linear-gradient(135deg, #22d3ee, #4f46e5); color: #ffffff; font-weight: 800; letter-spacing: .3px; transition: transform .15s ease, filter .15s ease; box-shadow: 0 12px 30px rgba(79,70,229,0.35), 0 0 0 2px rgba(34,211,238,0.15) inset; }
-.save-button:hover { filter: brightness(1.05); transform: translateY(-1px); }
-.mini-card { border-radius: 12px; background: linear-gradient(145deg, rgba(248,250,252,0.9), rgba(241,245,249,0.9)) !important; border: 1px solid rgba(203,213,225,0.9) !important; padding: 0.6rem 0.7rem; box-shadow: 0 1px 2px rgba(15,23,42,0.06); color:#0f172a; }
+/* 未来的なUIコンポーネント */
 
-/* --- ハイテンション入力 UI --- */
-.seg-big {
-  background: #ffffff; color: #111111; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 14px; font-weight: 800; letter-spacing: .2px;
+/* メインカード */
+.fitness-future-card {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
 }
-.seg-big[aria-selected="true"], .seg-big.active { background: #dbeafe; border-color: #60a5fa; box-shadow: 0 6px 18px rgba(59,130,246,0.25); }
-.chip { background: linear-gradient(135deg, #ffffff, #eff6ff); color:#0f172a; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 10px 12px; font-weight: 800; text-align:center; box-shadow: 0 6px 16px rgba(2,6,23,0.08); }
-.chip.alt { background: linear-gradient(135deg, #f0f9ff, #ecfeff); }
-.stepper { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #ffffff, #f8fafc); border:1px solid #cbd5e1; font-size: 18px; font-weight: 900; color:#0f172a; box-shadow: 0 8px 18px rgba(15,23,42,0.12); }
-.combo { background: #eef2ff; color:#1e3a8a; border:1px solid #c7d2fe; border-radius: 12px; padding: 10px; font-weight: 700; text-align:center; }
 
-.levelup-overlay {
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.25); z-index: 50;
+/* ヘッダー */
+.fitness-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
 }
-.levelup-modal {
-  position: relative; background: white; padding: 24px 32px; border-radius: 16px; text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  animation: pop 400ms ease-out;
+
+.fitness-icon-container {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 10px;
+  color: white;
 }
-.levelup-modal-large { padding: 32px 40px; border: 3px solid #2563eb; }
-.levelup-confetti::before, .levelup-confetti::after {
-  content: ""; position: absolute; inset: -40px; pointer-events: none;
-  background: radial-gradient(circle, rgba(255,0,0,.7) 20%, transparent 21%) 0 0/16px 16px,
-              radial-gradient(circle, rgba(0,150,255,.7) 20%, transparent 21%) 8px 8px/16px 16px,
-              radial-gradient(circle, rgba(255,200,0,.7) 20%, transparent 21%) 0 8px/16px 16px,
-              radial-gradient(circle, rgba(0,200,120,.7) 20%, transparent 21%) 8px 0/16px 16px;
-  opacity: .7;
-  animation: confetti 1200ms ease-out both;
+
+.fitness-toggle-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  color: #94a3b8;
+  transition: all 0.2s;
+  cursor: pointer;
 }
-.levelup-confetti-large::before, .levelup-confetti-large::after { inset: -60px; animation-duration: 1800ms; }
-@keyframes pop { from { transform: scale(.9); opacity:.0 } to { transform: scale(1); opacity:1 } }
-@keyframes confetti { from { transform: translateY(-20px); opacity:0 } to { transform: translateY(0); opacity:.9 } }
+
+.fitness-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: rotate(90deg);
+}
+
+/* 種目選択カード */
+.sport-selector-container {
+  margin-bottom: 1.5rem;
+}
+
+.sport-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.sport-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+  padding: 1.5rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sport-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sport-card.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: currentColor;
+}
+
+.sport-card[data-sport="run"].active {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.sport-card[data-sport="walk"].active {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.sport-card[data-sport="cycle"].active {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.sport-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  transition: all 0.3s;
+}
+
+.sport-card.active .sport-icon {
+  background: currentColor;
+  color: white;
+}
+
+.run-icon { color: #ef4444; }
+.walk-icon { color: #10b981; }
+.cycle-icon { color: #3b82f6; }
+
+.sport-card.active .run-icon { background: #ef4444; }
+.sport-card.active .walk-icon { background: #10b981; }
+.sport-card.active .cycle-icon { background: #3b82f6; }
+
+.sport-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.sport-card.active .sport-label {
+  color: white;
+}
+
+.sport-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  opacity: 0;
+  filter: blur(20px);
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.sport-card.active .run-glow {
+  background: #ef4444;
+  opacity: 0.3;
+}
+
+.sport-card.active .walk-glow {
+  background: #10b981;
+  opacity: 0.3;
+}
+
+.sport-card.active .cycle-glow {
+  background: #3b82f6;
+  opacity: 0.3;
+}
+
+/* 入力フォームコンテナ */
+.fitness-form-container {
+  padding: 1rem 0;
+}
+
+.future-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.future-input-group {
+  position: relative;
+}
+
+.future-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.future-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.future-input {
+  width: 100%;
+  padding: 0.75rem 3rem 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.future-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.future-unit {
+  position: absolute;
+  right: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.future-quick-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.future-quick-btn {
+  flex: 1;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.future-quick-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.future-input-date, .future-input-memo {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.future-input-date:focus, .future-input-memo:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.future-action-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.future-recall-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.future-recall-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+
+.future-save-btn {
+  flex: 1;
+  position: relative;
+  padding: 1rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.future-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+.save-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent);
+  animation: pulse 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.5; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+.future-result-message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 8px;
+  color: #86efac;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0;
+  animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+/* ダッシュボード */
+.future-dashboard {
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.future-level-container {
+  margin-bottom: 1.5rem;
+}
+
+.future-level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+}
+
+.future-level-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+.future-level-value {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.future-xp-bar-container {
+  position: relative;
+}
+
+.future-xp-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.future-xp-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+}
+
+.future-xp-text {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+  text-align: right;
+}
+
+.future-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.future-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 12px;
+}
+
+.future-stat-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 8px;
+  color: #3b82f6;
+}
+
+.future-stat-info {
+  flex: 1;
+}
+
+.future-stat-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.25rem;
+}
+
+.future-stat-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: white;
+}
+
+.future-activity-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.future-activity-card {
+  padding: 1rem 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.future-activity-card:hover {
+  transform: translateY(-2px);
+}
+
+.run-card { border-color: rgba(239, 68, 68, 0.3); }
+.walk-card { border-color: rgba(16, 185, 129, 0.3); }
+.cycle-card { border-color: rgba(59, 130, 246, 0.3); }
+
+.future-activity-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.future-activity-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: white;
+}
+
+.run-card .future-activity-value { color: #ef4444; }
+.walk-card .future-activity-value { color: #10b981; }
+.cycle-card .future-activity-value { color: #3b82f6; }
+
+/* カレンダー */
+.future-calendar-section {
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.future-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.future-calendar-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #64748b;
+}
+
+.future-calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.future-nav-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.future-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+}
+
+.future-month-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  min-width: 100px;
+  text-align: center;
+}
+
+.future-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.future-calendar-grid button {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.future-calendar-grid button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.future-calendar-summary {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.future-day-detail {
+  margin-top: 1rem;
+}
+
+.future-day-detail > div {
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+/* 目標 */
+.future-targets-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.future-targets-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #64748b;
+  margin-bottom: 1rem;
+}
+
+.future-targets-list {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.future-targets-list > div {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.05);
+}
 
 .hidden { display: none; }
 
-/* 微アニメ（穏やかな鼓動） */
-.animate-pulse-soft { animation: pulseSoft 1.8s ease-in-out infinite; }
-@keyframes pulseSoft {
-  0%,100% { transform: translateZ(0) scale(1); box-shadow: 0 0 0 rgba(37,99,235,0); }
-  50% { transform: translateZ(0) scale(1.02); box-shadow: 0 0 0 6px rgba(37,99,235,0.12); }
-}
-
-/* --- ホーム用フィットネスウィジェットの視認性強化 --- */
-#fitnessWidget.washi-card { 
-  /* 未来的なグラスモーフィズム */
-  background: linear-gradient(135deg, rgba(255,255,255,0.65), rgba(236,243,255,0.45)) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(147, 197, 253, 0.45) !important; 
-  box-shadow: 0 16px 36px rgba(30,58,138,0.16) !important; 
-}
-#fitnessWidget * { 
-  box-shadow: initial !important; 
-}
-#fitnessWidget h3 { color: #111111; letter-spacing: .2px; font-weight: 700; }
-#fitnessWidget #wForm { background: transparent !important; border-radius: 12px; }
-#fitnessWidget #wCalendarGrid button { 
-  background: #ffffff !important; 
-  border: 1px solid #d1d5db !important; 
-  transition: transform .12s ease, background .12s ease;
-  min-height: 44px;
-}
-#fitnessWidget #wCalendarGrid button:hover { transform: translateY(-1px); background: #f8fafc !important; }
-#fitnessWidget #wCalSummary { background: #f3f4f6 !important; border: 1px solid #d1d5db !important; border-radius: 8px; padding: 8px; color:#111111; }
-#fitnessWidget #wDayDetail > div { background: #ffffff !important; border: 1px solid #d1d5db !important; color:#111111; }
-#fitnessWidget .text-gray-600, #fitnessWidget .text-gray-700, #fitnessWidget .text-gray-800 { color: #111111 !important; }
-#fitnessWidget .segmented { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-#fitnessWidget .seg-btn { 
-  background: #ffffff; color: #111111; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 14px; font-weight: 700; 
-}
-#fitnessWidget .seg-btn[aria-selected="true"], #fitnessWidget .seg-btn.active { 
-  background: #dbeafe; color: #111111; border-color: #60a5fa; box-shadow: 0 6px 18px rgba(59,130,246,0.25);
-}
-
-#fitnessWidget .quick-btn { 
-  display: inline-flex; align-items: center; justify-content: center; 
-  background: #ffffff; color: #111111; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 14px; min-height: 44px;
-}
-#fitnessWidget .quick-btn:hover { background: #f8fafc; }
-#fitnessWidget .quick-btn.alt { background: #ffffff; color: #111111; }
-
-/* セクション見出し（■） */
-#fitnessWidget .section-title { font-weight: 800; color: #111111; margin: 10px 0 6px; letter-spacing: .2px; }
-
+/* レスポンシブ */
 @media (max-width: 640px) {
-  #fitnessWidget .form-input { padding: 0.75rem 1rem; font-size: 16px; } /* iOSズーム抑止 */
-  #fitnessWidget .quick-btn { flex: 1 1 0; }
+  .sport-cards-grid {
+    gap: 0.75rem;
+  }
+  
+  .sport-card {
+    padding: 1rem 0.25rem;
+  }
+  
+  .sport-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .future-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .future-activity-stats {
+    gap: 0.5rem;
+  }
 }
 
-/* 汎用: 未来的UIピース */
-.select-chip {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 10px 14px; border-radius: 14px; width: auto; min-height: 44px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.75), rgba(224,242,254,0.55));
-  border: 1px solid rgba(147,197,253,0.6);
-  box-shadow: 0 8px 22px rgba(59,130,246,0.25);
-  color: #0f172a; font-weight: 800; letter-spacing: .2px;
+/* アニメーション */
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease forwards;
 }
-.type-menu { position: fixed; inset: 0; z-index: 60; }
-.type-menu-backdrop { position: absolute; inset: 0; background: rgba(2,6,23,0.25); }
-.type-sheet { position: absolute; left: 0; right: 0; bottom: 0; border-top-left-radius: 18px; border-top-right-radius: 18px; padding: 14px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85)); border-top: 1px solid rgba(148,163,184,0.5); box-shadow: 0 -16px 30px rgba(15,23,42,0.12); }
-.type-sheet-header { font-weight: 800; color: #0f172a; margin-bottom: 8px; }
-.type-sheet-content { display: grid; grid-template-columns: 1fr; gap: 10px; }
-.menu-item { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 14px; font-weight: 700; color:#0f172a; }
-.menu-item[aria-selected="true"], .menu-item.active { background: #e0f2fe; border-color: #60a5fa; box-shadow: 0 6px 18px rgba(59,130,246,0.25); }
-.menu-close { margin-top: 10px; width: 100%; background: #0ea5e9; color: #ffffff; font-weight: 700; border-radius: 12px; padding: 10px 12px; }
 
-/* ハイテンション入力カードも同系統に */
-#fxTurbo.washi-card {
-  background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(236,253,245,0.5)) !important;
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(134,239,172,0.45) !important;
-  box-shadow: 0 16px 36px rgba(4,120,87,0.12) !important;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* レベルアップモーダル */
+.levelup-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+
+.levelup-modal {
+  position: relative;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.9));
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 2rem 3rem;
+  border-radius: 20px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  animation: levelUpPop 0.5s ease-out;
+}
+
+@keyframes levelUpPop {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
