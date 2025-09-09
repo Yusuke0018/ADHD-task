@@ -6,6 +6,16 @@
 .save-button:hover { background: #1d4ed8; }
 .mini-card { border-radius: 0.6rem; background: #f3f4f6 !important; border: 1px solid #d1d5db !important; padding: 0.5rem 0.6rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color:#111111; }
 
+/* --- ハイテンション入力 UI --- */
+.seg-big {
+  background: #ffffff; color: #111111; border: 1px solid #cbd5e1; border-radius: 12px; padding: 12px 14px; font-weight: 800; letter-spacing: .2px;
+}
+.seg-big[aria-selected="true"], .seg-big.active { background: #dbeafe; border-color: #60a5fa; box-shadow: 0 6px 18px rgba(59,130,246,0.25); }
+.chip { background: #ffffff; color:#111111; border: 1px solid #cbd5e1; border-radius: 9999px; padding: 8px 10px; font-weight: 700; text-align:center; }
+.chip.alt { background: #f8fafc; }
+.stepper { width: 44px; height: 44px; border-radius: 12px; background:#ffffff; border:1px solid #cbd5e1; font-size: 18px; font-weight: 800; color:#111111; }
+.combo { background: #eef2ff; color:#1e3a8a; border:1px solid #c7d2fe; border-radius: 12px; padding: 10px; font-weight: 700; text-align:center; }
+
 .levelup-overlay {
   position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
   background: rgba(0,0,0,0.25); z-index: 50;
