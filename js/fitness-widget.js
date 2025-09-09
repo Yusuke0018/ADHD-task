@@ -185,7 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // クイック入力
   $$('#wPlus1Km')?.addEventListener('click', ()=>{ const el=$$('#wDistance'); const v=parseFloat(el.value||'0')+1; el.value = v.toFixed(2); });
+  $$('#wPlus05Km')?.addEventListener('click', ()=>{ const el=$$('#wDistance'); const v=parseFloat(el.value||'0')+0.5; el.value = v.toFixed(2); });
   $$('#wPlus10Min')?.addEventListener('click', ()=>{ const el=$$('#wMinutes'); const v=parseInt(el.value||'0',10)+10; el.value = v; });
+  $$('#wPlus5Min')?.addEventListener('click', ()=>{ const el=$$('#wMinutes'); const v=parseInt(el.value||'0',10)+5; el.value = v; });
   $$('#wRecall')?.addEventListener('click', ()=>{
     const last = loadJSON('fitness_last_input', null); if(!last) { $$('#wResult').textContent='直近データがありません'; return; }
     if(last.type) $$('#wType').value = last.type;
@@ -194,6 +196,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if(last.time) $$('#wTime').value = last.time;
     $$('#wResult').textContent='直近の入力を反映しました';
   });
+
+  // 種目セグメント
+  function setType(val){
+    const map = { run: '#wTypeRun', walk: '#wTypeWalk', cycle: '#wTypeCycle' };
+    $$('#wType').value = val;
+    ['#wTypeRun','#wTypeWalk','#wTypeCycle'].forEach(sel=>{ const b=$$(sel); if(b){ b.classList.remove('active'); b.setAttribute('aria-selected','false'); }});
+    const btn = $$(map[val]); if(btn){ btn.classList.add('active'); btn.setAttribute('aria-selected','true'); }
+  }
+  // 初期値
+  setType($$('#wType').value || 'run');
+  $$('#wTypeRun')?.addEventListener('click', ()=> setType('run'));
+  $$('#wTypeWalk')?.addEventListener('click', ()=> setType('walk'));
+  $$('#wTypeCycle')?.addEventListener('click', ()=> setType('cycle'));
 
   function renderCalSummary(current, acts){
     const box = $$('#wCalSummary'); if(!box) return;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sekki-task-v8';
+const CACHE_NAME = 'sekki-task-v9';
 const urlsToCache = [
   './',
   './index.html',
