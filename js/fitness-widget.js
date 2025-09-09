@@ -55,10 +55,17 @@ function renderCalendar(current, acts, onDayClick){
     const dateStr = todayStr(new Date(year, month, d));
     const cell = document.createElement('button');
     cell.className = 'p-2 rounded-lg bg-white/60 hover:bg-white/80 text-center focus:outline-none';
-    const has = actsByDate.has(dateStr);
-    const dot = has ? '<span class="block mx-auto mt-1 w-2 h-2 rounded-full bg-blue-500"></span>' : '';
-    cell.innerHTML = `<div class="text-sm text-gray-800">${d}</div>${dot}`;
-    cell.addEventListener('click', ()=> onDayClick(dateStr, actsByDate.get(dateStr)||[]));
+    const list = actsByDate.get(dateStr) || [];
+    let dots = '';
+    const tset = new Set(list.map(a=>a.type));
+    if(tset.size>0){
+      const dotRun = tset.has('run')? '<span class="w-2 h-2 rounded-full bg-red-500"></span>':'';
+      const dotWalk = tset.has('walk')? '<span class="w-2 h-2 rounded-full bg-emerald-500"></span>':'';
+      const dotCycle = tset.has('cycle')? '<span class="w-2 h-2 rounded-full bg-blue-500"></span>':'';
+      dots = `<div class="mt-1 flex items-center justify-center gap-1">${dotRun}${dotWalk}${dotCycle}</div>`;
+    }
+    cell.innerHTML = `<div class="text-sm text-gray-800">${d}</div>${dots}`;
+    cell.addEventListener('click', ()=> onDayClick(dateStr, list));
     grid.appendChild(cell);
   }
 }
@@ -90,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // UI初期化
   setDefaultDate();
   renderMiniDashboard(totals, profile, activities);
+  renderNextTargets(totals, unlocked);
 
   // トグル
   const toggle = $$('#wToggle'); const form = $$('#wForm');
@@ -113,6 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if(warn && !confirm(warn)) return;
 
     const act = { id: genId(), type, distanceKm: Math.round(distanceKm*100)/100, minutes, date, time, note, addedAt: new Date().toISOString() };
+    // 直近入力を保存
+    saveJSON('fitness_last_input', { type, distanceKm, minutes, time });
+
+    // 週間目標ボーナス用の前集計
+    const goals = loadJSON(FX_KEYS.goals, { run:15, walk:20, cycle:60 });
+    const prevWeekStats = (()=>{
+      const wk = weekKey(date);
+      const agg = { run:0, walk:0, cycle:0 };
+      for(const x of activities){ if(weekKey(x.date)===wk){ agg[x.type]+=x.distanceKm; } }
+      return agg;
+    })();
     activities.push(act);
     saveJSON(FX_KEYS.activities, activities);
 
@@ -120,7 +139,22 @@ document.addEventListener('DOMContentLoaded', () => {
     saveJSON(FX_KEYS.totals, totals);
 
     const gained = calcXp(type, distanceKm, minutes, profile.settings);
-    profile.totalXp += gained;
+    // 週目標達成チェック（ボーナス最大+10%/週）
+    const wk = weekKey(date);
+    const nowWeekStats = (()=>{ const agg={run:0,walk:0,cycle:0}; for(const x of activities){ if(weekKey(x.date)===wk){ agg[x.type]+=x.distanceKm; } } return agg; })();
+    const rewarded = loadJSON('fitness_weekly_rewards', {});
+    if(!rewarded[wk]) rewarded[wk] = { run:false, walk:false, cycle:false };
+    let bonusPct = 0;
+    ['run','walk','cycle'].forEach(k=>{
+      const target = Math.max(0, goals[k]||0);
+      if(target>0 && !rewarded[wk][k] && prevWeekStats[k] < target && nowWeekStats[k] >= target){
+        rewarded[wk][k] = true; bonusPct += 0.0333; // 3.33%ずつ、最大≈10%
+      }
+    });
+    bonusPct = Math.min(0.10, bonusPct);
+    const bonusXp = Math.floor(gained * bonusPct);
+    if(bonusXp>0) saveJSON('fitness_weekly_rewards', rewarded);
+    profile.totalXp += gained + bonusXp;
     let milestone = false;
     while(profile.totalXp >= profile.nextLevelRequiredXp){
       profile.totalXp -= profile.nextLevelRequiredXp; profile.level += 1; profile.nextLevelRequiredXp = req(profile.level);
@@ -133,7 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderMiniDashboard(totals, profile, activities);
     renderCalendar(currentMonth, activities, renderDayDetail);
-    $$('#wResult').textContent = `+${gained} XP / 新規称号 ${newly.length} 件`;
+    renderCalSummary(currentMonth, activities);
+    renderNextTargets(totals, unlocked);
+    $$('#wResult').textContent = `+${gained}${bonusXp?`(+${bonusXp} 週ボーナス)`:''} XP / 新規称号 ${newly.length} 件`;
 
     $$('#wDistance').value = '';
     $$('#wMinutes').value = '';
@@ -142,8 +178,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // カレンダー
   let currentMonth = new Date();
-  $$('#wCalPrev')?.addEventListener('click', ()=>{ currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()-1, 1); renderCalendar(currentMonth, activities, renderDayDetail); $$('#wDayDetail').innerHTML=''; });
-  $$('#wCalNext')?.addEventListener('click', ()=>{ currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1, 1); renderCalendar(currentMonth, activities, renderDayDetail); $$('#wDayDetail').innerHTML=''; });
+  $$('#wCalPrev')?.addEventListener('click', ()=>{ currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()-1, 1); renderCalendar(currentMonth, activities, renderDayDetail); $$('#wDayDetail').innerHTML=''; renderCalSummary(currentMonth, activities); });
+  $$('#wCalNext')?.addEventListener('click', ()=>{ currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1, 1); renderCalendar(currentMonth, activities, renderDayDetail); $$('#wDayDetail').innerHTML=''; renderCalSummary(currentMonth, activities); });
   renderCalendar(currentMonth, activities, renderDayDetail);
-});
+  renderCalSummary(currentMonth, activities);
 
+  // クイック入力
+  $$('#wPlus1Km')?.addEventListener('click', ()=>{ const el=$$('#wDistance'); const v=parseFloat(el.value||'0')+1; el.value = v.toFixed(2); });
+  $$('#wPlus10Min')?.addEventListener('click', ()=>{ const el=$$('#wMinutes'); const v=parseInt(el.value||'0',10)+10; el.value = v; });
+  $$('#wRecall')?.addEventListener('click', ()=>{
+    const last = loadJSON('fitness_last_input', null); if(!last) { $$('#wResult').textContent='直近データがありません'; return; }
+    if(last.type) $$('#wType').value = last.type;
+    if(last.distanceKm!=null) $$('#wDistance').value = last.distanceKm;
+    if(last.minutes!=null) $$('#wMinutes').value = last.minutes;
+    if(last.time) $$('#wTime').value = last.time;
+    $$('#wResult').textContent='直近の入力を反映しました';
+  });
+
+  function renderCalSummary(current, acts){
+    const box = $$('#wCalSummary'); if(!box) return;
+    const wkKey = weekKey(todayStr(current));
+    const weekAgg = { run:0, walk:0, cycle:0 };
+    const monthAgg = { run:0, walk:0, cycle:0 };
+    const y = current.getFullYear(); const m = current.getMonth();
+    for(const a of acts){
+      const da = new Date(a.date+'T00:00:00');
+      if(da.getFullYear()===y && da.getMonth()===m){ monthAgg[a.type]+=a.distanceKm; }
+      if(weekKey(a.date)===wkKey){ weekAgg[a.type]+=a.distanceKm; }
+    }
+    const fmt = (agg)=>`Run ${agg.run.toFixed(1)} / Walk ${agg.walk.toFixed(1)} / Cycle ${agg.cycle.toFixed(1)} km`;
+    box.innerHTML = `<div class="text-gray-700">今週: ${fmt(weekAgg)}</div><div class="text-gray-700">今月: ${fmt(monthAgg)}</div>`;
+  }
+
+  function renderNextTargets(totals, unlocked){
+    const wrap = $$('#wNextTargets'); if(!wrap) return;
+    const data = window.FitnessAchievements; const cats=['sum','run','walk','cycle','time','days'];
+    const rows = cats.map(c=>{
+      const list=data[c]; const value=catValue(c, totals); const cand=list.find(a=>!unlocked[a.id] && value < a.threshold);
+      if(!cand) return null;
+      const remain = cand.threshold - value; const unit = c==='time'?'分': c==='days'?'日':'km';
+      const remStr = c==='time'||c==='days'? Math.max(0,Math.ceil(remain))+unit : Math.max(0,remain).toFixed(2)+unit;
+      return `${catLabel(c)}: 「${cand.name}」まで ${remStr}`;
+    }).filter(Boolean).slice(0,3);
+    wrap.innerHTML = rows.length? rows.map(x=>`<div class="mb-1">${x}</div>`).join('') : '<div class="text-gray-500">すべて達成済み！</div>';
+  }
+});
