@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sekki-task-v13';
+const CACHE_NAME = 'sekki-task-v14';
 const urlsToCache = [
   './',
   './index.html',
@@ -15,6 +15,7 @@ const urlsToCache = [
   './js/fitness-data.js',
   './js/fitness-core.js',
   './js/fitness-widget.js',
+  './js/fitness-summary.js',
   './fitness.html',
   './js/fitness-app.js'
 ];
