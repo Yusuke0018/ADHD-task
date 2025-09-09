@@ -110,9 +110,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // トグル
   const toggle = $$('#wToggle'); const form = $$('#wForm');
+  const iconPlus = toggle?.querySelector('.icon-plus');
+  const iconMinus = toggle?.querySelector('.icon-minus');
+  function updateToggleIcon() {
+    const isHidden = form?.classList.contains('hidden');
+    if(iconPlus && iconMinus){
+      if(isHidden){
+        iconPlus.classList.remove('hidden');
+        iconMinus.classList.add('hidden');
+        toggle.setAttribute('aria-label','入力を表示');
+        toggle.setAttribute('title','入力を表示');
+      }else{
+        iconPlus.classList.add('hidden');
+        iconMinus.classList.remove('hidden');
+        toggle.setAttribute('aria-label','入力を隠す');
+        toggle.setAttribute('title','入力を隠す');
+      }
+    }
+  }
+  // 初期アイコン
+  updateToggleIcon();
   toggle?.addEventListener('click', ()=>{
     form.classList.toggle('hidden');
-    toggle.textContent = form.classList.contains('hidden') ? '入力を表示' : '入力を隠す';
+    updateToggleIcon();
   });
 
   // 保存

@@ -54,7 +54,6 @@
 .fitness-toggle-btn:hover {
   background: #4b5563 !important;
   color: white !important;
-  transform: rotate(90deg);
 }
 
 /* 種目選択カード */
