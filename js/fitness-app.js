@@ -187,6 +187,7 @@ function renderDashboard(totals, profile){
   $('#fxWeighted').textContent = `${totals.weightedTotalKm.toFixed(2)} km`;
   $('#fxTotalMin').textContent = `${totals.totalMinutes} 分`;
   $('#fxDays').textContent = `${totals.uniqueDays} 日`;
+  $('#fxStreak').textContent = `${computeStreak()} 日`;
   $('#fxRunKm').textContent = `${totals.byType.run.distanceKm.toFixed(2)} km`;
   $('#fxWalkKm').textContent = `${totals.byType.walk.distanceKm.toFixed(2)} km`;
   $('#fxCycleKm').textContent = `${totals.byType.cycle.distanceKm.toFixed(2)} km`;
@@ -337,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(newly.length>0){ saveJSON(FX_KEYS.unlocked, unlocked); }
 
     // UI更新
-    renderDashboard(totals, profile);
+  renderDashboard(totals, profile);
     renderHistory(activities);
     renderTitles(unlocked, totals);
     renderGoals(activities, goals);
@@ -366,6 +367,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function allAchievements(){
     const d = window.FitnessAchievements; return ['sum','run','walk','cycle','time','days','combo'].flatMap(c=> d[c].map(a=> ({...a, category:c})) );
+  }
+
+  function computeStreak(){
+    if(activities.length===0) return 0;
+    const days = new Set(activities.map(a=>a.date));
+    let streak = 0; let d = new Date();
+    while(true){
+      const key = todayStr(d);
+      if(days.has(key)) { streak += 1; d.setDate(d.getDate()-1); }
+      else break;
+    }
+    return streak;
   }
 
   function renderEquipped(){
