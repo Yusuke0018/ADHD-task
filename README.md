@@ -17,6 +17,10 @@
 - Canvasアニメーション（`requestAnimationFrame`）
 - Service Worker キャッシュ
 
+## 計画中の拡張
+
+- フィットネス拡張（ラン/ウォーク/サイクルの手入力、XPと称号、加重総距離による総合称号）。詳細は `docs/fitness-spec.md` を参照ください。
+
 ## 使い方（ローカル）
 
 1. 起動
