@@ -69,7 +69,7 @@ function renderCalendar(current, acts, onDayClick){
   const weekdays = ['月','火','水','木','金','土','日'];
   for(const w of weekdays){ 
     const h=document.createElement('div'); 
-    h.className='text-center text-white/50 font-medium text-xs'; 
+    h.className='text-center text-white/80 font-medium text-xs weekday'; 
     h.textContent=w; 
     grid.appendChild(h); 
   }
@@ -84,12 +84,14 @@ function renderCalendar(current, acts, onDayClick){
     let dots = '';
     const tset = new Set(list.map(a=>a.type));
     if(tset.size>0){
-      const dotRun = tset.has('run')? '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>':'';
-      const dotWalk = tset.has('walk')? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>':'';
-      const dotCycle = tset.has('cycle')? '<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>':'';
-      dots = `<div class="flex items-center justify-center gap-0.5 mt-1">${dotRun}${dotWalk}${dotCycle}</div>`;
+      const dotRun = tset.has('run')? '<span class="fx-dot fx-dot-run"></span>':'';
+      const dotWalk = tset.has('walk')? '<span class="fx-dot fx-dot-walk"></span>':'';
+      const dotCycle = tset.has('cycle')? '<span class="fx-dot fx-dot-cycle"></span>':'';
+      dots = `<div class="fx-dot-row">${dotRun}${dotWalk}${dotCycle}</div>`;
     }
-    cell.innerHTML = `<div class="text-sm">${d}</div>${dots}`;
+    const cnt = list.length>0 ? `<span class="fx-badge">${list.length}</span>` : '';
+    if(list.length>0) cell.classList.add('has-activity');
+    cell.innerHTML = `<div class="text-sm">${d}</div>${dots}${cnt}`;
     cell.addEventListener('click', ()=> onDayClick(dateStr, list));
     grid.appendChild(cell);
   }
@@ -111,13 +113,25 @@ function renderDayDetail(dateStr, list){
       const timeText = formatMmSs(a.minutes, a.seconds);
       return `<div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2 mb-1">
         <div class="text-sm"><span class="${typeColor} font-bold">${t}</span> <span class="text-white">${a.distanceKm.toFixed(2)}km / ${timeText}</span> ${a.time?`<span class='text-white/50 ml-1'>(${a.time})</span>`:''}</div>
-        <div class="text-xs text-white/50">${spd} km/h</div>
+        <div class="flex items-center gap-2">
+          <button class="fx-edit-btn" data-id="${a.id}">編集</button>
+          <div class="text-xs text-white/50">${spd} km/h</div>
+        </div>
       </div>`;
     }).join('');
   box.innerHTML = `<div class="text-sm font-semibold text-white mb-2">${dateStr}</div>${html}`;
+  // 編集ボタンをバインド
+  box.querySelectorAll('.fx-edit-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-id');
+      const target = list.find(x=>x.id===id);
+      if(target){ startEdit(target); }
+    });
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  let editingId = null;
   // 状態読み込み
   let activities = loadJSON(FX_KEYS.activities, []);
   let profile = loadJSON(FX_KEYS.profile, FX_DEFAULT_PROFILE);
@@ -156,6 +170,39 @@ document.addEventListener('DOMContentLoaded', () => {
     updateToggleIcon();
   });
 
+  function startEdit(act){
+    editingId = act.id;
+    form?.classList.remove('hidden');
+    updateToggleIcon();
+    $$('#wType').value = act.type;
+    $$('#wDistance').value = act.distanceKm;
+    const totalSec = Math.round((act.minutes||0)*60);
+    const mm = Math.floor(totalSec/60);
+    const ss = totalSec % 60;
+    $$('#wMinutes').value = mm;
+    if($$('#wSeconds')) $$('#wSeconds').value = ss;
+    $$('#wDate').value = act.date;
+    if(act.time) $$('#wTime').value = act.time;
+    $$('#wNote').value = act.note || '';
+    // Saveボタンの表示切替
+    const st = document.querySelector('#wSave .save-text');
+    if(st) st.textContent = 'UPDATE';
+    // キャンセルボタン表示
+    const cancel = document.getElementById('wEditCancel');
+    if(cancel) cancel.classList.remove('hidden');
+  }
+
+  function cancelEdit(){
+    editingId = null;
+    const st = document.querySelector('#wSave .save-text');
+    if(st) st.textContent = 'SAVE DATA';
+    const cancel = document.getElementById('wEditCancel');
+    if(cancel) cancel.classList.add('hidden');
+    $$('#wNote').value = '';
+  }
+
+  document.getElementById('wEditCancel')?.addEventListener('click', cancelEdit);
+
   // 保存
   $$('#wSave')?.addEventListener('click', ()=>{
     const type = $$('#wType').value;
@@ -173,48 +220,68 @@ document.addEventListener('DOMContentLoaded', () => {
     const warn = profile.settings.speedAlerts ? abnormalSpeedWarning(type, distanceKm, minutes) : null;
     if(warn && !confirm(warn)) return;
 
-    const act = { id: genId(), type, distanceKm: Math.round(distanceKm*100)/100, minutes, seconds, date, time, note, addedAt: new Date().toISOString() };
-    // 直近入力を保存
-    saveJSON('fitness_last_input', { type, distanceKm, minutes: mRaw, seconds, time });
-
-    // 週間目標ボーナス用の前集計
-    const goals = loadJSON(FX_KEYS.goals, { run:15, walk:20, cycle:60 });
-    const prevWeekStats = (()=>{
-      const wk = weekKey(date);
-      const agg = { run:0, walk:0, cycle:0 };
-      for(const x of activities){ if(weekKey(x.date)===wk){ agg[x.type]+=x.distanceKm; } }
-      return agg;
-    })();
-    activities.push(act);
-    saveJSON(FX_KEYS.activities, activities);
-
-    totals = recomputeTotals(activities);
-    saveJSON(FX_KEYS.totals, totals);
-
-    const gained = calcXp(type, distanceKm, minutes, profile.settings);
-    // 週目標達成チェック（ボーナス最大+10%/週）
-    const wk = weekKey(date);
-    const nowWeekStats = (()=>{ const agg={run:0,walk:0,cycle:0}; for(const x of activities){ if(weekKey(x.date)===wk){ agg[x.type]+=x.distanceKm; } } return agg; })();
-    const rewarded = loadJSON('fitness_weekly_rewards', {});
-    if(!rewarded[wk]) rewarded[wk] = { run:false, walk:false, cycle:false };
-    let bonusPct = 0;
-    ['run','walk','cycle'].forEach(k=>{
-      const target = Math.max(0, goals[k]||0);
-      if(target>0 && !rewarded[wk][k] && prevWeekStats[k] < target && nowWeekStats[k] >= target){
-        rewarded[wk][k] = true; bonusPct += 0.0333; // 3.33%ずつ、最大≈10%
+    let wasEdit = false;
+    if(editingId){
+      // 既存更新
+      const idx = activities.findIndex(a=>a.id===editingId);
+      if(idx>=0){
+        const old = activities[idx];
+        const oldGained = calcXp(old.type, old.distanceKm, old.minutes, profile.settings);
+        activities[idx] = { ...old, type, distanceKm: Math.round(distanceKm*100)/100, minutes, seconds, date, time, note };
+        const newGained = calcXp(type, distanceKm, minutes, profile.settings);
+        profile.totalXp += (newGained - oldGained);
+        if(profile.totalXp<0) profile.totalXp = 0;
+        while(profile.totalXp >= profile.nextLevelRequiredXp){
+          profile.totalXp -= profile.nextLevelRequiredXp; profile.level += 1; profile.nextLevelRequiredXp = req(profile.level);
+        }
+        saveJSON(FX_KEYS.profile, profile);
+        saveJSON(FX_KEYS.activities, activities);
+        wasEdit = true; cancelEdit();
       }
-    });
-    bonusPct = Math.min(0.10, bonusPct);
-    const bonusXp = Math.floor(gained * bonusPct);
-    if(bonusXp>0) saveJSON('fitness_weekly_rewards', rewarded);
-    profile.totalXp += gained + bonusXp;
-    let milestone = false;
-    while(profile.totalXp >= profile.nextLevelRequiredXp){
-      profile.totalXp -= profile.nextLevelRequiredXp; profile.level += 1; profile.nextLevelRequiredXp = req(profile.level);
-      if([5,10,20,30,50].includes(profile.level)) milestone = true;
-    }
-    saveJSON(FX_KEYS.profile, profile);
+    }else{
+      const act = { id: genId(), type, distanceKm: Math.round(distanceKm*100)/100, minutes, seconds, date, time, note, addedAt: new Date().toISOString() };
+      // 直近入力を保存
+      saveJSON('fitness_last_input', { type, distanceKm, minutes: mRaw, seconds, time });
+      // 週間目標用の前集計
+      const goals = loadJSON(FX_KEYS.goals, { run:15, walk:20, cycle:60 });
+      const prevWeekStats = (()=>{
+        const wk = weekKey(date);
+        const agg = { run:0, walk:0, cycle:0 };
+        for(const x of activities){ if(weekKey(x.date)===wk){ agg[x.type]+=x.distanceKm; } }
+        return agg;
+      })();
+      activities.push(act);
+      saveJSON(FX_KEYS.activities, activities);
 
+      totals = recomputeTotals(activities);
+      saveJSON(FX_KEYS.totals, totals);
+
+      const gained = calcXp(type, distanceKm, minutes, profile.settings);
+      // 週目標達成チェック（ボーナス最大+10%/週）
+      const wk = weekKey(date);
+      const nowWeekStats = (()=>{ const agg={run:0,walk:0,cycle:0}; for(const x of activities){ if(weekKey(x.date)===wk){ agg[x.type]+=x.distanceKm; } } return agg; })();
+      const rewarded = loadJSON('fitness_weekly_rewards', {});
+      if(!rewarded[wk]) rewarded[wk] = { run:false, walk:false, cycle:false };
+      let bonusPct = 0;
+      ['run','walk','cycle'].forEach(k=>{
+        const target = Math.max(0, goals[k]||0);
+        if(target>0 && !rewarded[wk][k] && prevWeekStats[k] < target && nowWeekStats[k] >= target){
+          rewarded[wk][k] = true; bonusPct += 0.0333; // 3.33%ずつ、最大≈10%
+        }
+      });
+      bonusPct = Math.min(0.10, bonusPct);
+      const bonusXp = Math.floor(gained * bonusPct);
+      if(bonusXp>0) saveJSON('fitness_weekly_rewards', rewarded);
+      profile.totalXp += gained + bonusXp;
+      let milestone = false;
+      while(profile.totalXp >= profile.nextLevelRequiredXp){
+        profile.totalXp -= profile.nextLevelRequiredXp; profile.level += 1; profile.nextLevelRequiredXp = req(profile.level);
+        if([5,10,20,30,50].includes(profile.level)) milestone = true;
+      }
+      saveJSON(FX_KEYS.profile, profile);
+    }
+
+    
     const newly = [ ...unlockAchievementsIfReached(unlocked, totals), ...evalCombos(activities, totals, unlocked) ];
     if(newly.length>0) saveJSON(FX_KEYS.unlocked, unlocked);
 
@@ -222,8 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCalendar(currentMonth, activities, renderDayDetail);
     renderCalSummary(currentMonth, activities);
     renderNextTargets(totals, unlocked);
-    $$('#wResult').textContent = `保存しました ✓ ${labelType(type)} ${distanceKm.toFixed(2)}km / ${formatMmSs(minutes, seconds)} ｜ +${gained}${bonusXp?`(+${bonusXp} 週ボーナス)`:''} XP / 新規称号 ${newly.length} 件`;
-    showSaveToast(`${labelType(type)} ${distanceKm.toFixed(2)}km / ${formatMmSs(minutes, seconds)} を保存しました`);
+    $$('#wResult').textContent = `保存しました ✓`;
+    showSaveToast(wasEdit? '更新しました' : `${labelType(type)} ${distanceKm.toFixed(2)}km を保存しました`);
 
     $$('#wDistance').value = '';
     $$('#wMinutes').value = '';

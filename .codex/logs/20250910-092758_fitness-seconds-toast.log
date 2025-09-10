@@ -1,0 +1,10 @@
+Timestamp: 20250910-092758
+Branch: main
+Commit: f474e93be6d498aae19370542262a8d91aca6d34
+Summary: f474e93 feat: 保存時のアクション表示と分・秒入力の対応\n\n距離保存時にトーストで保存完了を通知。入力フォームに秒フィールドを追加し、分+秒（小数分換算）で保存・集計できるようにしました。日別表示は分秒表記に対応。直近入力の秒も復元します。
+M	.codex/logs/20250909-174630-push.log
+M	index.html
+M	js/fitness-widget.js
+M	styles/fitness.css
+Tests: (none)
+Push: done
