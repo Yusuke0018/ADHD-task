@@ -10,3 +10,5 @@ changes:
   M	service-worker.js
 secrets_found=NO
 large_files_found=NO
+push_result=success
+pushed_commit=f29587c

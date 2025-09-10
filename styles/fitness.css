@@ -360,6 +360,33 @@
   to { opacity: 1; }
 }
 
+/* Save toast */
+.fx-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  background: #10b981 !important; /* emerald-500 */
+  color: #ffffff !important;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  box-shadow: 0 10px 25px rgba(0,0,0,.35);
+  opacity: 0;
+  transform: translateY(10px) scale(.98);
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 9999;
+}
+.fx-toast.in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.fx-toast.out {
+  opacity: 0;
+  transform: translateY(10px) scale(.98);
+}
+
 /* ダッシュボード */
 .future-dashboard {
   padding: 1.5rem 0;

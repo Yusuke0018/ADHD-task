@@ -173,9 +173,13 @@
                         </div>
                         <div class="future-input-group">
                           <label class="future-label">時間</label>
-                          <div class="future-input-wrapper">
-                            <input id="wMinutes" type="number" inputmode="numeric" step="1" min="1" placeholder="0" class="future-input" />
+                          <div class="future-input-wrapper" style="margin-bottom:0.5rem">
+                            <input id="wMinutes" type="number" inputmode="numeric" step="1" min="0" placeholder="0" class="future-input" />
                             <span class="future-unit">min</span>
+                          </div>
+                          <div class="future-input-wrapper">
+                            <input id="wSeconds" type="number" inputmode="numeric" step="1" min="0" max="59" placeholder="0" class="future-input" />
+                            <span class="future-unit">sec</span>
                           </div>
                           <div class="future-quick-buttons">
                             <button id="wPlus10Min" class="future-quick-btn">+10</button>

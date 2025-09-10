@@ -2,6 +2,26 @@ import { FX_KEYS, FX_DEFAULT_PROFILE, req, calcXp, todayStr, genId, loadJSON, sa
 
 const $$ = sel => document.querySelector(sel);
 
+function formatMmSs(minsFloat, secondsExplicit){
+  const totalSeconds = secondsExplicit!=null ? Math.max(0, Math.floor((Math.floor(minsFloat)||0)*60 + secondsExplicit)) : Math.max(0, Math.round((minsFloat||0)*60));
+  const mm = Math.floor(totalSeconds/60);
+  const ss = totalSeconds % 60;
+  return ss>0 ? `${mm}分${String(ss).padStart(2,'0')}秒` : `${mm}分`;
+}
+
+function showSaveToast(message){
+  try{
+    const wrap = document.createElement('div');
+    wrap.className = 'fx-toast';
+    wrap.textContent = message || '保存しました';
+    document.body.appendChild(wrap);
+    // trigger
+    requestAnimationFrame(()=>{ wrap.classList.add('in'); });
+    setTimeout(()=>{ wrap.classList.remove('in'); wrap.classList.add('out'); }, 1400);
+    setTimeout(()=>{ wrap.remove(); }, 1800);
+  }catch(e){ /* noop */ }
+}
+
 function abnormalSpeedWarning(type, distanceKm, minutes){
   const hours = minutes/60;
   const spd = hours>0 ? distanceKm/hours : 0;
@@ -88,8 +108,9 @@ function renderDayDetail(dateStr, list){
       const spd = a.minutes>0 ? (a.distanceKm/(a.minutes/60)).toFixed(1) : '-';
       const t = labelType(a.type);
       const typeColor = a.type === 'run' ? 'text-red-400' : a.type === 'walk' ? 'text-emerald-400' : 'text-blue-400';
+      const timeText = formatMmSs(a.minutes, a.seconds);
       return `<div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-lg px-3 py-2 mb-1">
-        <div class="text-sm"><span class="${typeColor} font-bold">${t}</span> <span class="text-white">${a.distanceKm.toFixed(2)}km / ${a.minutes}分</span> ${a.time?`<span class='text-white/50 ml-1'>(${a.time})</span>`:''}</div>
+        <div class="text-sm"><span class="${typeColor} font-bold">${t}</span> <span class="text-white">${a.distanceKm.toFixed(2)}km / ${timeText}</span> ${a.time?`<span class='text-white/50 ml-1'>(${a.time})</span>`:''}</div>
         <div class="text-xs text-white/50">${spd} km/h</div>
       </div>`;
     }).join('');
@@ -139,19 +160,22 @@ document.addEventListener('DOMContentLoaded', () => {
   $$('#wSave')?.addEventListener('click', ()=>{
     const type = $$('#wType').value;
     const distanceKm = parseFloat($$('#wDistance').value||'0');
-    const minutes = parseInt($$('#wMinutes').value||'0',10);
+    const mRaw = parseInt($$('#wMinutes').value||'0',10) || 0;
+    const sRaw = parseInt(($$('#wSeconds')?.value)||'0',10) || 0;
+    const seconds = isNaN(sRaw) ? 0 : Math.max(0, Math.min(59, sRaw));
+    const minutes = (isNaN(mRaw)?0:mRaw) + seconds/60;
     const date = $$('#wDate').value || todayStr();
     const time = $$('#wTime').value || '';
     const note = $$('#wNote').value || '';
     if(!(type==='run'||type==='walk'||type==='cycle')){ alert('種目を選択してください'); return; }
     if(!(distanceKm>0 && distanceKm<=200)){ alert('距離は0〜200kmで入力してください'); return; }
-    if(!(minutes>=1 && minutes<=600)){ alert('分は1〜600で入力してください'); return; }
+    if(!(minutes>0 && minutes<=600)){ alert('時間は0秒超〜600分（10時間）で入力してください'); return; }
     const warn = profile.settings.speedAlerts ? abnormalSpeedWarning(type, distanceKm, minutes) : null;
     if(warn && !confirm(warn)) return;
 
-    const act = { id: genId(), type, distanceKm: Math.round(distanceKm*100)/100, minutes, date, time, note, addedAt: new Date().toISOString() };
+    const act = { id: genId(), type, distanceKm: Math.round(distanceKm*100)/100, minutes, seconds, date, time, note, addedAt: new Date().toISOString() };
     // 直近入力を保存
-    saveJSON('fitness_last_input', { type, distanceKm, minutes, time });
+    saveJSON('fitness_last_input', { type, distanceKm, minutes: mRaw, seconds, time });
 
     // 週間目標ボーナス用の前集計
     const goals = loadJSON(FX_KEYS.goals, { run:15, walk:20, cycle:60 });
@@ -198,10 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCalendar(currentMonth, activities, renderDayDetail);
     renderCalSummary(currentMonth, activities);
     renderNextTargets(totals, unlocked);
-    $$('#wResult').textContent = `+${gained}${bonusXp?`(+${bonusXp} 週ボーナス)`:''} XP / 新規称号 ${newly.length} 件`;
+    $$('#wResult').textContent = `保存しました ✓ ${labelType(type)} ${distanceKm.toFixed(2)}km / ${formatMmSs(minutes, seconds)} ｜ +${gained}${bonusXp?`(+${bonusXp} 週ボーナス)`:''} XP / 新規称号 ${newly.length} 件`;
+    showSaveToast(`${labelType(type)} ${distanceKm.toFixed(2)}km / ${formatMmSs(minutes, seconds)} を保存しました`);
 
     $$('#wDistance').value = '';
     $$('#wMinutes').value = '';
+    if($$('#wSeconds')) $$('#wSeconds').value = '';
     $$('#wNote').value = '';
   });
 
@@ -222,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(last.type) $$('#wType').value = last.type;
     if(last.distanceKm!=null) $$('#wDistance').value = last.distanceKm;
     if(last.minutes!=null) $$('#wMinutes').value = last.minutes;
+    if(last.seconds!=null && $$('#wSeconds')) $$('#wSeconds').value = last.seconds;
     if(last.time) $$('#wTime').value = last.time;
     $$('#wResult').textContent='直近の入力を反映しました';
   });
