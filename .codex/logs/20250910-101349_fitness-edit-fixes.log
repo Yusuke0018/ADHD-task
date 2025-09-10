@@ -1,0 +1,5 @@
+Timestamp: 20250910-101349
+Commit: f1720044c31682003d7d5617925135ab8b62d06b
+Summary: f172004 fix: 編集時の再計算とフォーム表示の調整\n\n編集開始でフォームを確実に表示し、更新後に合計の再計算・保存を共通化しました。
+A	.codex/logs/20250910-101313_fitness-edit-calendar.log
+M	js/fitness-widget.js

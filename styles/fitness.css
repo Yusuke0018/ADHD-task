@@ -613,8 +613,10 @@
 
 .future-calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .future-calendar-grid button {
@@ -631,6 +633,7 @@
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
+  min-width: 0; /* 7列時の切れ防止 */
 }
 
 .future-calendar-grid button:hover {
@@ -658,6 +661,12 @@
   border: 2px solid #4a5568 !important;
   border-radius: 8px;
   margin-bottom: 0.5rem;
+}
+
+/* 極小画面向けの調整 */
+@media (max-width: 390px) {
+  .future-calendar-grid { gap: 0.3rem; }
+  .future-calendar-grid button { font-size: 0.8rem; }
 }
 
 /* 目標 */
