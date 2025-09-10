@@ -1,0 +1,10 @@
+Timestamp: 20250910-101313
+Branch: main
+Commit: a0c781190b929b90f47f4bf8d32b4cf684db00c3
+Summary: a0c7811 feat: アクティビティ編集機能とカレンダー改善\n\n日別一覧から各記録を編集できるようにし、更新時はフォームへ読み込み→UPDATEとして保存（XPは差分調整）。カレンダーは日付セルに種目ドットと件数バッジを表示、活動日の視認性を向上。日曜が欠ける問題を防ぐためグリッドの列定義をminmax化しオーバーフローを抑止しました。
+A	.codex/logs/20250910-092758_fitness-seconds-toast.log
+M	index.html
+M	js/fitness-widget.js
+M	styles/fitness.css
+Tests: (none)
+Push: done

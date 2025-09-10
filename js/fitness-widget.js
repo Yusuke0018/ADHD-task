@@ -281,7 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
       saveJSON(FX_KEYS.profile, profile);
     }
 
-    
+    // 合計・コンボ/称号の再計算
+    totals = recomputeTotals(activities);
+    saveJSON(FX_KEYS.totals, totals);
     const newly = [ ...unlockAchievementsIfReached(unlocked, totals), ...evalCombos(activities, totals, unlocked) ];
     if(newly.length>0) saveJSON(FX_KEYS.unlocked, unlocked);
 
