@@ -1,0 +1,5 @@
+Timestamp: 20250910-102420
+Commit: 9563b5104210848cc1a080c2f5511cae56bb1ea0
+Summary: 9563b51 fix: モバイルでカレンダー右端が欠ける問題のCSS調整\n\n7列グリッドをminmax化しgap/フォントを縮小。ボタンにmin-width:0を付与し、極小画面向けのレスポンシブ調整を追加。
+A	.codex/logs/20250910-101349_fitness-edit-fixes.log
+M	styles/fitness.css

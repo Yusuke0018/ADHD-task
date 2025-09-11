@@ -1,4 +1,5 @@
 import { FX_KEYS, FX_DEFAULT_PROFILE, req, calcXp, todayStr, genId, loadJSON, saveJSON, recomputeTotals, unlockAchievementsIfReached, evalCombos, weekKey, labelType, escapeHtml, catLabel, catValue, computeStreak } from './fitness-core.js';
+import { queueCelebrations } from './fitness-celebration.js';
 
 const $$ = sel => document.querySelector(sel);
 
@@ -221,6 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if(warn && !confirm(warn)) return;
 
     let wasEdit = false;
+    const prevLevel = profile.level;
+    let levelUps = 0;
+    let milestone = false;
     if(editingId){
       // 既存更新
       const idx = activities.findIndex(a=>a.id===editingId);
@@ -232,7 +236,11 @@ document.addEventListener('DOMContentLoaded', () => {
         profile.totalXp += (newGained - oldGained);
         if(profile.totalXp<0) profile.totalXp = 0;
         while(profile.totalXp >= profile.nextLevelRequiredXp){
-          profile.totalXp -= profile.nextLevelRequiredXp; profile.level += 1; profile.nextLevelRequiredXp = req(profile.level);
+          profile.totalXp -= profile.nextLevelRequiredXp;
+          profile.level += 1;
+          profile.nextLevelRequiredXp = req(profile.level);
+          levelUps += 1;
+          if([5,10,20,30,50].includes(profile.level)) milestone = true;
         }
         saveJSON(FX_KEYS.profile, profile);
         saveJSON(FX_KEYS.activities, activities);
@@ -273,9 +281,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const bonusXp = Math.floor(gained * bonusPct);
       if(bonusXp>0) saveJSON('fitness_weekly_rewards', rewarded);
       profile.totalXp += gained + bonusXp;
-      let milestone = false;
       while(profile.totalXp >= profile.nextLevelRequiredXp){
-        profile.totalXp -= profile.nextLevelRequiredXp; profile.level += 1; profile.nextLevelRequiredXp = req(profile.level);
+        profile.totalXp -= profile.nextLevelRequiredXp;
+        profile.level += 1;
+        profile.nextLevelRequiredXp = req(profile.level);
+        levelUps += 1;
         if([5,10,20,30,50].includes(profile.level)) milestone = true;
       }
       saveJSON(FX_KEYS.profile, profile);
@@ -298,6 +308,18 @@ document.addEventListener('DOMContentLoaded', () => {
     $$('#wMinutes').value = '';
     if($$('#wSeconds')) $$('#wSeconds').value = '';
     $$('#wNote').value = '';
+
+    // 演出（レベルアップ＆称号解放）
+    try {
+      const events = [];
+      if(levelUps > 0) {
+        events.push({ type: 'level', from: prevLevel, to: profile.level, milestone, count: levelUps });
+      }
+      if(newly && newly.length > 0) {
+        for(const ach of newly){ events.push({ type: 'achievement', achievement: ach }); }
+      }
+      if(events.length > 0) queueCelebrations(events);
+    } catch (e) { /* noop: UI演出失敗は致命的ではない */ }
   });
 
   // カレンダー
