@@ -1,0 +1,9 @@
+timestamp: 20250911-092555
+branch: main
+commit: 181792a53a3a52aacbb080b61d164b9dc164d960
+diff:
+181792a feat: 称号/レベルアップ時の演出モーダルを追加\n\n- 保存後のレベルアップ/新規称号解放を検出し、DQ/FF風ウィンドウで逐次表示\n- 既存の .levelup-overlay / .levelup-modal スタイルを利用\n- キュー制御で重複演出を順送りに表示（クリック/Enter/ESCで進行）
+A	.codex/logs/20250910-102420_calendar-mobile-fix.log
+A	js/fitness-celebration.js
+M	js/fitness-widget.js
+\npush: success
