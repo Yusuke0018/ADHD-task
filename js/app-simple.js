@@ -1,4 +1,5 @@
 import { fetchSunTime } from './sunTimeAPI.js';
+import { fetchTennojiWeather, weatherCodeToEmoji } from './weatherAPI.js';
 
 const app = {
     selectedDate: (() => {
@@ -10,6 +11,7 @@ const app = {
         console.log('App initializing (simple mode)...');
         this.updateSekki();
         this.updateSunTimeDisplay();
+        this.updateWeatherDisplay();
         
         // 今日の日付を表示
         requestAnimationFrame(() => this.updateTodayDisplay());
@@ -158,6 +160,32 @@ const app = {
                 sunsetEl.textContent = sunTimeData.sunset.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
             }
         }
+    },
+
+    async updateWeatherDisplay() {
+        const weather = await fetchTennojiWeather();
+        const iconEl = document.getElementById('weatherIcon');
+        const descEl = document.getElementById('weatherDesc');
+        const tempEl = document.getElementById('currentTemp');
+        const rangeEl = document.getElementById('tempRange');
+
+        if (!iconEl || !descEl || !tempEl || !rangeEl) return;
+
+        if (!weather) {
+            iconEl.textContent = '—';
+            descEl.textContent = '取得失敗';
+            tempEl.textContent = '—';
+            rangeEl.textContent = '—';
+            return;
+        }
+
+        const code = weather.weatherCode ?? undefined;
+        iconEl.textContent = code !== undefined ? weatherCodeToEmoji(code) : '—';
+        descEl.textContent = weather.weatherDesc ?? '—';
+        tempEl.textContent = weather.currentTemp != null ? `${Math.round(weather.currentTemp)}℃` : '—';
+        const min = weather.minTemp != null ? Math.round(weather.minTemp) : null;
+        const max = weather.maxTemp != null ? Math.round(weather.maxTemp) : null;
+        rangeEl.textContent = (min != null && max != null) ? `最高 ${max}℃ / 最低 ${min}℃` : '—';
     },
     
     // カレンダー/日付変更機能はシンプル版では未使用のため削除

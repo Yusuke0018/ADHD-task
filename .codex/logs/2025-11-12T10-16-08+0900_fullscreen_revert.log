@@ -3,3 +3,14 @@ latest: 36b1de2
 diffstat:
 D	docs/wallpaper-setup.md
 D	wallpaper.html
+staged diffstat:
+A	.codex/logs/2025-11-12T10-16-08+0900_fullscreen_revert.log
+M	README.md
+D	docs/wallpaper-setup.md
+M	index.html
+M	js/app-simple.js
+M	manifest.json
+M	styles/base.css
+D	wallpaper.html
+committed: 3631faf
+push: success
