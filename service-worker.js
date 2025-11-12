@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sekki-task-v14';
+const CACHE_NAME = 'sekki-simple-v1';
 const urlsToCache = [
   './',
   './index.html',
@@ -7,24 +7,17 @@ const urlsToCache = [
   './styles/sekki-backgrounds.css',
   './styles/animations.css',
   './styles/components.css',
-  './styles/fitness.css',
   './js/app-simple.js',
   './js/sunTimeAPI.js',
   './js/data/sekki-data.js',
-  './js/animations/seasonal-animations.js',
-  './js/fitness-data.js',
-  './js/fitness-core.js',
-  './js/fitness-widget.js',
-  './js/fitness-summary.js',
-  './fitness.html',
-  './js/fitness-app.js'
+  './js/animations/seasonal-animations.js'
 ];
 
 // インストール時にキャッシュ
 self.addEventListener('install', event => {
   // 新しいバージョンをすぐにアクティブにする
   self.skipWaiting();
-  
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -59,7 +52,7 @@ self.addEventListener('fetch', event => {
 // 古いキャッシュを削除
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
-  
+
   // すぐにコントロールを取得
   event.waitUntil(
     caches.keys().then(cacheNames => {

@@ -1,0 +1,9 @@
+timestamp: 20250911-112049
+branch: main
+commit: bc5a3a90f71502ce0dba3fb7a222d8d5c7e07fbd
+diff:
+bc5a3a9 feat: 称号コレクションUIを拡張（フィルタ/進捗/カード/お気に入り）\n\n- カテゴリ別フィルタチップと並び替えを追加\n- カテゴリ進捗（解放数/総数＋バー）を表示\n- バッジをカード型にし、カラー帯・取得日・★お気に入りを実装\n- profile.equippedIds に保存し再表示に反映\n- fitness-summary.js v2 として読み込み更新
+A	.codex/logs/20250911-092555_celebration-modal.log
+M	fitness.html
+M	js/fitness-summary.js
+\npush: success

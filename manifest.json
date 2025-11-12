@@ -1,7 +1,7 @@
 {
-  "name": "二十四節気タスク管理",
+  "name": "二十四節気",
   "short_name": "二十四節気",
-  "description": "季節の移ろいと共に日々のタスクを管理するアプリ",
+  "description": "季節の移ろいを感じる二十四節気表示アプリ",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -21,6 +21,6 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "lifestyle"],
+  "categories": ["lifestyle", "education"],
   "lang": "ja"
 }

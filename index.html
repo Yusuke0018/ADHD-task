@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>二十四節気タスク管理</title>
-    
+    <title>二十四節気</title>
+
     <!-- PWA設定 -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1f2937">
@@ -12,44 +12,36 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="二十四節気">
 
-    <!-- Favicon Links: Added for bookmarking and browser tabs -->
+    <!-- Favicon Links -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23fdfdfd'/%3E%3Cpath d='M 50 0 A 50 50 0 0 1 100 50 L 50 50 Z' fill='%23a7e0e8'/%3E%3Cpath d='M 100 50 A 50 50 0 0 1 50 100 L 50 50 Z' fill='%23e09a73'/%3E%3Cpath d='M 50 100 A 50 50 0 0 1 0 50 L 50 50 Z' fill='%23ddebf0'/%3E%3Cpath d='M 0 50 A 50 50 0 0 1 50 0 L 50 50 Z' fill='%23ffd9e1'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23fdfdfd'/%3E%3Ctext x='50' y='62' font-family='Shippori Mincho, serif' font-size='38' fill='%234a4a4a' text-anchor='middle'%3E暦%3C/text%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23fdfdfd'/%3E%3Cpath d='M 50 0 A 50 50 0 0 1 100 50 L 50 50 Z' fill='%23a7e0e8'/%3E%3Cpath d='M 100 50 A 50 50 0 0 1 50 100 L 50 50 Z' fill='%23e09a73'/%3E%3Cpath d='M 50 100 A 50 50 0 0 1 0 50 L 50 50 Z' fill='%23ddebf0'/%3E%3Cpath d='M 0 50 A 50 50 0 0 1 50 0 L 50 50 Z' fill='%23ffd9e1'/%3E%3Ccircle cx='50' cy='50' r='22' fill='%23fdfdfd'/%3E%3Ctext x='50' y='62' font-family='Shippori Mincho, serif' font-size='38' fill='%234a4a4a' text-anchor='middle'%3E暦%3C/text%3E%3C/svg%3E">
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- CSS Files with cache busting -->
-    <link rel="stylesheet" href="styles/base.css?v=4">
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="styles/base.css?v=5">
     <link rel="stylesheet" href="styles/sekki-backgrounds.css?v=3">
     <link rel="stylesheet" href="styles/animations.css?v=3">
     <link rel="stylesheet" href="styles/components.css?v=3">
-    <link rel="stylesheet" href="styles/fitness.css?v=10">
-    <link rel="stylesheet" href="styles/fitness-calendar.css?v=5">
 </head>
 <body>
     <div id="backgroundSeason" class="min-h-screen bg-summer gradient-animation transition-all duration-1000 relative">
         <!-- 季節のアニメーション -->
         <div id="seasonAnimation" class="season-animation"></div>
-        
-        <!-- スマホ用 UI 表示トグル（常に前面） -->
-        <button id="uiVisibilityToggle" class="fixed top-3 right-3 z-20 px-3 py-2 rounded-full text-xs font-medium bg-white/30 text-gray-800 backdrop-blur shadow hover:bg-white/40 transition sm:hidden" aria-label="UI表示切替">
-            全画面
-        </button>
 
-        <div id="contentContainer" class="max-w-2xl mx-auto px-4 py-4 relative z-10 transition-opacity duration-500">
+        <div id="contentContainer" class="max-w-2xl mx-auto px-4 py-8 relative z-10 transition-opacity duration-500">
             <!-- 節気ヘッダー -->
-            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
-                
+            <div class="washi-card rounded-2xl p-6 sm:p-8 mb-6 animate-fadeInUp">
                 <div class="text-center mb-4">
-                    <h1 class="text-3xl sm:text-5xl font-bold text-gray-800 mb-2 sekki-title">
+                    <h1 class="text-4xl sm:text-6xl font-bold text-gray-800 mb-3 sekki-title">
                         <span id="currentSekki"></span>
                     </h1>
-                    <div class="text-base sm:text-lg text-gray-700 mb-1">
+                    <div class="text-lg sm:text-xl text-gray-700 mb-2">
                         <span id="sekkiDate"></span>
                     </div>
-                    <div id="nextSekkiInfo" class="text-sm text-gray-600"></div>
-                    
-                    <div id="sunTimeSection" class="mt-3 flex items-center justify-center gap-4 text-sm text-gray-700">
+                    <div id="nextSekkiInfo" class="text-base text-gray-600"></div>
+
+                    <div id="sunTimeSection" class="mt-4 flex items-center justify-center gap-6 text-base text-gray-700">
                         <div>
                             <span>🌅 日の出:</span>
                             <span id="sunriseTime" class="font-semibold">--:--</span>
@@ -59,271 +51,37 @@
                             <span id="sunsetTime" class="font-semibold">--:--</span>
                         </div>
                     </div>
+
                     <!-- 今日の日付を大きく表示 -->
-                    <div class="mt-4">
+                    <div class="mt-6">
                         <div class="text-sm text-gray-600" id="todayDateYear"></div>
-                        <div class="text-3xl sm:text-4xl font-bold text-gray-800" id="todayDateFull"></div>
-                        <div class="text-base text-gray-600" id="todayDateDay"></div>
+                        <div class="text-4xl sm:text-5xl font-bold text-gray-800" id="todayDateFull"></div>
+                        <div class="text-lg text-gray-600" id="todayDateDay"></div>
                     </div>
                 </div>
-                
-                
-                <!-- 日付選択・カレンダーは廃止 -->
             </div>
 
-            
             <!-- 節気の説明 -->
-            <div class="washi-card rounded-2xl p-4 sm:p-6 mb-4 animate-fadeInUp">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 text-center">二十四節気</h3>
-                <div class="text-center mb-3">
-                    <span id="sekkiDetailName" class="text-xl sm:text-2xl font-bold text-gray-800 sekki-title"></span>
-                    <div id="sekkiDetailDate" class="text-xs sm:text-sm text-gray-600 mt-1"></div>
+            <div class="washi-card rounded-2xl p-6 sm:p-8 mb-6 animate-fadeInUp">
+                <h3 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 text-center">二十四節気について</h3>
+                <div class="text-center mb-4">
+                    <span id="sekkiDetailName" class="text-2xl sm:text-3xl font-bold text-gray-800 sekki-title"></span>
+                    <div id="sekkiDetailDate" class="text-sm sm:text-base text-gray-600 mt-2"></div>
                 </div>
-                <p id="sekkiDescription" class="text-sm sm:text-base text-gray-700 leading-relaxed mb-4"></p>
-                <div class="border-t border-gray-200 pt-3">
-                    <p class="text-xs sm:text-sm text-gray-600 text-center mb-2">今年の二十四節気</p>
-                    <div id="yearSekkiList" class="grid grid-cols-3 sm:grid-cols-4 gap-1 sm:gap-2 text-xs sm:text-sm sekki-grid"></div>
-                </div>
-            </div>
-
-            <!-- フィットネス（ホームに統合） -->
-            <div class="fitness-future-card rounded-3xl mb-4 animate-fadeInUp" id="fitnessWidget">
-                <!-- ヘッダー部分 -->
-                <div class="fitness-header">
-                    <div class="flex items-center gap-3">
-                        <div class="fitness-icon-container">
-                            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-white">FITNESS TRACKER</h3>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <a href="fitness.html" id="wOpen" class="fitness-link-btn" aria-label="フィットネス専用ページ" title="フィットネス専用ページ">専用</a>
-                        <button id="wToggle" class="fitness-toggle-btn" aria-label="入力を表示" title="入力を表示">
-                            <!-- プラス（閉） -->
-                            <svg class="w-5 h-5 icon-plus" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12M6 12h12"></path>
-                            </svg>
-                            <!-- マイナス（開） -->
-                            <svg class="w-5 h-5 icon-minus hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 種目選択部分（常に表示） -->
-                <div class="sport-selector-container">
-                    <div class="sport-cards-grid">
-                        <button id="sportRun" class="sport-card" data-sport="run">
-                            <div class="sport-icon run-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                    <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <span class="sport-label">ラン</span>
-                            <div class="sport-glow run-glow"></div>
-                        </button>
-                        <button id="sportWalk" class="sport-card" data-sport="walk">
-                            <div class="sport-icon walk-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                    <path d="M8 4v16M8 4c-2 0-4 2-4 4s2 4 4 4m0-8c2 0 4 2 4 4s-2 4-4 4m8-12v16m0-16c-2 0-4 2-4 4s2 4 4 4m0-8c2 0 4 2 4 4s-2 4-4 4" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <span class="sport-label">ウォーク</span>
-                            <div class="sport-glow walk-glow"></div>
-                        </button>
-                        <button id="sportCycle" class="sport-card" data-sport="cycle">
-                            <div class="sport-icon cycle-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                    <circle cx="7" cy="17" r="3"/>
-                                    <circle cx="17" cy="17" r="3"/>
-                                    <path d="M5 17h2m10 0h2M7 17l5-7 5 7M12 10V3" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                            <span class="sport-label">サイクル</span>
-                            <div class="sport-glow cycle-glow"></div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 入力フォーム部分 -->
-                <div id="wForm" class="hidden fitness-form-container">
-                    <!-- 非表示のセレクト（フォールバック） -->
-                    <select id="wType" class="hidden">
-                        <option value="run">run</option>
-                        <option value="walk">walk</option>
-                        <option value="cycle">cycle</option>
-                    </select>
-
-                    <!-- 入力群（未来的デザイン） -->
-                    <div class="future-section-label">DISTANCE & TIME</div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <div class="future-input-group">
-                          <label class="future-label">距離</label>
-                          <div class="future-input-wrapper">
-                            <input id="wDistance" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00" class="future-input" />
-                            <span class="future-unit">km</span>
-                          </div>
-                          <div class="future-quick-buttons">
-                            <button id="wPlus1Km" class="future-quick-btn">+1</button>
-                            <button id="wPlus05Km" class="future-quick-btn">+0.5</button>
-                          </div>
-                        </div>
-                        <div class="future-input-group">
-                          <label class="future-label">時間</label>
-                          <div class="future-input-wrapper" style="margin-bottom:0.5rem">
-                            <input id="wMinutes" type="number" inputmode="numeric" step="1" min="0" placeholder="0" class="future-input" />
-                            <span class="future-unit">min</span>
-                          </div>
-                          <div class="future-input-wrapper">
-                            <input id="wSeconds" type="number" inputmode="numeric" step="1" min="0" max="59" placeholder="0" class="future-input" />
-                            <span class="future-unit">sec</span>
-                          </div>
-                          <div class="future-quick-buttons">
-                            <button id="wPlus10Min" class="future-quick-btn">+10</button>
-                            <button id="wPlus5Min" class="future-quick-btn">+5</button>
-                          </div>
-                        </div>
-                    </div>
-                    <div class="future-section-label">DATE & TIME</div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <div class="future-input-group">
-                          <label class="future-label">日付</label>
-                          <input id="wDate" type="date" class="future-input-date" />
-                        </div>
-                        <div class="future-input-group">
-                          <label class="future-label">開始時刻</label>
-                          <input id="wTime" type="time" class="future-input-date" />
-                        </div>
-                    </div>
-                    <div class="future-section-label">MEMO</div>
-                    <div class="grid grid-cols-1 gap-3">
-                        <div class="future-input-group">
-                          <input id="wNote" type="text" class="future-input-memo" placeholder="体感や天候、コースなど" />
-                        </div>
-                        <div class="future-action-buttons">
-                          <button id="wRecall" class="future-recall-btn">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                            </svg>
-                            <span>直近を再入力</span>
-                          </button>
-                          <button id="wEditCancel" class="future-recall-btn hidden">編集をキャンセル</button>
-                          <button id="wSave" class="future-save-btn">
-                            <span class="save-text">SAVE DATA</span>
-                            <div class="save-pulse"></div>
-                          </button>
-                        </div>
-                    </div>
-                    <div id="wResult" class="future-result-message"></div>
-                </div>
-
-                <!-- ダッシュボード（未来的デザイン） -->
-                <div class="future-dashboard">
-                    <!-- レベルと経験値 -->
-                    <div class="future-level-container">
-                        <div class="future-level-header">
-                            <span class="future-level-label">LEVEL</span>
-                            <span id="wLevel" class="future-level-value">1</span>
-                        </div>
-                        <div class="future-xp-bar-container">
-                            <div class="future-xp-bar">
-                                <div id="wXpBar" class="future-xp-progress" style="width:0%"></div>
-                            </div>
-                            <div id="wXpText" class="future-xp-text">0 / 150 XP</div>
-                        </div>
-                    </div>
-                    
-                    <!-- 統計カード -->
-                    <div class="future-stats-grid">
-                        <div class="future-stat-card">
-                            <div class="future-stat-icon">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                </svg>
-                            </div>
-                            <div class="future-stat-info">
-                                <div class="future-stat-label">総距離</div>
-                                <div id="wWeighted" class="future-stat-value">0.00 km</div>
-                            </div>
-                        </div>
-                        <div class="future-stat-card">
-                            <div class="future-stat-icon">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                            <div class="future-stat-info">
-                                <div class="future-stat-label">連続</div>
-                                <div id="wStreak" class="future-stat-value">0 日</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- アクティビティ別統計 -->
-                    <div class="future-activity-stats">
-                        <div class="future-activity-card run-card">
-                            <div class="future-activity-label">RUN</div>
-                            <div id="wRunKm" class="future-activity-value">0.00 km</div>
-                        </div>
-                        <div class="future-activity-card walk-card">
-                            <div class="future-activity-label">WALK</div>
-                            <div id="wWalkKm" class="future-activity-value">0.00 km</div>
-                        </div>
-                        <div class="future-activity-card cycle-card">
-                            <div class="future-activity-label">CYCLE</div>
-                            <div id="wCycleKm" class="future-activity-value">0.00 km</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- カレンダー（未来的デザイン） -->
-                <div class="future-calendar-section">
-                    <div class="future-calendar-header">
-                        <div class="future-calendar-title">ACTIVITY HISTORY</div>
-                        <div class="future-calendar-nav">
-                            <button id="wCalPrev" class="future-nav-btn">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                                </svg>
-                            </button>
-                            <div id="wCalMonthLabel" class="future-month-label"></div>
-                            <button id="wCalNext" class="future-nav-btn">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="wCalendarGrid" class="future-calendar-grid"></div>
-                    <div id="wCalSummary" class="future-calendar-summary"></div>
-                    <div id="wDayDetail" class="future-day-detail"></div>
-                </div>
-
-                <!-- 次の目標 -->
-                <div class="future-targets-section">
-                    <div class="future-targets-title">NEXT ACHIEVEMENTS</div>
-                    <div id="wNextTargets" class="future-targets-list"></div>
+                <p id="sekkiDescription" class="text-base sm:text-lg text-gray-700 leading-relaxed mb-6"></p>
+                <div class="border-t border-gray-200 pt-4">
+                    <p class="text-sm sm:text-base text-gray-600 text-center mb-3">今年の二十四節気</p>
+                    <div id="yearSekkiList" class="grid grid-cols-3 sm:grid-cols-4 gap-2 text-sm sm:text-base sekki-grid"></div>
                 </div>
             </div>
         </div>
-
     </div>
-    
-    
-    <!-- カスタムカレンダーは廃止 -->
 
-
-    <!-- JavaScript Files with cache busting -->
+    <!-- JavaScript Files -->
     <script src="js/data/sekki-data.js?v=3"></script>
     <script src="js/animations/seasonal-animations.js?v=3"></script>
-    <script src="js/fitness-data.js?v=1"></script>
-    <script type="module" src="js/fitness-core.js?v=2"></script>
-    <script type="module" src="js/app-simple.js?v=1"></script>
-    <script type="module" src="js/fitness-widget.js?v=3"></script>
-    
+    <script type="module" src="js/app-simple.js?v=2"></script>
+
     <script>
         // アプリケーションの初期化
         document.addEventListener('DOMContentLoaded', function() {
