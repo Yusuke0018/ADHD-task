@@ -100,19 +100,24 @@
 **A. Video Live Wallpaper** 🌟一番おすすめ
 - 開発者：Naing Group
 - 特徴：シンプルで使いやすい、日本語対応、無料
-- Google Play検索：「Video Live Wallpaper」（緑色のアイコン）
-- パッケージ名：`com.naing.vlivewallpaper`
+- アイコン：緑色
+- **ダウンロード**: [Google Playで開く](https://play.google.com/store/apps/details?id=com.naing.vlivewallpaper)
+- または検索：「Video Live Wallpaper」
 
 **B. KLWP Live Wallpaper Maker**
 - 開発者：Kustom Industries
 - 特徴：高機能、カスタマイズ性が高い
-- Google Play検索：「KLWP」（青いKのアイコン）
+- アイコン：青いK
+- **ダウンロード**: [Google Playで開く](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)
+- または検索：「KLWP」
 - ※こちらは設定が複雑（方法1参照）
 
 **C. Web Live Wallpaper**
 - 開発者：Karol Lassak
 - 特徴：軽量、シンプル
-- Google Play検索：「Web Live Wallpaper」（地球のアイコン）
+- アイコン：地球のマーク
+- **ダウンロード**: Google Playで「Web Live Wallpaper Karol Lassak」を検索
+- または検索：「Web Live Wallpaper」
 
 ---
 
@@ -236,6 +241,11 @@
 
 **おすすめの選び方**：
 
+**直接ダウンロード**（推奨）：
+- 🌟 [Video Live Wallpaper をダウンロード](https://play.google.com/store/apps/details?id=com.naing.vlivewallpaper)（一番おすすめ）
+- または [KLWP をダウンロード](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)
+
+**自分で検索する場合**：
 1. **Google Play Storeで検索**：
    - 検索ワード：「Video Live Wallpaper」
    - 開発者名：「Naing Group」を確認
@@ -252,7 +262,7 @@
    - 「Web Live Wallpaper」（Karol Lassak、地球のアイコン）
    - 「KLWP」（Kustom Industries、青いKのアイコン）
 
-**迷ったら**：このガイドの最初の比較表を見て、アイコンの色と開発者名で確認してください。
+**迷ったら**：上の直接ダウンロードリンクをタップすれば間違いありません！
 
 ### 壁紙が表示されない
 
@@ -313,10 +323,14 @@
 ## ❓ よくある質問
 
 **Q: どのアプリを選べばいいですか？たくさんあって分かりません**
-A: **Video Live Wallpaper（Naing Group、緑のアイコン）**が一番簡単でおすすめです。Play Storeで検索する際は、開発者名とアイコンの色を確認してください。
+A: **Video Live Wallpaper（Naing Group、緑のアイコン）**が一番簡単でおすすめです。
+直接ダウンロード：[こちらをタップ](https://play.google.com/store/apps/details?id=com.naing.vlivewallpaper)
 
 **Q: Video Live Wallpaperが見つかりません**
-A: 代わりに「Web Live Wallpaper」（Karol Lassak、地球のアイコン）または「KLWP」（Kustom Industries、青いKのアイコン）を使ってください。設定方法は本ガイドに記載されています。
+A: 以下の代替案を試してください：
+- [KLWP](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)（Kustom Industries、青いKのアイコン）
+- 「Web Live Wallpaper」（Karol Lassak、地球のアイコン）をGoogle Playで検索
+設定方法は本ガイドに記載されています。
 
 **Q: 無料で使えますか？**
 A: はい、紹介しているアプリはすべて無料で使えます（KLWPは無料版で十分です）。
