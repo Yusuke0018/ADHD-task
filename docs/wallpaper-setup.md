@@ -6,18 +6,17 @@
 
 | 方法 | アプリ | 難易度 | 推奨度 | 特徴 |
 |------|--------|--------|--------|------|
-| **方法2-A** | Video Live Wallpaper | ⭐ 超簡単 | ⭐⭐⭐ 最推奨 | 3分で完了、日本語対応 |
-| **方法2-B** | Web Live Wallpaper | ⭐ 簡単 | ⭐⭐⭐ 推奨 | 軽量、シンプル |
-| **方法1** | KLWP | ⭐⭐ やや複雑 | ⭐⭐ カスタマイズしたい人向け | 高機能、細かい調整可能 |
+| **方法1** | KLWP | ⭐⭐ やや複雑 | ⭐⭐⭐ 最推奨 | 確実に動作、高機能 |
+| **方法2** | その他の簡単なアプリ | ⭐ 簡単 | ⭐⭐ 見つかれば | シンプルだが、探す必要あり |
 | **方法3** | ローカルファイル | ⭐⭐⭐ 上級者向け | ⭐ オフライン必須なら | ネット不要、ファイル管理必要 |
 
-**🌟 初めての方は「Video Live Wallpaper」（方法2-A）を強くおすすめします！**
+**🌟 確実に使いたい方は「KLWP」（方法1）をおすすめします！**
 
-### どのアプリを選ぶか迷ったら
+### どの方法を選ぶか迷ったら
 
-1. **一番簡単に使いたい** → Video Live Wallpaper（緑のアイコン）
-2. **軽量なアプリが良い** → Web Live Wallpaper（地球のアイコン）
-3. **細かくカスタマイズしたい** → KLWP（青いKのアイコン）
+1. **確実に動作するアプリが良い** → KLWP（青いKのアイコン）
+2. **もっと簡単なアプリを探したい** → 方法2で検索してみる
+3. **オフラインで使いたい** → 方法3のローカルファイル
 
 ---
 
@@ -97,83 +96,53 @@
 
 #### 📱 推奨アプリ（どれか1つを選択）
 
-**A. Video Live Wallpaper** 🌟一番おすすめ
-- 開発者：Naing Group
-- 特徴：シンプルで使いやすい、日本語対応、無料
-- アイコン：緑色
-- **ダウンロード**: [Google Playで開く](https://play.google.com/store/apps/details?id=com.naing.vlivewallpaper)
-- または検索：「Video Live Wallpaper」
-
-**B. KLWP Live Wallpaper Maker**
+**方法A: KLWP Live Wallpaper Maker** 🌟最も確実
 - 開発者：Kustom Industries
-- 特徴：高機能、カスタマイズ性が高い
+- 特徴：高機能、世界中で人気、確実に動作
 - アイコン：青いK
 - **ダウンロード**: [Google Playで開く](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)
 - または検索：「KLWP」
-- ※こちらは設定が複雑（方法1参照）
+- ※設定方法は下の「方法1」を参照（少し複雑ですが確実です）
 
-**C. Web Live Wallpaper**
-- 開発者：Karol Lassak
-- 特徴：軽量、シンプル
-- アイコン：地球のマーク
-- **ダウンロード**: Google Playで「Web Live Wallpaper Karol Lassak」を検索
-- または検索：「Web Live Wallpaper」
+**方法B: 簡単なアプリを探す**
+Google Play Storeで以下を検索して、レビューの良いものを選んでください：
+- 「live wallpaper webpage」
+- 「web wallpaper」
+- 「html wallpaper」
 
----
-
-#### 手順（Video Live Wallpaper を使う場合・5分で完了）：
-
-1. **アプリをインストール**
-   - Google Play Storeを開く
-   - 「Video Live Wallpaper」で検索
-   - **Naing Group** 制作のアプリをインストール（緑色のアイコン）
-
-2. **アプリを開く**
-   - Video Live Wallpaperアプリを開く
-   - 「URL」タブまたは「Webpage」タブを選択
-
-3. **URLを入力**
-   - 「Enter URL」または「Website URL」の欄をタップ
-   - 以下のURLをコピー&ペーストで入力：
-     ```
-     https://yusuke0018.github.io/ADHD-task/wallpaper.html
-     ```
-   - 「OK」または「Load」をタップ
-
-4. **プレビューを確認**
-   - 画面にアニメーションが表示されればOK
-   - 節気名が表示されているか確認
-
-5. **壁紙を適用**
-   - 下部の「Set as Wallpaper」または「Apply」ボタンをタップ
-   - 「Home screen」または「Home screen and lock screen」を選択
-   - 完了！
-
-**この方法が一番簡単です！** 3分で設定完了します。
+探すポイント：
+- ⭐ レビュー評価が4.0以上
+- ダウンロード数が1万以上
+- 「WebView」または「Website」機能があると説明に書いてある
+- 最近更新されている（1年以内）
 
 ---
 
-#### 手順（Web Live Wallpaper を使う場合）：
+#### 手順（簡単な壁紙アプリを使う場合）：
+
+もしKLWP以外の簡単なアプリを見つけた場合、一般的な設定手順：
 
 1. **アプリをインストール**
-   - Google Play Storeで「Web Live Wallpaper」を検索
-   - **Karol Lassak** 制作のアプリをインストール（地球のアイコン）
+   - Google Play Storeで「live wallpaper webpage」などで検索
+   - レビューの良いアプリを選んでインストール
 
-2. **URLを設定**
+2. **URLを入力**
    - アプリを開く
-   - 「URL」欄に以下を入力：
+   - 「URL」や「Website」の欄に以下を入力：
      ```
      https://yusuke0018.github.io/ADHD-task/wallpaper.html
      ```
 
-3. **設定を調整**
-   - 「Enable JavaScript」→ ON（必須！）
-   - 「Refresh」→ OFF
-   - 「Touch Events」→ OFF
+3. **重要な設定（必ず確認）**
+   - ✅ **「Enable JavaScript」を ON** にする（アニメーションに必須！）
+   - 「Auto Refresh」や「Reload」は OFF
+   - 「Touch Events」は OFF（誤操作防止）
 
 4. **壁紙を適用**
-   - 「Set Wallpaper」をタップ
+   - 「Set as Wallpaper」または「Apply」ボタンをタップ
    - 完了！
+
+💡 **アプリが見つからない場合は、確実に動作するKLWP（方法1）をおすすめします。**
 
 ---
 
@@ -239,30 +208,28 @@
 
 ### どのアプリを使えばいいかわからない・アプリがたくさんある
 
-**おすすめの選び方**：
+**確実な方法**：
 
-**直接ダウンロード**（推奨）：
-- 🌟 [Video Live Wallpaper をダウンロード](https://play.google.com/store/apps/details?id=com.naing.vlivewallpaper)（一番おすすめ）
-- または [KLWP をダウンロード](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)
+**🌟 KLWP を使う**（最も確実）：
+- [KLWP をダウンロード](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)
+- 開発者：Kustom Industries
+- アイコン：青いK
+- 世界中で使われている定番アプリ
+- 設定は少し複雑ですが、このガイドの「方法1」に詳しい手順があります
 
-**自分で検索する場合**：
-1. **Google Play Storeで検索**：
-   - 検索ワード：「Video Live Wallpaper」
-   - 開発者名：「Naing Group」を確認
-   - アイコン：緑色のアイコン
-   - ダウンロード数：100万以上
+**簡単なアプリを探す場合**：
+Google Play Storeで以下を検索：
+1. 「live wallpaper webpage」
+2. 「web wallpaper」
+3. 「html wallpaper」
 
-2. **見分け方のポイント**：
-   - アプリ名が正確に一致しているか
-   - 開発者名を必ず確認
-   - レビュー数が多いものを選ぶ
-   - アイコンの色で判断
+選ぶポイント：
+- ⭐ レビュー評価が4.0以上
+- ダウンロード数が1万以上
+- 説明に「WebView」または「Website」機能があると書いてある
+- 最近更新されている（1年以内）
 
-3. **代替案**：
-   - 「Web Live Wallpaper」（Karol Lassak、地球のアイコン）
-   - 「KLWP」（Kustom Industries、青いKのアイコン）
-
-**迷ったら**：上の直接ダウンロードリンクをタップすれば間違いありません！
+**重要**: アプリを見つけたら、必ず「Enable JavaScript」を ON にしてください！
 
 ### 壁紙が表示されない
 
@@ -323,14 +290,14 @@
 ## ❓ よくある質問
 
 **Q: どのアプリを選べばいいですか？たくさんあって分かりません**
-A: **Video Live Wallpaper（Naing Group、緑のアイコン）**が一番簡単でおすすめです。
-直接ダウンロード：[こちらをタップ](https://play.google.com/store/apps/details?id=com.naing.vlivewallpaper)
+A: **KLWP（Kustom Industries、青いKのアイコン）**が最も確実です。
+直接ダウンロード：[こちらをタップ](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)
+設定は少し複雑ですが、このガイドの「方法1」に詳しい手順があります。
 
-**Q: Video Live Wallpaperが見つかりません**
-A: 以下の代替案を試してください：
-- [KLWP](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)（Kustom Industries、青いKのアイコン）
-- 「Web Live Wallpaper」（Karol Lassak、地球のアイコン）をGoogle Playで検索
-設定方法は本ガイドに記載されています。
+**Q: もっと簡単なアプリはありませんか？**
+A: Google Play Storeで「live wallpaper webpage」などで検索してみてください。
+レビュー評価が高く（4.0以上）、ダウンロード数が多いアプリを選んでください。
+ただし、KLWPが最も確実に動作します。
 
 **Q: 無料で使えますか？**
 A: はい、紹介しているアプリはすべて無料で使えます（KLWPは無料版で十分です）。

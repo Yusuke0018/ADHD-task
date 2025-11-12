@@ -35,17 +35,17 @@
 
 詳しい設定方法は [壁紙設定ガイド](docs/wallpaper-setup.md) をご覧ください。
 
-**クイックスタート**（3分で完了）：
-1. **推奨アプリをインストール**（どれか1つ）
-   - 🌟 [Video Live Wallpaper](https://play.google.com/store/apps/details?id=com.naing.vlivewallpaper)（Naing Group、緑のアイコン）**最推奨**
-   - または [KLWP](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)（Kustom Industries、青いKのアイコン）
-   - または「Web Live Wallpaper」（Karol Lassak、地球のアイコン）をGoogle Playで検索
+**クイックスタート**：
+1. **推奨アプリをインストール**
+   - 🌟 [KLWP](https://play.google.com/store/apps/details?id=org.kustom.wallpaper)（最も確実）
+   - または Google Playで「live wallpaper webpage」を検索して評価の高いアプリを選ぶ
 2. **URLを設定**
    - `https://yusuke0018.github.io/ADHD-task/wallpaper.html`
-3. **壁紙として適用**
+3. **重要**: 「Enable JavaScript」を ON にする
+4. **壁紙として適用**
    - 「Set as Wallpaper」をタップ
 
-💡 **初めての方は「Video Live Wallpaper」が一番簡単です！**
+💡 **詳しい設定方法は [壁紙設定ガイド](docs/wallpaper-setup.md) をご覧ください**
 
 ## 構成
 
