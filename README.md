@@ -10,6 +10,7 @@
 - 日の出/日の入り（Open-Meteo API）
 - PWA対応（オフライン可）
 - シンプルで見やすいデザイン
+- **Android壁紙対応**：`wallpaper.html` で節気アニメーションを壁紙に設定可能
 
 ## 技術スタック
 
@@ -18,7 +19,9 @@
 - Canvasアニメーション（`requestAnimationFrame`）
 - Service Worker キャッシュ
 
-## 使い方（ローカル）
+## 使い方
+
+### ウェブアプリとして使う（ローカル）
 
 1. 起動
    - `cd ADHD-task`
@@ -28,11 +31,21 @@
 3. 反映されない場合（PWAキャッシュ）
    - Shift+再読み込み または Service Worker の更新/登録解除
 
+### Android壁紙として使う
+
+詳しい設定方法は [壁紙設定ガイド](docs/wallpaper-setup.md) をご覧ください。
+
+**クイックスタート**：
+1. ライブ壁紙アプリ（KLWP推奨）をインストール
+2. `wallpaper.html` のURLを設定
+3. 壁紙として適用
+
 ## 構成
 
 ```
 ADHD-task/
-├── index.html
+├── index.html                         # メインアプリ
+├── wallpaper.html                     # Android壁紙用（節気名+アニメのみ）
 ├── js/
 │   ├── app-simple.js                  # アプリ本体
 │   ├── sunTimeAPI.js                  # 日の出/入り取得
@@ -43,6 +56,8 @@ ADHD-task/
 │   ├── sekki-backgrounds.css
 │   ├── animations.css
 │   └── components.css
+├── docs/
+│   └── wallpaper-setup.md            # Android壁紙設定ガイド
 ├── manifest.json
 └── service-worker.js
 ```
