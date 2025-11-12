@@ -35,10 +35,17 @@
 
 詳しい設定方法は [壁紙設定ガイド](docs/wallpaper-setup.md) をご覧ください。
 
-**クイックスタート**：
-1. ライブ壁紙アプリ（KLWP推奨）をインストール
-2. `wallpaper.html` のURLを設定
-3. 壁紙として適用
+**クイックスタート**（3分で完了）：
+1. **推奨アプリをインストール**
+   - 「Video Live Wallpaper」（Naing Group、緑のアイコン）🌟最推奨
+   - または「Web Live Wallpaper」（Karol Lassak、地球のアイコン）
+   - または「KLWP」（Kustom Industries、青いKのアイコン）
+2. **URLを設定**
+   - `https://yusuke0018.github.io/ADHD-task/wallpaper.html`
+3. **壁紙として適用**
+   - 「Set as Wallpaper」をタップ
+
+💡 **初めての方は「Video Live Wallpaper」が一番簡単です！**
 
 ## 構成
 

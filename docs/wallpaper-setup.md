@@ -4,13 +4,20 @@
 
 ## 🎯 どの方法を選ぶべき？
 
-| 方法 | 難易度 | 推奨度 | 特徴 |
-|------|--------|--------|------|
-| **WebView Live Wallpaper** | ⭐ 簡単 | ⭐⭐⭐ 初心者推奨 | 5分で設定完了、シンプル |
-| **KLWP** | ⭐⭐ やや複雑 | ⭐⭐ カスタマイズしたい人向け | 高機能、細かい調整可能 |
-| **ローカルファイル** | ⭐⭐⭐ 上級者向け | ⭐ オフライン必須なら | ネット不要、ファイル管理必要 |
+| 方法 | アプリ | 難易度 | 推奨度 | 特徴 |
+|------|--------|--------|--------|------|
+| **方法2-A** | Video Live Wallpaper | ⭐ 超簡単 | ⭐⭐⭐ 最推奨 | 3分で完了、日本語対応 |
+| **方法2-B** | Web Live Wallpaper | ⭐ 簡単 | ⭐⭐⭐ 推奨 | 軽量、シンプル |
+| **方法1** | KLWP | ⭐⭐ やや複雑 | ⭐⭐ カスタマイズしたい人向け | 高機能、細かい調整可能 |
+| **方法3** | ローカルファイル | ⭐⭐⭐ 上級者向け | ⭐ オフライン必須なら | ネット不要、ファイル管理必要 |
 
-**初めての方は「WebView Live Wallpaper」（方法2）がおすすめです！**
+**🌟 初めての方は「Video Live Wallpaper」（方法2-A）を強くおすすめします！**
+
+### どのアプリを選ぶか迷ったら
+
+1. **一番簡単に使いたい** → Video Live Wallpaper（緑のアイコン）
+2. **軽量なアプリが良い** → Web Live Wallpaper（地球のアイコン）
+3. **細かくカスタマイズしたい** → KLWP（青いKのアイコン）
 
 ---
 
@@ -82,41 +89,86 @@
 
 ---
 
-### 方法2: WebView Live Wallpaper を使用 ⭐簡単
+### 方法2: 専用アプリを使用 ⭐最も簡単
 
-**最も簡単な方法！** シンプルで軽量、初心者におすすめです。
+**最も簡単な方法！** 初心者に強くおすすめです。
 
-#### 手順（5分で完了）：
+以下のいずれかのアプリを使用してください：
+
+#### 📱 推奨アプリ（どれか1つを選択）
+
+**A. Video Live Wallpaper** 🌟一番おすすめ
+- 開発者：Naing Group
+- 特徴：シンプルで使いやすい、日本語対応、無料
+- Google Play検索：「Video Live Wallpaper」（緑色のアイコン）
+- パッケージ名：`com.naing.vlivewallpaper`
+
+**B. KLWP Live Wallpaper Maker**
+- 開発者：Kustom Industries
+- 特徴：高機能、カスタマイズ性が高い
+- Google Play検索：「KLWP」（青いKのアイコン）
+- ※こちらは設定が複雑（方法1参照）
+
+**C. Web Live Wallpaper**
+- 開発者：Karol Lassak
+- 特徴：軽量、シンプル
+- Google Play検索：「Web Live Wallpaper」（地球のアイコン）
+
+---
+
+#### 手順（Video Live Wallpaper を使う場合・5分で完了）：
 
 1. **アプリをインストール**
    - Google Play Storeを開く
-   - 「WebView Live Wallpaper」を検索
-   - インストールをタップ（無料）
+   - 「Video Live Wallpaper」で検索
+   - **Naing Group** 制作のアプリをインストール（緑色のアイコン）
 
-2. **アプリを開いて設定**
-   - WebView Live Wallpaperアプリを開く
-   - メイン画面が表示されます
+2. **アプリを開く**
+   - Video Live Wallpaperアプリを開く
+   - 「URL」タブまたは「Webpage」タブを選択
 
 3. **URLを入力**
-   - 「Website URL」の欄をタップ
-   - 以下のURLを入力：
+   - 「Enter URL」または「Website URL」の欄をタップ
+   - 以下のURLをコピー&ペーストで入力：
      ```
      https://yusuke0018.github.io/ADHD-task/wallpaper.html
      ```
-   - 入力したら「OK」をタップ
+   - 「OK」または「Load」をタップ
 
-4. **設定を調整（推奨）**
-   - 「Reload interval」→「Never」（自動更新しない）
-   - 「Enable JavaScript」→ ON にする（重要！アニメーションに必要）
-   - 「Enable touch events」→ OFF（誤操作防止）
-   - 「Scrollbars」→ OFF（スクロールバー非表示）
+4. **プレビューを確認**
+   - 画面にアニメーションが表示されればOK
+   - 節気名が表示されているか確認
 
 5. **壁紙を適用**
-   - 下部の「Set Wallpaper」ボタンをタップ
+   - 下部の「Set as Wallpaper」または「Apply」ボタンをタップ
    - 「Home screen」または「Home screen and lock screen」を選択
    - 完了！
 
-**この方法が一番簡単です！** KLWPより操作が少なく、すぐに設定できます。
+**この方法が一番簡単です！** 3分で設定完了します。
+
+---
+
+#### 手順（Web Live Wallpaper を使う場合）：
+
+1. **アプリをインストール**
+   - Google Play Storeで「Web Live Wallpaper」を検索
+   - **Karol Lassak** 制作のアプリをインストール（地球のアイコン）
+
+2. **URLを設定**
+   - アプリを開く
+   - 「URL」欄に以下を入力：
+     ```
+     https://yusuke0018.github.io/ADHD-task/wallpaper.html
+     ```
+
+3. **設定を調整**
+   - 「Enable JavaScript」→ ON（必須！）
+   - 「Refresh」→ OFF
+   - 「Touch Events」→ OFF
+
+4. **壁紙を適用**
+   - 「Set Wallpaper」をタップ
+   - 完了！
 
 ---
 
@@ -180,6 +232,28 @@
 
 ## 🔧 トラブルシューティング
 
+### どのアプリを使えばいいかわからない・アプリがたくさんある
+
+**おすすめの選び方**：
+
+1. **Google Play Storeで検索**：
+   - 検索ワード：「Video Live Wallpaper」
+   - 開発者名：「Naing Group」を確認
+   - アイコン：緑色のアイコン
+   - ダウンロード数：100万以上
+
+2. **見分け方のポイント**：
+   - アプリ名が正確に一致しているか
+   - 開発者名を必ず確認
+   - レビュー数が多いものを選ぶ
+   - アイコンの色で判断
+
+3. **代替案**：
+   - 「Web Live Wallpaper」（Karol Lassak、地球のアイコン）
+   - 「KLWP」（Kustom Industries、青いKのアイコン）
+
+**迷ったら**：このガイドの最初の比較表を見て、アイコンの色と開発者名で確認してください。
+
 ### 壁紙が表示されない
 
 - **まずブラウザで確認**：スマホのChromeで `wallpaper.html` のURLを開いて、正しく表示されるか確認
@@ -238,14 +312,23 @@
 
 ## ❓ よくある質問
 
+**Q: どのアプリを選べばいいですか？たくさんあって分かりません**
+A: **Video Live Wallpaper（Naing Group、緑のアイコン）**が一番簡単でおすすめです。Play Storeで検索する際は、開発者名とアイコンの色を確認してください。
+
+**Q: Video Live Wallpaperが見つかりません**
+A: 代わりに「Web Live Wallpaper」（Karol Lassak、地球のアイコン）または「KLWP」（Kustom Industries、青いKのアイコン）を使ってください。設定方法は本ガイドに記載されています。
+
+**Q: 無料で使えますか？**
+A: はい、紹介しているアプリはすべて無料で使えます（KLWPは無料版で十分です）。
+
 **Q: GitHub Pagesで公開されていない場合は？**
-A: ローカルファイル方式（方法3）を使用してください。
+A: ローカルファイル方式（方法3）を使用してください。ファイルをスマホに保存してローカルパスを指定します。
 
 **Q: 他の壁紙アプリでも使えますか？**
-A: WebViewをサポートしているライブ壁紙アプリであれば使用可能です。
+A: はい、WebViewをサポートしているライブ壁紙アプリであれば使用可能です。
 
 **Q: iPhoneでも使えますか？**
-A: iOSではライブ壁紙の制限が厳しく、この方法は使えません。アプリとして開く形になります。
+A: 残念ながら、iOSではライブ壁紙の制限が厳しく、この方法は使えません。Safariでウェブアプリとして開く形になります。
 
 ---
 
