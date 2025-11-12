@@ -1,10 +1,2 @@
 branch: main
 latest: 3631faf
-staged diffstat:
-M	.codex/logs/2025-11-12T10-16-08+0900_fullscreen_revert.log
-A	.codex/logs/2025-11-12T10-35-23+0900_add_weather.log
-M	README.md
-M	index.html
-M	js/app-simple.js
-A	js/weatherAPI.js
-push: success

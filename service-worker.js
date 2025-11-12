@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sekki-simple-v2';
+const CACHE_NAME = 'sekki-simple-v1';
 const urlsToCache = [
   './',
   './index.html',
@@ -9,7 +9,6 @@ const urlsToCache = [
   './styles/components.css',
   './js/app-simple.js',
   './js/sunTimeAPI.js',
-  './js/weatherAPI.js',
   './js/data/sekki-data.js',
   './js/animations/seasonal-animations.js'
 ];

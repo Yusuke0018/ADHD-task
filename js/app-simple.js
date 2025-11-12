@@ -1,5 +1,5 @@
 import { fetchSunTime } from './sunTimeAPI.js';
-import { fetchTennojiWeather, fetchTennojiWeeklyForecast, weatherCodeToEmoji } from './weatherAPI.js';
+import { fetchTennojiWeather, weatherCodeToEmoji } from './weatherAPI.js';
 
 const app = {
     selectedDate: (() => {
@@ -12,7 +12,6 @@ const app = {
         this.updateSekki();
         this.updateSunTimeDisplay();
         this.updateWeatherDisplay();
-        this.updateWeeklyWeatherDisplay();
         
         // 今日の日付を表示
         requestAnimationFrame(() => this.updateTodayDisplay());
@@ -187,35 +186,6 @@ const app = {
         const min = weather.minTemp != null ? Math.round(weather.minTemp) : null;
         const max = weather.maxTemp != null ? Math.round(weather.maxTemp) : null;
         rangeEl.textContent = (min != null && max != null) ? `最高 ${max}℃ / 最低 ${min}℃` : '—';
-    },
-
-    async updateWeeklyWeatherDisplay() {
-        const listEl = document.getElementById('weeklyWeatherList');
-        if (!listEl) return;
-        const data = await fetchTennojiWeeklyForecast(7);
-        if (!data) {
-            listEl.innerHTML = '<div class="col-span-4 sm:col-span-7 text-center text-gray-500">取得失敗</div>';
-            return;
-        }
-        const weekdays = ['日','月','火','水','木','金','土'];
-        const items = data.map(d => {
-            const date = new Date(d.date + 'T00:00:00+09:00');
-            const md = `${date.getMonth()+1}/${date.getDate()}`;
-            const w = weekdays[date.getDay()];
-            const icon = weatherCodeToEmoji(d.code);
-            const max = d.max != null ? Math.round(d.max) : '—';
-            const min = d.min != null ? Math.round(d.min) : '—';
-            const pop = d.pop != null ? `${d.pop}%` : '—';
-            return `
-              <div class="rounded-lg bg-white/60 backdrop-blur-sm border border-gray-200 p-2 text-center">
-                <div class="text-xs text-gray-600">${md} (${w})</div>
-                <div class="text-xl" aria-hidden="true">${icon}</div>
-                <div class="text-xs text-gray-600">${d.desc}</div>
-                <div class="mt-1 text-sm"><span class="font-semibold">${max}℃</span> / <span class="text-gray-600">${min}℃</span></div>
-                <div class="text-xs text-blue-600">降水確率 ${pop}</div>
-              </div>`;
-        }).join('');
-        listEl.innerHTML = items;
     },
     
     // カレンダー/日付変更機能はシンプル版では未使用のため削除
