@@ -62,14 +62,7 @@ button svg {
     opacity: 0; /* 非テキスト要素（アイコン）は完全透過 */
 }
 
-/* モバイルでUIを隠してアニメを強調 */
-body.ui-hidden #contentContainer {
-    opacity: 0;
-    pointer-events: none;
-}
-body.ui-hidden #uiVisibilityToggle {
-    background: rgba(255,255,255,0.4);
-}
+/* UI自動非表示仕様は廃止（関連スタイルを削除） */
 
 /* 和紙風カード */
 .washi-card {

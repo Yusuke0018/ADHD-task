@@ -19,36 +19,10 @@ const app = {
             if (!document.hidden) this.updateTodayDisplay();
         });
 
-        // モバイルのUI可視状態設定
-        this.setupUIVisibilityToggle();
+        // UIは常に表示（フルスクリーン的な自動非表示は廃止）
     },
 
-    setupUIVisibilityToggle() {
-        const toggle = document.getElementById('uiVisibilityToggle');
-        const isMobile = window.matchMedia('(max-width: 640px)').matches;
-
-        const setHidden = (hidden) => {
-            document.body.classList.toggle('ui-hidden', hidden);
-            localStorage.setItem('uiHidden', hidden ? '1' : '0');
-            if (toggle) toggle.textContent = hidden ? '表示' : '全画面';
-        };
-
-        // 既存の設定を適用
-        const saved = localStorage.getItem('uiHidden');
-        if (saved === '1') setHidden(true);
-
-        // 初回のモバイルは少し見せてから自動で隠す
-        if (isMobile && saved === null) {
-            setTimeout(() => setHidden(true), 2000);
-        }
-
-        if (toggle) {
-            toggle.addEventListener('click', () => {
-                const hidden = !document.body.classList.contains('ui-hidden');
-                setHidden(hidden);
-            });
-        }
-    },
+    // UIの可視制御ロジックは撤去しました
 
     updateSekki() {
         const now = new Date();

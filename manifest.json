@@ -3,7 +3,7 @@
   "short_name": "二十四節気",
   "description": "季節の移ろいを感じる二十四節気表示アプリ",
   "start_url": "./",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#ffffff",
   "theme_color": "#1f2937",
   "orientation": "portrait",
